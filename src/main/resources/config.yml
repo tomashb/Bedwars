@@ -1,0 +1,10 @@
+lobby-world: world
+countdown-seconds: 20
+max-team-size: 4
+teams-enabled: [RED, BLUE, GREEN, YELLOW]
+generators:
+  IRON: { interval: 20, amount: 1 }
+  GOLD: { interval: 120, amount: 1 }
+  DIAMOND: { interval: 600, amount: 1 }
+  EMERALD: { interval: 1200, amount: 1 }
+block-protection: true
