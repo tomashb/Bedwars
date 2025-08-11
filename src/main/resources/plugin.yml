@@ -1,0 +1,17 @@
+name: Bedwars
+main: com.example.bedwars.BedwarsPlugin
+version: 0.2.0
+api-version: '1.20'
+author: You
+description: BedWars FR GUI (non-affilié Hypixel)
+commands:
+  bw:
+    description: Menu BedWars + commandes
+    usage: /bw
+permissions:
+  bedwars.admin:
+    description: Admin BedWars
+    default: op
+  bedwars.join:
+    description: Rejoindre une arène
+    default: true
