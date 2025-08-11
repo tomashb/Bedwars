@@ -1,0 +1,20 @@
+prefix: "&6[BedWars]&r "
+arena:
+  created: "&aArène &e{arena}&a créée."
+  saved: "&aArène &e{arena}&a sauvegardée."
+  started: "&aLa partie &e{arena}&a commence !"
+  stopped: "&cLa partie &e{arena}&c est arrêtée."
+  join: "&aVous avez rejoint &e{arena}&a."
+  leave: "&eVous avez quitté l'arène."
+team:
+  bed_destroyed: "&cLe lit de l'équipe &e{team}&c a été détruit par &e{player}&c !"
+error:
+  no_arena: "&cAucune arène avec ce nom."
+  not_admin: "&cVous n'avez pas la permission."
+  usage: "&eUtilisation: {usage}"
+shop:
+  not_enough: "&cPas assez de ressources."
+  bought: "&aAchat: &e{item}"
+start:
+  countdown: "&eLa partie démarre dans &c{seconds}s"
+  go: "&aGO!"
