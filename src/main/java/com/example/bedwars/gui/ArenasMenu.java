@@ -25,10 +25,10 @@ public class ArenasMenu implements BWMenu {
     @Override
     public void open(Player player, Object... args) {
         String title = ChatColor.translateAlternateColorCodes('&',
-                String.valueOf(plugin.getMessages().get("admin.menu.arenas")));
+                String.valueOf(plugin.messages().get("admin.menu.arenas")));
         Inventory inv = Bukkit.createInventory(new BWMenuHolder(AdminView.ARENAS, null), 54, title);
         int slot = 0;
-        for (String arenaId : plugin.getArenaManager().getArenas().keySet()) {
+        for (String arenaId : plugin.arenas().getArenas().keySet()) {
             if (slot >= 53) {
                 break;
             }

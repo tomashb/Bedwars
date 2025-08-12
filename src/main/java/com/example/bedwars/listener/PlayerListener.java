@@ -19,6 +19,6 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        plugin.getArenaManager().leaveArena(event.getPlayer());
+        plugin.arenas().leaveArena(event.getPlayer());
     }
 }

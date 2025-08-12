@@ -1,6 +1,6 @@
 name: Bedwars
 main: com.example.bedwars.BedwarsPlugin
-version: 0.2.2
+version: 0.2.3
 api-version: '1.21'
 commands:
   bw:

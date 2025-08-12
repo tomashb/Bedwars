@@ -28,16 +28,16 @@ public class RootMenu implements BWMenu {
     @Override
     public void open(Player player, Object... args) {
         String title = ChatColor.translateAlternateColorCodes('&',
-                String.valueOf(plugin.getMessages().get("admin.menu-title")));
+                String.valueOf(plugin.messages().get("admin.menu-title")));
         Inventory inv = Bukkit.createInventory(new BWMenuHolder(AdminView.ROOT, null), 54, title);
-        inv.setItem(10, icon(Material.MAP, plugin.getMessages().get("admin.menu.arenas"), null));
-        inv.setItem(12, icon(Material.LIME_WOOL, plugin.getMessages().get("admin.menu.create"), null));
-        inv.setItem(14, icon(Material.ANVIL, plugin.getMessages().get("admin.menu.rules"), null));
-        inv.setItem(16, icon(Material.ARMOR_STAND, plugin.getMessages().get("admin.menu.npc"), null));
-        inv.setItem(28, icon(Material.ENDER_PEARL, plugin.getMessages().get("admin.menu.rotation"), null));
-        inv.setItem(30, icon(Material.TNT, plugin.getMessages().get("admin.menu.reset"), plugin.getMessages().get("admin.menu.reset-lore")));
-        inv.setItem(32, icon(Material.COMPARATOR, plugin.getMessages().get("admin.menu.diagnostics"), plugin.getMessages().get("admin.menu.diagnostics-lore")));
-        inv.setItem(34, icon(Material.PAPER, plugin.getMessages().get("admin.menu.info"), plugin.getMessages().get("admin.menu.info-lore")));
+        inv.setItem(10, icon(Material.MAP, plugin.messages().get("admin.menu.arenas"), null));
+        inv.setItem(12, icon(Material.LIME_WOOL, plugin.messages().get("admin.menu.create"), null));
+        inv.setItem(14, icon(Material.ANVIL, plugin.messages().get("admin.menu.rules"), null));
+        inv.setItem(16, icon(Material.ARMOR_STAND, plugin.messages().get("admin.menu.npc"), null));
+        inv.setItem(28, icon(Material.ENDER_PEARL, plugin.messages().get("admin.menu.rotation"), null));
+        inv.setItem(30, icon(Material.TNT, plugin.messages().get("admin.menu.reset"), plugin.messages().get("admin.menu.reset-lore")));
+        inv.setItem(32, icon(Material.COMPARATOR, plugin.messages().get("admin.menu.diagnostics"), plugin.messages().get("admin.menu.diagnostics-lore")));
+        inv.setItem(34, icon(Material.PAPER, plugin.messages().get("admin.menu.info"), plugin.messages().get("admin.menu.info-lore")));
         player.openInventory(inv);
     }
 

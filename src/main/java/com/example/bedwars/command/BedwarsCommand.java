@@ -25,49 +25,49 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(plugin.getMessages().get("command.player-only"));
+            sender.sendMessage(plugin.messages().get("command.player-only"));
             return true;
         }
 
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            player.sendMessage(plugin.getMessages().get("command.help.list"));
-            player.sendMessage(plugin.getMessages().get("command.help.join"));
-            player.sendMessage(plugin.getMessages().get("command.help.leave"));
+            player.sendMessage(plugin.messages().get("command.help.list"));
+            player.sendMessage(plugin.messages().get("command.help.join"));
+            player.sendMessage(plugin.messages().get("command.help.leave"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "menu", "admin", "setup" -> {
                 if (!player.hasPermission("bedwars.admin")) {
-                    player.sendMessage(plugin.getMessages().get("error.not_admin"));
+                    player.sendMessage(plugin.messages().get("error.not_admin"));
                     return true;
                 }
-                  plugin.getMenuManager().openRoot(player);
+                  plugin.menus().openRoot(player);
                 return true;
             }
             case "list" -> {
-                String arenas = String.join(", ", plugin.getArenaManager().getArenas().keySet());
-                player.sendMessage(plugin.getMessages().get("command.list", Map.of("arenas", arenas)));
+                String arenas = String.join(", ", plugin.arenas().getArenas().keySet());
+                player.sendMessage(plugin.messages().get("command.list", Map.of("arenas", arenas)));
                 return true;
             }
             case "join" -> {
                 if (args.length < 2) {
-                    player.sendMessage(plugin.getMessages().get("command.join-usage"));
+                    player.sendMessage(plugin.messages().get("command.join-usage"));
                     return true;
                 }
                 if (!player.hasPermission("bedwars.join")) {
-                    player.sendMessage(plugin.getMessages().get("error.not_admin"));
+                    player.sendMessage(plugin.messages().get("error.not_admin"));
                     return true;
                 }
-                plugin.getArenaManager().joinArena(player, args[1]);
+                plugin.arenas().joinArena(player, args[1]);
                 return true;
             }
             case "leave" -> {
-                plugin.getArenaManager().leaveArena(player);
+                plugin.arenas().leaveArena(player);
                 return true;
             }
             default -> {
-                player.sendMessage(plugin.getMessages().get("command.unknown"));
+                player.sendMessage(plugin.messages().get("command.unknown"));
                 return true;
             }
         }
@@ -87,7 +87,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             return base;
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("join")) {
-            return new java.util.ArrayList<>(plugin.getArenaManager().getArenas().keySet());
+            return new java.util.ArrayList<>(plugin.arenas().getArenas().keySet());
         }
         return java.util.Collections.emptyList();
     }

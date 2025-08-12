@@ -25,10 +25,10 @@ public class ResetMenu implements BWMenu {
     @Override
     public void open(Player player, Object... args) {
         String title = ChatColor.translateAlternateColorCodes('&',
-                String.valueOf(plugin.getMessages().get("admin.reset-title")));
+                String.valueOf(plugin.messages().get("admin.reset-title")));
         Inventory inv = Bukkit.createInventory(new BWMenuHolder(AdminView.RESET, null), 27, title);
-        inv.setItem(26, icon(Material.BARRIER, plugin.getMessages().get("admin.menu.info"),
-                plugin.getMessages().get("admin.menu.info-lore")));
+        inv.setItem(26, icon(Material.BARRIER, plugin.messages().get("admin.menu.info"),
+                plugin.messages().get("admin.menu.info-lore")));
         player.openInventory(inv);
     }
 

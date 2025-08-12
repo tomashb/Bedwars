@@ -59,20 +59,20 @@ public class Arena {
 
     public void addPlayer(Player player) {
         players.add(player.getUniqueId());
-        player.sendMessage(plugin.getMessages().get("arena.join", Map.of("arena", name)));
+        player.sendMessage(plugin.messages().get("arena.join", Map.of("arena", name)));
         if (state == GameState.WAITING && players.size() >= 2) {
             startCountdown();
         }
-        plugin.getScoreboardManager().update(this);
+        plugin.scoreboards().update(this);
     }
 
     public void removePlayer(Player player) {
         players.remove(player.getUniqueId());
-        player.sendMessage(plugin.getMessages().get("arena.leave", Map.of("arena", name)));
+        player.sendMessage(plugin.messages().get("arena.leave", Map.of("arena", name)));
         if (players.isEmpty() && state != GameState.WAITING) {
             reset();
         }
-        plugin.getScoreboardManager().update(this);
+        plugin.scoreboards().update(this);
     }
 
     private void startCountdown() {
@@ -82,12 +82,12 @@ public class Arena {
             public void run() {
                 if (countdown <= 0) {
                     state = GameState.RUNNING;
-                    broadcast(plugin.getMessages().get("arena.started", Map.of("arena", name)));
-                    plugin.getGeneratorManager().onArenaStart(name);
+                    broadcast(plugin.messages().get("arena.started", Map.of("arena", name)));
+                    plugin.generators().onArenaStart(name);
                     cancel();
                     return;
                 }
-                broadcast(plugin.getMessages().get("start.countdown", Map.of("seconds", String.valueOf(countdown))));
+                broadcast(plugin.messages().get("start.countdown", Map.of("seconds", String.valueOf(countdown))));
                 countdown--;
             }
         }.runTaskTimer(plugin, 0L, 20L);

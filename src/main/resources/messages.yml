@@ -1,10 +1,56 @@
-menu:
-  title-root: "&cBedWars Admin"
-  root:
-    arenas: "&aArenas"
-    create-arena: "&bCreate Arena"
-    rules-events: "&eRules & Events"
-    npc-shops: "&dNPC & Shops"
+prefix: "&8[&cBedWars&8]&r "
+
+command:
+  player-only: "Commande réservée aux joueurs."
+  help:
+    list: "&e/bw list &7- liste les arènes"
+    join: "&e/bw join <arène> &7- rejoindre"
+    leave: "&e/bw leave &7- quitter"
+  list: "&aArènes: {arenas}"
+  join-usage: "&cUsage: /bw join <arène>"
+  unknown: "&cCommande inconnue."
+
+error:
+  not_admin: "&cVous n'avez pas la permission."
+  no_arena: "&cArène introuvable."
+  no_world: "&cMonde {world} introuvable."
+  usage: "&cUsage: {usage}"
+
+arena:
+  join: "&aVous avez rejoint {arena}."
+  leave: "&eVous avez quitté {arena}."
+  started: "&aLa partie commence dans {arena}!"
+  created: "&aArène {arena} créée."
+  exists: "&cL'arène {arena} existe déjà."
+  deleted: "&eArène {arena} supprimée."
+  events_enabled: "&aÉvénements activés pour {arena}."
+  events_disabled: "&eÉvénements désactivés pour {arena}."
+
+start:
+  countdown: "&eDépart dans {seconds}s"
+
+debug:
+  header: "&6Diagnostic de {arena}"
+  state: "&7État: &f{state}"
+  players: "&7Joueurs: &f{count}"
+  events: "&7Événements: &f{status}"
+
+maintenance:
+  cleaned: "&aNettoyage de {arena}: {count} entités retirées."
+
+admin:
+  menu-title: "&cBedWars Admin"
+  reset-title: "&cReset"
+  diagnostics-title: "&cDiagnostics"
+  menu:
+    arenas: "&aArènes"
+    create: "&bCréer Arène"
+    rules: "&eRègles & Événements"
+    npc: "&dPNJ & Boutiques"
     rotation: "&6Rotation"
     reset: "&cReset"
+    reset-lore: "&7Réinitialiser"
     diagnostics: "&7Diagnostics"
+    diagnostics-lore: "&7Infos techniques"
+    info: "&7Infos"
+    info-lore: "&7Infos du plugin"
