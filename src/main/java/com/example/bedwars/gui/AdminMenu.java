@@ -2,6 +2,7 @@ package com.example.bedwars.gui;
 
 import com.example.bedwars.BedwarsPlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -43,7 +44,7 @@ public class AdminMenu {
         ItemStack it = new ItemStack(mat);
         ItemMeta meta = it.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
             it.setItemMeta(meta);
         }
         return it;
