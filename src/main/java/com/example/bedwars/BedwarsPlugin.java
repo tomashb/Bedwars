@@ -1,11 +1,12 @@
 package com.example.bedwars;
 
 import com.example.bedwars.arena.ArenaManager;
-import com.example.bedwars.command.BedwarsCommand;
 import com.example.bedwars.command.AdminCommand;
+import com.example.bedwars.command.BedwarsCommand;
+import com.example.bedwars.gui.AdminMenu;
 import com.example.bedwars.listener.PlayerListener;
 import com.example.bedwars.util.MessageManager;
-import com.example.bedwars.gui.AdminMenu;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -19,6 +20,7 @@ public class BedwarsPlugin extends JavaPlugin {
     private ArenaManager arenaManager;
     private MessageManager messageManager;
     private AdminMenu adminMenu;
+    private NamespacedKey arenaKey;
 
     @Override
     public void onEnable() {
@@ -26,6 +28,7 @@ public class BedwarsPlugin extends JavaPlugin {
         this.messageManager = new MessageManager(this);
         this.arenaManager = new ArenaManager(this);
         this.adminMenu = new AdminMenu(this);
+        this.arenaKey = new NamespacedKey(this, "bw_arena");
 
         // Register command executors
         getCommand("bw").setExecutor(new BedwarsCommand(this));
@@ -47,5 +50,16 @@ public class BedwarsPlugin extends JavaPlugin {
 
     public AdminMenu getAdminMenu() {
         return adminMenu;
+    }
+
+    /**
+     * Namespaced key used to tag entities belonging to a specific arena.
+     * This key enables maintenance routines such as cleanup to locate
+     * plugin-created entities safely.
+     *
+     * @return NamespacedKey for arena tags
+     */
+    public NamespacedKey getArenaKey() {
+        return arenaKey;
     }
 }

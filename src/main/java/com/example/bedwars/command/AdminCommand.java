@@ -7,6 +7,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +38,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin <arena|game> ...")));
+            sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin <arena|game|debug|maintenance> ...")));
             return true;
         }
 
@@ -112,6 +115,43 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     return true;
                 });
             }
+            case "debug" -> {
+                if (args.length < 3 || !args[1].equalsIgnoreCase("status")) {
+                    sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin debug status <arena>")));
+                    return true;
+                }
+                return plugin.getArenaManager().getArena(args[2]).map(arena -> {
+                    sender.sendMessage(plugin.getMessages().get("debug.header", Map.of("arena", arena.getName())));
+                    sender.sendMessage(plugin.getMessages().get("debug.state", Map.of("state", arena.getState().name())));
+                    sender.sendMessage(plugin.getMessages().get("debug.players", Map.of("count", String.valueOf(arena.getPlayerCount()))));
+                    sender.sendMessage(plugin.getMessages().get("debug.events", Map.of("status", arena.isEventsEnabled() ? "on" : "off")));
+                    return true;
+                }).orElseGet(() -> {
+                    sender.sendMessage(plugin.getMessages().get("error.no_arena"));
+                    return true;
+                });
+            }
+            case "maintenance" -> {
+                if (args.length < 3 || !args[1].equalsIgnoreCase("cleanup")) {
+                    sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin maintenance cleanup <arena>")));
+                    return true;
+                }
+                int removed = 0;
+                for (World world : Bukkit.getWorlds()) {
+                    for (Entity entity : world.getEntities()) {
+                        if (entity instanceof Player player) {
+                            continue; // never remove players
+                        }
+                        String tag = entity.getPersistentDataContainer().get(plugin.getArenaKey(), PersistentDataType.STRING);
+                        if (tag != null && tag.equalsIgnoreCase(args[2])) {
+                            entity.remove();
+                            removed++;
+                        }
+                    }
+                }
+                sender.sendMessage(plugin.getMessages().get("maintenance.cleaned", Map.of("arena", args[2], "count", String.valueOf(removed))));
+                return true;
+            }
             default -> {
                 sender.sendMessage(plugin.getMessages().get("command.unknown"));
                 return true;
@@ -125,17 +165,25 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             return Collections.emptyList();
         }
         if (args.length == 1) {
-            return List.of("arena", "game");
+            return List.of("arena", "game", "debug", "maintenance");
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("arena")) {
                 return List.of("create", "delete", "list");
             } else if (args[0].equalsIgnoreCase("game")) {
                 return List.of("events");
+            } else if (args[0].equalsIgnoreCase("debug")) {
+                return List.of("status");
+            } else if (args[0].equalsIgnoreCase("maintenance")) {
+                return List.of("cleanup");
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("arena") && args[1].equalsIgnoreCase("delete")) {
                 return new ArrayList<>(plugin.getArenaManager().getArenas().keySet());
             } else if (args[0].equalsIgnoreCase("game") && args[1].equalsIgnoreCase("events")) {
+                return new ArrayList<>(plugin.getArenaManager().getArenas().keySet());
+            } else if (args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("status")) {
+                return new ArrayList<>(plugin.getArenaManager().getArenas().keySet());
+            } else if (args[0].equalsIgnoreCase("maintenance") && args[1].equalsIgnoreCase("cleanup")) {
                 return new ArrayList<>(plugin.getArenaManager().getArenas().keySet());
             }
         } else if (args.length == 4) {

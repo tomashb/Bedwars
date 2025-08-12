@@ -46,6 +46,16 @@ public class Arena {
         this.eventsEnabled = eventsEnabled;
     }
 
+    /**
+     * Returns the number of players currently in the arena.
+     * This is primarily used for simple diagnostics output.
+     *
+     * @return current player count
+     */
+    public int getPlayerCount() {
+        return players.size();
+    }
+
     public void addPlayer(Player player) {
         players.add(player.getUniqueId());
         player.sendMessage(plugin.getMessages().get("arena.join", Map.of("arena", name)));
