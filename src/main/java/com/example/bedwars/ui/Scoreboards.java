@@ -18,6 +18,7 @@ public class Scoreboards {
         Objective o = sb.registerNewObjective("bw","dummy", ChatColor.GOLD+""+ChatColor.BOLD+"BedWars");
         o.setDisplaySlot(DisplaySlot.SIDEBAR);
         int s=8; o.getScore(ChatColor.WHITE+"Arène: "+a.getName()).setScore(s--);
+        // only display teams that are enabled for this arena
         for (TeamColor t : a.getEnabledTeams()){
             String status = a.isBedAlive(t)? "§a✔":"§c✘"; o.getScore(t.chat()+t.display()+ChatColor.WHITE+": "+status).setScore(s--);
         }

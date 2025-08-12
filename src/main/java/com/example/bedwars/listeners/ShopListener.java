@@ -2,6 +2,7 @@ package com.example.bedwars.listeners;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.util.Keys;
+import com.example.bedwars.arena.Arena;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,12 +13,21 @@ import org.bukkit.persistence.PersistentDataType;
 public class ShopListener implements Listener {
     private final BedwarsPlugin plugin;
     public ShopListener(BedwarsPlugin plugin){ this.plugin=plugin; }
-    @EventHandler public void onClick(InventoryClickEvent e){ plugin.shops().handleClick(e); }
+    @EventHandler public void onClick(InventoryClickEvent e){
+        plugin.shops().handleClick(e);
+        plugin.upgrades().handleClick(e);
+    }
     @EventHandler public void onNpcInteract(PlayerInteractEntityEvent e){
         if (!(e.getRightClicked() instanceof Villager v)) return;
         String tag = v.getPersistentDataContainer().get(Keys.NPC, PersistentDataType.STRING);
         if (tag == null) return;
         e.setCancelled(true);
-        plugin.shops().open(e.getPlayer());
+        if (tag.equals("upgrade")){
+            String ar = v.getPersistentDataContainer().get(Keys.ARENA, PersistentDataType.STRING);
+            Arena a = plugin.arenas().get(ar);
+            plugin.upgrades().open(e.getPlayer(), a);
+        } else {
+            plugin.shops().open(e.getPlayer());
+        }
     }
 }

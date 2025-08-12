@@ -4,6 +4,7 @@ import com.example.bedwars.arena.ArenaManager;
 import com.example.bedwars.commands.BwCommand;
 import com.example.bedwars.gen.GeneratorManager;
 import com.example.bedwars.shop.ShopManager;
+import com.example.bedwars.shop.TeamUpgrades;
 import com.example.bedwars.ui.MenuManager;
 import com.example.bedwars.ui.Scoreboards;
 import com.example.bedwars.util.Configs;
@@ -17,6 +18,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     private ArenaManager arenaManager;
     private GeneratorManager generatorManager;
     private ShopManager shopManager;
+    private TeamUpgrades teamUpgrades;
     private Scoreboards scoreboards;
     private MenuManager menus;
 
@@ -31,6 +33,7 @@ public final class BedwarsPlugin extends JavaPlugin {
 
         this.arenaManager = new ArenaManager(this);
         this.shopManager = new ShopManager(this);
+        this.teamUpgrades = new TeamUpgrades(this, arenaManager);
         this.generatorManager = new GeneratorManager(this, arenaManager);
         this.scoreboards = new Scoreboards(this, arenaManager);
         this.menus = new MenuManager(this, arenaManager);
@@ -57,6 +60,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     public ArenaManager arenas() { return arenaManager; }
     public GeneratorManager generators() { return generatorManager; }
     public ShopManager shops() { return shopManager; }
+    public TeamUpgrades upgrades() { return teamUpgrades; }
     public Scoreboards boards() { return scoreboards; }
     public MenuManager menus() { return menus; }
 }

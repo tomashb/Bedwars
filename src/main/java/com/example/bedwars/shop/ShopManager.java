@@ -1,6 +1,8 @@
 package com.example.bedwars.shop;
 
 import com.example.bedwars.BedwarsPlugin;
+import com.example.bedwars.arena.Arena;
+import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.util.C;
 import com.example.bedwars.util.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -54,7 +56,7 @@ public class ShopManager {
             String key = meta.getPersistentDataContainer().get(ItemTemplate.KEY, org.bukkit.persistence.PersistentDataType.STRING); if (key==null) key="";
             ItemTemplate tpl = ItemTemplate.registry.get(key); if (tpl==null) return;
             Player p = (Player)e.getWhoClicked(); if (!tpl.pay(p)){ p.sendMessage(C.msg("shop.not_enough")); return; }
-            tpl.give(p); p.sendMessage(C.msg("shop.bought","item",tpl.name));
+            tpl.give(p, plugin); p.sendMessage(C.msg("shop.bought","item",tpl.name));
         }
     }
 
@@ -72,16 +74,21 @@ public class ShopManager {
 
         final String id; final String name; final Material material; final int amount;
         final Map<Material,Integer> price; final Map<Enchantment,Integer> enchants; final String armorTier;
+        final boolean teamColored;
 
-        ItemTemplate(String id, String name, Material material, int amount, Map<Material,Integer> price, Map<Enchantment,Integer> enchants, String armorTier){
-            this.id=id; this.name=name; this.material=material; this.amount=amount; this.price=price; this.enchants=enchants; this.armorTier=armorTier; registry.put(id,this);
+        ItemTemplate(String id, String name, Material material, int amount, Map<Material,Integer> price, Map<Enchantment,Integer> enchants, String armorTier, boolean teamColored){
+            this.id=id; this.name=name; this.material=material; this.amount=amount; this.price=price; this.enchants=enchants; this.armorTier=armorTier; this.teamColored=teamColored; registry.put(id,this);
         }
 
         @SuppressWarnings("unchecked")
         static ItemTemplate fromMap(Map<?,?> m){
             String name = String.valueOf(m.containsKey("name")? m.get("name"): "Item");
             String id = name.toLowerCase(java.util.Locale.ROOT).replace(" ", "_");
-            Material mat = Material.valueOf(String.valueOf(m.containsKey("material")? m.get("material"): "AIR"));
+            String matName = String.valueOf(m.containsKey("material")? m.get("material"): "AIR");
+            boolean teamColored = Boolean.parseBoolean(String.valueOf(m.getOrDefault("team-colored", false)));
+            Material mat;
+            if ("TEAM_WOOL".equalsIgnoreCase(matName)){ teamColored=true; mat = Material.WHITE_WOOL; }
+            else mat = Material.valueOf(matName);
             Object amountObj = m.containsKey("amount")? m.get("amount"): 1; int amount = (amountObj instanceof Number)? ((Number)amountObj).intValue(): Integer.parseInt(String.valueOf(amountObj));
 
             Map<Material,Integer> price = new java.util.HashMap<>();
@@ -107,7 +114,7 @@ public class ShopManager {
             }
 
             String armorTier = (String)(m.containsKey("armor-tier")? m.get("armor-tier"): null);
-            return new ItemTemplate(id, name, mat, amount, price, ench, armorTier);
+            return new ItemTemplate(id, name, mat, amount, price, ench, armorTier, teamColored);
         }
 
         public ItemStack icon(){
@@ -128,14 +135,27 @@ public class ShopManager {
         private void removeItems(Player p, Material m, int amount){
             int left = amount; for (ItemStack it : p.getInventory().getContents()){ if (it==null||it.getType()!=m) continue; int take=Math.min(left,it.getAmount()); it.setAmount(it.getAmount()-take); left-=take; if (left<=0) break; }
         }
-        public void give(Player p){
+        public void give(Player p, BedwarsPlugin plugin){
             if (armorTier!=null){
                 switch(armorTier){
                     case "CHAINMAIL" -> { p.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS)); p.getInventory().setBoots(new ItemStack(Material.CHAINMAIL_BOOTS)); }
                     case "IRON" -> { p.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS)); p.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS)); }
-                } return;
+                }
+                plugin.upgrades().applyTo(p);
+                return;
             }
-            ItemStack it = new ItemStack(material, amount); for (Map.Entry<Enchantment,Integer> e : enchants.entrySet()) it.addUnsafeEnchantment(e.getKey(), e.getValue()); p.getInventory().addItem(it);
+            Material mat = material;
+            if (teamColored){
+                Arena a = plugin.arenas().arenaOf(p);
+                if (a!=null){
+                    TeamColor t = a.getTeamOf(p.getUniqueId());
+                    if (t!=null) mat = t.wool();
+                }
+            }
+            ItemStack it = new ItemStack(mat, amount);
+            for (Map.Entry<Enchantment,Integer> e : enchants.entrySet()) it.addUnsafeEnchantment(e.getKey(), e.getValue());
+            p.getInventory().addItem(it);
+            plugin.upgrades().applyTo(p);
         }
     }
 }
