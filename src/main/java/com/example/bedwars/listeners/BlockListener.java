@@ -1,10 +1,12 @@
 package com.example.bedwars.listeners;
 
+import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.ArenaManager;
 import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.util.C;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -14,6 +16,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.Set;
 
 public class BlockListener implements Listener {
@@ -29,9 +32,21 @@ public class BlockListener implements Listener {
         if (b.getType().name().endsWith("_BED")){
             TeamColor victim=null;
             for (TeamColor t:TeamColor.values()){ if (a.getBed(t)!=null && a.getBed(t).getBlock().equals(b)){ victim=t; break; } }
-            TeamColor killerTeam = a.getTeamOf(p.getUniqueId()); if (victim==null || killerTeam==null) return;
-            if (victim==killerTeam){ e.setCancelled(true); p.sendMessage(C.color("&cVous ne pouvez pas casser votre propre lit.")); return; }
-            a.setBedAlive(victim,false); e.setDropItems(false); a.broadcast(C.msgRaw("team.bed_destroyed","team",victim.name(),"player",p.getName())); return;
+            TeamColor killerTeam = a.getTeamOf(p.getUniqueId());
+            if (victim==null || killerTeam==null) return;
+            if (victim==killerTeam){
+                e.setCancelled(true);
+                p.sendMessage(C.color("&cVous ne pouvez pas casser votre propre lit."));
+                return;
+            }
+            a.setBedAlive(victim,false);
+            e.setDropItems(false);
+            a.broadcast(C.msgRaw("team.bed_destroyed","team",victim.name(),"player",p.getName()));
+            for (UUID id : a.getAllPlayers()){
+                Player pl = Bukkit.getPlayer(id);
+                if (pl != null) BedwarsPlugin.get().boards().applyTo(pl, a);
+            }
+            return;
         }
         if (b.getType()!=Material.AIR){
             String k=key(b); if (!placed.contains(k)){ e.setCancelled(true); p.sendMessage(C.color("&cCe bloc n'est pas cassable.")); } else placed.remove(k);
