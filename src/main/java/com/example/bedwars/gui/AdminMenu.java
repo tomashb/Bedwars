@@ -30,12 +30,14 @@ public class AdminMenu {
      */
     public void open(Player player) {
         String title = String.valueOf(plugin.getMessages().get("admin.menu-title"));
-        Inventory inv = Bukkit.createInventory(null, 54, title);
+        title = ChatColor.translateAlternateColorCodes('&', title);
+
+        Inventory inv = Bukkit.createInventory(player, 54, title);
         inv.setItem(10, item(Material.MAP, plugin.getMessages().get("admin.menu.arenas")));
         inv.setItem(12, item(Material.LIME_WOOL, plugin.getMessages().get("admin.menu.create")));
-        inv.setItem(14, item(Material.BOOK, plugin.getMessages().get("admin.menu.rules")));
+        inv.setItem(14, item(Material.ANVIL, plugin.getMessages().get("admin.menu.rules")));
         inv.setItem(16, item(Material.ARMOR_STAND, plugin.getMessages().get("admin.menu.npc")));
-        inv.setItem(28, item(Material.REPEATER, plugin.getMessages().get("admin.menu.rotation")));
+        inv.setItem(28, item(Material.ENDER_PEARL, plugin.getMessages().get("admin.menu.rotation")));
         inv.setItem(30, item(Material.REDSTONE_COMPARATOR, plugin.getMessages().get("admin.menu.diagnostics")));
         inv.setItem(32, item(Material.PAPER, plugin.getMessages().get("admin.menu.info")));
         player.openInventory(inv);
@@ -45,7 +47,8 @@ public class AdminMenu {
         ItemStack it = new ItemStack(mat);
         ItemMeta meta = it.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+            String display = ChatColor.translateAlternateColorCodes('&', String.valueOf(name));
+            meta.setDisplayName(display);
             it.setItemMeta(meta);
         }
         return it;
