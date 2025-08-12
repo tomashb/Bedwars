@@ -35,7 +35,9 @@ public final class BedwarsPlugin extends JavaPlugin {
         this.scoreboards = new Scoreboards(this, arenaManager);
         this.menus = new MenuManager(this, arenaManager);
 
-        getCommand("bw").setExecutor(new BwCommand(this, arenaManager, generatorManager, shopManager));
+        BwCommand bw = new BwCommand(this, arenaManager, generatorManager, shopManager);
+        getCommand("bw").setExecutor(bw);
+        getCommand("bw").setTabCompleter(bw);
 
         Bukkit.getPluginManager().registerEvents(new com.example.bedwars.listeners.PlayerListener(this, arenaManager, shopManager), this);
         Bukkit.getPluginManager().registerEvents(new com.example.bedwars.listeners.BlockListener(arenaManager), this);

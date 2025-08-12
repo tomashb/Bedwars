@@ -42,7 +42,8 @@ public class Arena {
     public Location getItemShop(){ return itemShop; } public void setItemShop(Location l){ itemShop=l; }
     public Location getUpgradeShop(){ return upgradeShop; } public void setUpgradeShop(Location l){ upgradeShop=l; }
 
-    public void addPlayer(TeamColor t, Player p){ teamPlayers.get(t).add(p.getUniqueId()); p.teleport(spawns.get(t)); }
+    public void addPlayer(TeamColor t, Player p){ teamPlayers.get(t).add(p.getUniqueId()); }
+    public int getTeamSize(TeamColor t){ return teamPlayers.get(t).size(); }
     public void removePlayer(UUID id){ for (Set<UUID> s : teamPlayers.values()) s.remove(id); }
     public TeamColor getTeamOf(UUID id){ for (var e:teamPlayers.entrySet()) if (e.getValue().contains(id)) return e.getKey(); return null; }
     public Collection<UUID> getAllPlayers(){ Set<UUID> a=new HashSet<>(); for (Set<UUID> s:teamPlayers.values()) a.addAll(s); return a; }

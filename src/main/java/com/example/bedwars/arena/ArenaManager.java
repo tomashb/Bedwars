@@ -121,4 +121,26 @@ public class ArenaManager {
     }
 
     public void shutdown(){ for (Arena a : arenas.values()) save(a); }
+
+    public void startArena(Arena a){
+        if (a==null) return;
+        a.setState(GameState.STARTING);
+        int seconds = plugin.getConfig().getInt("countdown-seconds", 20);
+        a.broadcast(com.example.bedwars.util.C.msgRaw("start.countdown","seconds",seconds));
+        new org.bukkit.scheduler.BukkitRunnable(){
+            int s = seconds;
+            @Override public void run(){
+                s--;
+                if (s<=0){
+                    a.setState(GameState.RUNNING);
+                    a.broadcast(com.example.bedwars.util.C.msg("start.go"));
+                    cancel();
+                    return;
+                }
+                if (s%5==0 || s<=5){
+                    a.broadcast(com.example.bedwars.util.C.msgRaw("start.countdown","seconds",s));
+                }
+            }
+        }.runTaskTimer(plugin,20L,20L);
+    }
 }
