@@ -39,8 +39,19 @@ public class BwCommand implements CommandExecutor, TabCompleter {
                 List<TeamColor> choices = new ArrayList<>();
                 for (TeamColor t:TeamColor.values()) if (a.isTeamEnabled(t) && a.getSpawn(t)!=null) choices.add(t);
                 if (choices.isEmpty()){ p.sendMessage(C.color("&cAucune équipe disponible (spawns non définis).")); return true; }
-                TeamColor team = choices.get((int)(Math.random()*choices.size()));
-                a.addPlayer(team, p); p.sendMessage(C.msg("arena.join","arena",a.getName())); plugin.boards().applyTo(p,a);
+                TeamColor team = choices.stream().min(Comparator.comparingInt(a::getTeamSize)).orElse(choices.get(0));
+                a.addPlayer(team, p);
+                org.bukkit.Location spawn = a.getSpawn(team);
+                if (spawn==null || spawn.getWorld()==null){ p.sendMessage(C.color("&cSpawn invalide pour cette équipe.")); return true; }
+                p.teleport(spawn);
+                p.sendMessage(C.msg("arena.join","arena",a.getName()));
+                plugin.boards().applyTo(p,a);
+                return true;
+            case "start":
+                if (args.length<2){ sender.sendMessage(C.msg("error.usage","usage","/bw start <arena>")); return true; }
+                Arena a2 = arenas.get(args[1]); if (a2==null){ sender.sendMessage(C.msg("error.no_arena")); return true; }
+                arenas.startArena(a2);
+                sender.sendMessage(C.color("&eLancement de l'arène &f"+a2.getName()+"&e."));
                 return true;
             case "leave":
                 if (!(sender instanceof Player p2)) return true;
@@ -51,8 +62,9 @@ public class BwCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override public List<String> onTabComplete(CommandSender s, Command c, String l, String[] a){
-        if (a.length==1) return Arrays.asList("gui","list","join","leave");
-        if (a.length==2 && a[0].equalsIgnoreCase("join")) return arenas.all().stream().map(Arena::getName).collect(Collectors.toList());
+        if (a.length==1) return Arrays.asList("gui","list","join","leave","start");
+        if (a.length==2 && (a[0].equalsIgnoreCase("join") || a[0].equalsIgnoreCase("start")))
+            return arenas.all().stream().map(Arena::getName).collect(Collectors.toList());
         return Collections.emptyList();
     }
 }

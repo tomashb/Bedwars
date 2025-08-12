@@ -24,7 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Random;
 import java.util.UUID;
 
 public class MenuListener implements Listener {
@@ -34,7 +33,6 @@ public class MenuListener implements Listener {
     private final BedwarsPlugin plugin;
     private final ArenaManager arenas;
     private final MenuManager menus;
-    private final Random rnd = new Random();
 
     public MenuListener(BedwarsPlugin plugin, ArenaManager arenas, MenuManager menus) {
         this.plugin = plugin;
@@ -91,8 +89,14 @@ public class MenuListener implements Listener {
                 Arena a = arenas.get(arenaName);
                 if (a == null) { p.sendMessage(C.msg("error.no_arena")); return; }
                 if (a.getState() == GameState.DISABLED) { p.sendMessage(C.color("&cArène désactivée.")); return; }
-                TeamColor team = TeamColor.values()[ rnd.nextInt(TeamColor.values().length) ];
+                java.util.List<TeamColor> choices = new java.util.ArrayList<>();
+                for (TeamColor t:TeamColor.values()) if (a.isTeamEnabled(t) && a.getSpawn(t)!=null) choices.add(t);
+                if (choices.isEmpty()) { p.sendMessage(C.color("&cAucune équipe disponible (spawns non définis).")); return; }
+                TeamColor team = choices.stream().min(java.util.Comparator.comparingInt(a::getTeamSize)).orElse(choices.get(0));
                 a.addPlayer(team, p);
+                org.bukkit.Location spawn = a.getSpawn(team);
+                if (spawn==null || spawn.getWorld()==null){ p.sendMessage(C.color("&cSpawn invalide pour cette équipe.")); return; }
+                p.teleport(spawn);
                 p.sendMessage(C.msg("arena.join", "arena", a.getName()));
                 plugin.boards().applyTo(p, a);
             }
@@ -187,21 +191,7 @@ public class MenuListener implements Listener {
             case "START" -> {
                 Arena a = arenas.get(arenaName);
                 if (a == null) return;
-                a.setState(GameState.STARTING);
-                int seconds = plugin.getConfig().getInt("countdown-seconds", 20);
-                a.broadcast(C.msgRaw("start.countdown", "seconds", seconds));
-                final int[] s = new int[]{seconds};
-                org.bukkit.Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-                    @Override public void run() {
-                        s[0]--;
-                        if (s[0] <= 0) {
-                            a.setState(GameState.RUNNING);
-                            a.broadcast(C.msg("start.go"));
-                        } else if (s[0] % 5 == 0 || s[0] <= 5) {
-                            a.broadcast(C.msgRaw("start.countdown", "seconds", s[0]));
-                        }
-                    }
-                }, 20L, 20L);
+                arenas.startArena(a);
             }
             case "STOP" -> {
                 Arena a = arenas.get(arenaName);
