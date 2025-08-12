@@ -37,7 +37,7 @@ public final class RootMenu {
     inv.setItem(SLOT_GENS,   icon(Material.HOPPER,    "admin.root.generators", "admin.root.generators-lore"));
     inv.setItem(SLOT_ROTATION, icon(Material.COMPASS, "admin.root.rotation",   "admin.root.rotation-lore"));
     inv.setItem(SLOT_RESET,  icon(Material.BARRIER,   "admin.root.reset",      "admin.root.reset-lore"));
-    inv.setItem(SLOT_DIAG,   icon(Material.REDSTONE_COMPARATOR, "admin.root.diagnostics","admin.root.diagnostics-lore"));
+    inv.setItem(SLOT_DIAG,   icon(Material.COMPARATOR, "admin.root.diagnostics","admin.root.diagnostics-lore"));
     inv.setItem(SLOT_INFO,   icon(Material.PAPER,     "admin.root.info",       "admin.root.info-lore"));
     p.openInventory(inv);
   }

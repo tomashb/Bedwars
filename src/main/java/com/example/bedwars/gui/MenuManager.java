@@ -1,32 +1,32 @@
 package com.example.bedwars.gui;
 
 import com.example.bedwars.BedwarsPlugin;
+import com.example.bedwars.gui.placeholders.*;
 import org.bukkit.entity.Player;
 
 public final class MenuManager {
   private final BedwarsPlugin plugin;
   private final RootMenu root;
-  // placeholders :
-  private final placeholders.ArenasMenu arenas;
-  private final placeholders.RulesEventsMenu rules;
-  private final placeholders.NpcShopsMenu shops;
-  private final placeholders.GeneratorsMenu gens;
-  private final placeholders.RotationMenu rotation;
-  private final placeholders.ResetMenu reset;
-  private final placeholders.DiagnosticsMenu diag;
-  private final placeholders.InfoMenu info;
+  private final ArenasMenu arenas;
+  private final RulesEventsMenu rules;
+  private final NpcShopsMenu shops;
+  private final GeneratorsMenu gens;
+  private final RotationMenu rotation;
+  private final ResetMenu reset;
+  private final DiagnosticsMenu diag;
+  private final InfoMenu info;
 
   public MenuManager(BedwarsPlugin plugin) {
     this.plugin = plugin;
     this.root = new RootMenu(plugin);
-    this.arenas = new placeholders.ArenasMenu(plugin);
-    this.rules = new placeholders.RulesEventsMenu(plugin);
-    this.shops = new placeholders.NpcShopsMenu(plugin);
-    this.gens = new placeholders.GeneratorsMenu(plugin);
-    this.rotation = new placeholders.RotationMenu(plugin);
-    this.reset = new placeholders.ResetMenu(plugin);
-    this.diag = new placeholders.DiagnosticsMenu(plugin);
-    this.info = new placeholders.InfoMenu(plugin);
+    this.arenas = new ArenasMenu(plugin);
+    this.rules = new RulesEventsMenu(plugin);
+    this.shops = new NpcShopsMenu(plugin);
+    this.gens = new GeneratorsMenu(plugin);
+    this.rotation = new RotationMenu(plugin);
+    this.reset = new ResetMenu(plugin);
+    this.diag = new DiagnosticsMenu(plugin);
+    this.info = new InfoMenu(plugin);
   }
 
   public void open(AdminView v, Player p, String arenaId) {

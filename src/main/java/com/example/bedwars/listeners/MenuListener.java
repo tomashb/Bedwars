@@ -44,6 +44,10 @@ public final class MenuListener implements Listener {
     }
 
     // Bloquer shift-click, swap, number keys (sécurité UX)
-    if (e.getClick().isShiftClick() || e.getClick() == ClickType.NUMBER_KEY) e.setCancelled(true);
+    if (e.getClick().isShiftClick() ||
+        e.getClick() == ClickType.NUMBER_KEY ||
+        e.getClick() == ClickType.SWAP_OFFHAND) {
+      e.setCancelled(true);
+    }
   }
 }
