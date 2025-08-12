@@ -91,14 +91,15 @@ public class ShopManager {
             else mat = Material.valueOf(matName);
             Object amountObj = m.containsKey("amount")? m.get("amount"): 1; int amount = (amountObj instanceof Number)? ((Number)amountObj).intValue(): Integer.parseInt(String.valueOf(amountObj));
 
-            Map<Material,Integer> price = new java.util.HashMap<>();
-            Object priceObj = m.containsKey("price")? m.get("price"): java.util.Collections.emptyMap();
-            if (priceObj instanceof Map<?,?> pr){
-                for (Map.Entry<?,?> e : pr.entrySet()){
-                    String key = String.valueOf(e.getKey());
-                    Material res = Material.matchMaterial(key + (key.equals("IRON")?"_INGOT": key.equals("GOLD")?"_INGOT":"")); if (res==null) res = Material.matchMaterial(key);
-                    Object val = e.getValue(); int amt = (val instanceof Number)? ((Number)val).intValue(): Integer.parseInt(String.valueOf(val));
-                    if (res!=null) price.put(res, amt);
+            Map<Material, Integer> price = new java.util.HashMap<>();
+            Object rawPrice = m.getOrDefault("price", java.util.Collections.emptyMap());
+            if (rawPrice instanceof Map<?, ?> priceRaw) {
+                for (Map.Entry<?, ?> e : priceRaw.entrySet()) {
+                    Material mat = Material.matchMaterial(String.valueOf(e.getKey()));
+                    Integer val = (e.getValue() instanceof Number)
+                            ? ((Number) e.getValue()).intValue()
+                            : Integer.parseInt(String.valueOf(e.getValue()));
+                    if (mat != null) price.put(mat, val);
                 }
             }
 
