@@ -29,7 +29,8 @@ public class AdminMenu {
      * @param player the player to open the GUI for
      */
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54, plugin.getMessages().get("admin.menu-title"));
+        String title = String.valueOf(plugin.getMessages().get("admin.menu-title"));
+        Inventory inv = Bukkit.createInventory(null, 54, title);
         inv.setItem(10, item(Material.MAP, plugin.getMessages().get("admin.menu.arenas")));
         inv.setItem(12, item(Material.LIME_WOOL, plugin.getMessages().get("admin.menu.create")));
         inv.setItem(14, item(Material.BOOK, plugin.getMessages().get("admin.menu.rules")));

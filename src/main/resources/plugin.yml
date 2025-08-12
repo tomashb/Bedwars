@@ -8,6 +8,7 @@ commands:
   bw:
     description: Menu BedWars + commandes
     usage: /bw
+    permission: bedwars.admin
   bwadmin:
     description: Commandes d'administration BedWars
     usage: /bwadmin
