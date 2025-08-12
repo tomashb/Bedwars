@@ -80,6 +80,7 @@ public class Arena {
                 if (countdown <= 0) {
                     state = GameState.RUNNING;
                     broadcast(plugin.getMessages().get("arena.started", Map.of("arena", name)));
+                    plugin.getGeneratorManager().onArenaStart(name);
                     cancel();
                     return;
                 }

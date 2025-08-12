@@ -7,6 +7,7 @@ import com.example.bedwars.gui.MenuManager;
 import com.example.bedwars.gui.*;
 import com.example.bedwars.listener.PlayerListener;
 import com.example.bedwars.util.MessageManager;
+import com.example.bedwars.generator.GeneratorManager;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,6 +22,7 @@ public class BedwarsPlugin extends JavaPlugin {
     private ArenaManager arenaManager;
     private MessageManager messageManager;
     private MenuManager menuManager;
+    private GeneratorManager generatorManager;
     private NamespacedKey arenaKey;
 
     @Override
@@ -29,6 +31,7 @@ public class BedwarsPlugin extends JavaPlugin {
         this.messageManager = new MessageManager(this);
         this.arenaManager = new ArenaManager(this);
         this.menuManager = new MenuManager(this);
+        this.generatorManager = new GeneratorManager(this);
         // Register menus
         menuManager.register(new RootMenu(this));
         menuManager.register(new ArenasMenu(this));
@@ -63,6 +66,10 @@ public class BedwarsPlugin extends JavaPlugin {
 
     public MenuManager getMenuManager() {
         return menuManager;
+    }
+
+    public GeneratorManager getGeneratorManager() {
+        return generatorManager;
     }
 
     /**
