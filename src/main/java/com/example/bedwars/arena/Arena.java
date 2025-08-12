@@ -1,83 +1,84 @@
 package com.example.bedwars.arena;
 
-import com.example.bedwars.gen.Generator;
+import com.example.bedwars.BedwarsPlugin;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
+/**
+ * Simplified arena model. Only handles joining, leaving and a very
+ * small state machine. Real gameplay such as generators or shops is
+ * intentionally left out for brevity.
+ */
 public class Arena {
+
     private final String name;
-    private final String worldName;
-    private GameState state = GameState.DISABLED;
+    private final Set<UUID> players = new HashSet<>();
+    private final BedwarsPlugin plugin;
+    private GameState state = GameState.WAITING;
+    private int countdown = 10; // seconds
 
-    private Location lobby;
-    private final Map<TeamColor, Location> spawns = new EnumMap<>(TeamColor.class);
-    private final Map<TeamColor, Location> beds = new EnumMap<>(TeamColor.class);
-    private final Map<TeamColor, Boolean> bedAlive = new EnumMap<>(TeamColor.class);
-    private final Map<TeamColor, Set<UUID>> teamPlayers = new EnumMap<>(TeamColor.class);
-    private final Set<TeamColor> enabledTeams = new HashSet<>();
+    public Arena(BedwarsPlugin plugin, String name) {
+        this.plugin = plugin;
+        this.name = name;
+    }
 
-    // team upgrades
-    private final Map<TeamColor, Integer> sharpness = new EnumMap<>(TeamColor.class);
-    private final Map<TeamColor, Integer> armor = new EnumMap<>(TeamColor.class);
-    private final Map<TeamColor, Integer> miner = new EnumMap<>(TeamColor.class);
-    private final Map<TeamColor, Boolean> heal = new EnumMap<>(TeamColor.class);
+    public String getName() {
+        return name;
+    }
 
-    private final List<Generator> generators = new ArrayList<>();
-    private Location itemShop, upgradeShop;
+    public GameState getState() {
+        return state;
+    }
 
-    public Arena(String name, String worldName) {
-        this.name = name; this.worldName = worldName;
-        for (TeamColor t : TeamColor.values()) {
-            bedAlive.put(t, true);
-            teamPlayers.put(t, new HashSet<>());
-            sharpness.put(t, 0);
-            armor.put(t, 0);
-            miner.put(t, 0);
-            heal.put(t, false);
+    public void addPlayer(Player player) {
+        players.add(player.getUniqueId());
+        player.sendMessage("§aVous avez rejoint l'arène " + name);
+        if (state == GameState.WAITING && players.size() >= 2) {
+            startCountdown();
         }
     }
 
-    public String getName(){ return name; } public String getWorldName(){ return worldName; }
-    public World getWorld(){ return Bukkit.getWorld(worldName); }
-    public GameState getState(){ return state; } public void setState(GameState s){ state=s; }
+    public void removePlayer(Player player) {
+        players.remove(player.getUniqueId());
+        player.sendMessage("§cVous avez quitté l'arène " + name);
+        if (players.isEmpty() && state != GameState.WAITING) {
+            reset();
+        }
+    }
 
-    public Location getLobby(){ return lobby; } public void setLobby(Location l){ lobby=l; }
-    public void setSpawn(TeamColor c, Location l){ spawns.put(c,l); } public Location getSpawn(TeamColor c){ return spawns.get(c); }
-    public void setBed(TeamColor c, Location l){ beds.put(c,l); } public Location getBed(TeamColor c){ return beds.get(c); }
-    public boolean isBedAlive(TeamColor c){ return bedAlive.getOrDefault(c,true); } public void setBedAlive(TeamColor c, boolean b){ bedAlive.put(c,b); }
+    private void startCountdown() {
+        state = GameState.STARTING;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (countdown <= 0) {
+                    state = GameState.RUNNING;
+                    broadcast("§aDébut de la partie!");
+                    cancel();
+                    return;
+                }
+                broadcast("§eLa partie démarre dans " + countdown + "s");
+                countdown--;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
+    }
 
-    public Location getItemShop(){ return itemShop; } public void setItemShop(Location l){ itemShop=l; }
-    public Location getUpgradeShop(){ return upgradeShop; } public void setUpgradeShop(Location l){ upgradeShop=l; }
+    private void reset() {
+        state = GameState.WAITING;
+        countdown = 10;
+    }
 
-    public void addPlayer(TeamColor t, Player p){ teamPlayers.get(t).add(p.getUniqueId()); }
-    public int getTeamSize(TeamColor t){ return teamPlayers.get(t).size(); }
-    public void removePlayer(UUID id){ for (Set<UUID> s : teamPlayers.values()) s.remove(id); }
-    public TeamColor getTeamOf(UUID id){ for (var e:teamPlayers.entrySet()) if (e.getValue().contains(id)) return e.getKey(); return null; }
-    public Collection<UUID> getAllPlayers(){ Set<UUID> a=new HashSet<>(); for (Set<UUID> s:teamPlayers.values()) a.addAll(s); return a; }
-    public Set<UUID> getTeamPlayers(TeamColor t){ return teamPlayers.getOrDefault(t, java.util.Collections.emptySet()); }
-
-    public void broadcast(String msg){ for(UUID id:getAllPlayers()){ Player p=Bukkit.getPlayer(id); if(p!=null) p.sendMessage(com.example.bedwars.util.C.PREFIX+msg);} }
-
-    public List<Generator> getGenerators(){ return generators; }
-    public boolean isConfigured(){ return lobby!=null && !spawns.isEmpty() && !beds.isEmpty(); }
-
-    public Set<TeamColor> getEnabledTeams(){ return enabledTeams; }
-    public boolean isTeamEnabled(TeamColor t){ return enabledTeams.isEmpty() || enabledTeams.contains(t); }
-    public void setTeamEnabled(TeamColor t, boolean on){ if(on) enabledTeams.add(t); else enabledTeams.remove(t); }
-    public boolean hasSpawn(TeamColor t){ return spawns.get(t)!=null; }
-    public boolean hasBed(TeamColor t){ return beds.get(t)!=null; }
-
-    // upgrade getters
-    public int getSharpness(TeamColor t){ return sharpness.getOrDefault(t,0); }
-    public void addSharpness(TeamColor t){ sharpness.put(t, getSharpness(t)+1); }
-    public int getArmor(TeamColor t){ return armor.getOrDefault(t,0); }
-    public void addArmor(TeamColor t){ armor.put(t, getArmor(t)+1); }
-    public int getMiner(TeamColor t){ return miner.getOrDefault(t,0); }
-    public void addMiner(TeamColor t){ miner.put(t, getMiner(t)+1); }
-    public boolean hasHeal(TeamColor t){ return heal.getOrDefault(t,false); }
-    public void setHeal(TeamColor t){ heal.put(t,true); }
+    private void broadcast(String msg) {
+        for (UUID uuid : players) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) {
+                p.sendMessage(msg);
+            }
+        }
+    }
 }

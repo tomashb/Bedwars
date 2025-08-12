@@ -1,2 +1,12 @@
 package com.example.bedwars.arena;
-public enum GameState { DISABLED, WAITING, STARTING, RUNNING, ENDING }
+
+/**
+ * Represents the different phases an arena can be in.
+ */
+public enum GameState {
+    WAITING,
+    STARTING,
+    RUNNING,
+    ENDING,
+    RESTARTING;
+}
