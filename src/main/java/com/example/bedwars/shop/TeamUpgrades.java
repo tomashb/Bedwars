@@ -155,19 +155,24 @@ public class TeamUpgrades {
         if (sharp>0){
             for (ItemStack it : p.getInventory().getContents()){
                 if (it==null || !it.getType().toString().endsWith("_SWORD")) continue;
-                it.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, sharp);
+                it.addUnsafeEnchantment(Enchantment.SHARPNESS, sharp);
             }
         }
         int arm = a.getArmor(t);
         if (arm>0){
             ItemStack[] armor = {p.getInventory().getHelmet(), p.getInventory().getChestplate(), p.getInventory().getLeggings(), p.getInventory().getBoots()};
             for (ItemStack piece : armor){
-                if (piece!=null) piece.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, arm);
+                if (piece!=null) piece.addUnsafeEnchantment(Enchantment.PROTECTION, arm);
             }
         }
         int miner = a.getMiner(t);
         if (miner>0){
-            p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, miner-1, true, false));
+            PotionEffectType haste = PotionEffectType.HASTE;
+            if (haste == null) {
+                haste = Bukkit.getRegistry(PotionEffectType.class)
+                        .get(NamespacedKey.minecraft("haste"));
+            }
+            p.addPotionEffect(new PotionEffect(haste, Integer.MAX_VALUE, miner-1, true, false));
         }
         if (a.hasHeal(t)){
             p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 0, true, false));
