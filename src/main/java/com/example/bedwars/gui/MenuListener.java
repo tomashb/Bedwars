@@ -15,13 +15,13 @@ import java.util.UUID;
 /**
  * Central registry for admin menus with basic click routing.
  */
-public class MenuManager implements Listener {
+public class MenuListener implements Listener {
 
     private final BedwarsPlugin plugin;
     private final Map<AdminView, BWMenu> menus = new EnumMap<>(AdminView.class);
     private final Map<UUID, String> arenaContext = new HashMap<>();
 
-    public MenuManager(BedwarsPlugin plugin) {
+    public MenuListener(BedwarsPlugin plugin) {
         this.plugin = plugin;
     }
 

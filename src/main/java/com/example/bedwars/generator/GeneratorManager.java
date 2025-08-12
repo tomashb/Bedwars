@@ -52,7 +52,7 @@ public class GeneratorManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Arena arena : plugin.getArenaManager().getArenas().values()) {
+                for (Arena arena : plugin.arenas().getArenas().values()) {
                     if (arena.getState() != GameState.RUNNING) {
                         continue;
                     }
@@ -86,7 +86,7 @@ public class GeneratorManager {
      * Remove setup markers tagged for the given arena.
      */
     public void removeGenMarkers(String arenaId) {
-        NamespacedKey arenaKey = plugin.getArenaKey();
+        NamespacedKey arenaKey = plugin.arenaKey();
         for (World world : plugin.getServer().getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 PersistentDataContainer pdc = entity.getPersistentDataContainer();
