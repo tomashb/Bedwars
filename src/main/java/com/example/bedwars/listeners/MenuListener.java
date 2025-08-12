@@ -10,6 +10,7 @@ import com.example.bedwars.gen.Generator;
 import com.example.bedwars.gen.GeneratorType;
 import com.example.bedwars.ui.MenuManager;
 import com.example.bedwars.util.C;
+import com.example.bedwars.util.Keys;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -27,8 +28,9 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.UUID;
 
 public class MenuListener implements Listener {
-    private static final org.bukkit.NamespacedKey NPC_KEY = new org.bukkit.NamespacedKey(BedwarsPlugin.get(), "bw_npc");
-    private static final org.bukkit.NamespacedKey GEN_KEY = new org.bukkit.NamespacedKey(BedwarsPlugin.get(), "bw_gen");
+    // Keys for persistent data tags shared across the plugin
+    private static final org.bukkit.NamespacedKey NPC_KEY = Keys.NPC;
+    private static final org.bukkit.NamespacedKey GEN_KEY = Keys.GEN;
 
     private final BedwarsPlugin plugin;
     private final ArenaManager arenas;
