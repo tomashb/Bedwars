@@ -19,4 +19,17 @@ Ce plugin n'implémente pas encore l'ensemble des mécaniques BedWars
 (générateurs, boutiques, upgrades, scoreboard, etc.).
 Il constitue simplement une base sur laquelle bâtir.
 
+## Administration
+
+Un menu de gestion basique est disponible pour les joueurs possédant la
+permission `bedwars.admin`.
+
+* `/bw menu` (alias `/bw admin`, `/bw setup`) : ouvre la GUI de gestion.
+* `/bwadmin arena list` : liste les arènes chargées.
+* `/bwadmin arena create <id> <monde>` : crée une arène minimale.
+* `/bwadmin arena delete <id>` : supprime une arène et son fichier.
+
+Ces commandes ne couvrent qu'une petite partie du framework souhaité mais
+servent de point de départ pour l'étendre.
+
 Pour quelques notes d'architecture, voir [ARCHITECTURE.md](ARCHITECTURE.md).

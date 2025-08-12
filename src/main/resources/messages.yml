@@ -1,6 +1,8 @@
 prefix: "&6[BedWars]&r "
 arena:
   created: "&aArène &e{arena}&a créée."
+  deleted: "&cArène &e{arena}&c supprimée."
+  exists: "&cL'arène &e{arena}&c existe déjà."
   saved: "&aArène &e{arena}&a sauvegardée."
   started: "&aLa partie &e{arena}&a commence !"
   stopped: "&cLa partie &e{arena}&c est arrêtée."
@@ -11,6 +13,7 @@ team:
 error:
   no_arena: "&cAucune arène avec ce nom."
   not_admin: "&cVous n'avez pas la permission."
+  no_world: "&cMonde introuvable: &e{world}"
   usage: "&eUtilisation: {usage}"
 shop:
   not_enough: "&cPas assez de ressources."
@@ -27,3 +30,13 @@ command:
   list: "&aArènes disponibles: &e{arenas}"
   join-usage: "&cUsage: /bw join <arène>"
   unknown: "&cSous-commande inconnue"
+admin:
+  menu-title: "&6Gestion BedWars"
+  menu:
+    arenas: "&eArènes"
+    create: "&aCréer une arène"
+    rules: "&bRègles de jeu"
+    npc: "&dHologrammes/PNJ"
+    rotation: "&dRotation & Reset"
+    diagnostics: "&cDiagnostics"
+    info: "&fRetour / Infos"
