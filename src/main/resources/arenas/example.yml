@@ -1,4 +1,0 @@
-name: example
-world: world
-state: DISABLED
-enabled-teams: [RED, BLUE, GREEN, YELLOW]

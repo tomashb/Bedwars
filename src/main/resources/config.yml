@@ -1,5 +1,3 @@
-generators:
-  IRON:    { interval: 120, amount: 1 }
-  GOLD:    { interval: 300, amount: 1 }
-  DIAMOND: { interval: 900, amount: 1 }
-  EMERALD: { interval: 1800, amount: 1 }
+# Configuration de base - Etape 0
+language: fr
+debug: false
