@@ -3,6 +3,7 @@ package com.example.bedwars;
 import com.example.bedwars.arena.ArenaManager;
 import com.example.bedwars.command.BedwarsCommand;
 import com.example.bedwars.listener.PlayerListener;
+import com.example.bedwars.util.MessageManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -14,10 +15,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BedwarsPlugin extends JavaPlugin {
 
     private ArenaManager arenaManager;
+    private MessageManager messageManager;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        this.messageManager = new MessageManager(this);
         this.arenaManager = new ArenaManager(this);
 
         // Register command executor
@@ -29,5 +32,9 @@ public class BedwarsPlugin extends JavaPlugin {
 
     public ArenaManager getArenaManager() {
         return arenaManager;
+    }
+
+    public MessageManager getMessages() {
+        return messageManager;
     }
 }

@@ -6,6 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 /**
  * Very small command handler implementing only a subset of the
  * specification: list, join and leave. This is meant as a convenience
@@ -22,25 +24,26 @@ public class BedwarsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Commandes joueurs uniquement");
+            sender.sendMessage(plugin.getMessages().get("command.player-only"));
             return true;
         }
 
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            player.sendMessage("§e/bw list§7 - liste des arènes");
-            player.sendMessage("§e/bw join <arène>§7 - rejoindre une arène");
-            player.sendMessage("§e/bw leave§7 - quitter l'arène");
+            player.sendMessage(plugin.getMessages().get("command.help.list"));
+            player.sendMessage(plugin.getMessages().get("command.help.join"));
+            player.sendMessage(plugin.getMessages().get("command.help.leave"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "list" -> {
-                player.sendMessage("§aArènes disponibles: " + String.join(", ", plugin.getArenaManager().getArenas().keySet()));
+                String arenas = String.join(", ", plugin.getArenaManager().getArenas().keySet());
+                player.sendMessage(plugin.getMessages().get("command.list", Map.of("arenas", arenas)));
                 return true;
             }
             case "join" -> {
                 if (args.length < 2) {
-                    player.sendMessage("§cUsage: /bw join <arène>");
+                    player.sendMessage(plugin.getMessages().get("command.join-usage"));
                     return true;
                 }
                 plugin.getArenaManager().joinArena(player, args[1]);
@@ -51,7 +54,7 @@ public class BedwarsCommand implements CommandExecutor {
                 return true;
             }
             default -> {
-                player.sendMessage("§cSous-commande inconnue");
+                player.sendMessage(plugin.getMessages().get("command.unknown"));
                 return true;
             }
         }
