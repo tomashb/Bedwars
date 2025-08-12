@@ -139,6 +139,7 @@ public class ArenaManager {
             v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
             v.setCustomName("§bBoutique"); v.setCustomNameVisible(true);
             v.getPersistentDataContainer().set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "item");
+            v.teleport(item);
         }
         var up = a.getUpgradeShop();
         if (up != null && up.getWorld()!=null){
@@ -147,6 +148,7 @@ public class ArenaManager {
             v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
             v.setCustomName("§eAméliorations"); v.setCustomNameVisible(true);
             v.getPersistentDataContainer().set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "upgrade");
+            v.teleport(up);
         }
         for (Generator g : a.getGenerators()){
             Location loc = g.getLocation();
@@ -177,10 +179,19 @@ public class ArenaManager {
                 s--;
                 if (s<=0){
                     a.setState(GameState.RUNNING);
+                    plugin.generators().resetArena(a);
                     a.broadcast(com.example.bedwars.util.C.msg("start.go"));
                     for (UUID id : a.getAllPlayers()){
                         org.bukkit.entity.Player pl = Bukkit.getPlayer(id);
-                        if (pl!=null) plugin.boards().applyTo(pl, a);
+                        if (pl==null) continue;
+                        com.example.bedwars.arena.TeamColor team = a.getTeamOf(id);
+                        org.bukkit.Location spawn = team!=null? a.getSpawn(team): null;
+                        if (spawn==null || spawn.getWorld()==null){
+                            pl.sendMessage(com.example.bedwars.util.C.color("&cSpawn manquant pour votre équipe."));
+                            continue;
+                        }
+                        pl.teleport(spawn);
+                        plugin.boards().applyTo(pl, a);
                     }
                     cancel();
                     return;

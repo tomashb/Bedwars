@@ -92,10 +92,20 @@ public class MenuManager {
         Inventory inv = createGui(27, ChatColor.DARK_GRAY+"BedWars — Choisir une équipe ("+arena+")");
         int slot=10;
         for (TeamColor t : TeamColor.values()){
-            boolean hide=false; Arena a=arenas.get(arena); if (a!=null){ if (act.equals("SET_SPAWN") && a.hasSpawn(t)) hide=true; if (act.equals("SET_BED") && a.hasBed(t)) hide=true; }
-            if (!hide){ ItemStack it=new ItemBuilder(woolFor(t)).name(t.chat()+t.display()).build(); set(it, act, arena, t.name(), null); inv.setItem(slot++, it); if (slot==17) slot=19; }
+            boolean hide=false; Arena a=arenas.get(arena);
+            if (a!=null){
+                if (act.equals("SET_SPAWN") && a.hasSpawn(t)) hide=true;
+                if (act.equals("SET_BED") && a.hasBed(t)) hide=true;
+                if (act.equals("JOIN_TEAM") && (!a.isTeamEnabled(t) || a.getSpawn(t)==null)) hide=true;
+            }
+            if (!hide){
+                ItemStack it=new ItemBuilder(woolFor(t)).name(t.chat()+t.display()).build();
+                set(it, act, arena, t.name(), null);
+                inv.setItem(slot++, it); if (slot==17) slot=19;
+            }
         }
-        inv.setItem(26, actionItem(Material.ARROW, "§7Retour", "BACK_EDITOR", arena, null, null)); p.openInventory(inv);
+        String back = act.equals("JOIN_TEAM") ? "BACK_MAIN" : "BACK_EDITOR";
+        inv.setItem(26, actionItem(Material.ARROW, "§7Retour", back, arena, null, null)); p.openInventory(inv);
     }
 
     public void openGenSelect(Player p, String arena){

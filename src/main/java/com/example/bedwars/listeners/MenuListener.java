@@ -91,16 +91,28 @@ public class MenuListener implements Listener {
                 Arena a = arenas.get(arenaName);
                 if (a == null) { p.sendMessage(C.msg("error.no_arena")); return; }
                 if (a.getState() == GameState.DISABLED) { p.sendMessage(C.color("&cArène désactivée.")); return; }
-                java.util.List<TeamColor> choices = new java.util.ArrayList<>();
-                for (TeamColor t:TeamColor.values()) if (a.isTeamEnabled(t) && a.getSpawn(t)!=null) choices.add(t);
-                if (choices.isEmpty()) { p.sendMessage(C.color("&cAucune équipe disponible (spawns non définis).")); return; }
-                TeamColor team = choices.stream().min(java.util.Comparator.comparingInt(a::getTeamSize)).orElse(choices.get(0));
-                a.addPlayer(team, p);
-                org.bukkit.Location spawn = a.getSpawn(team);
-                if (spawn==null || spawn.getWorld()==null){ p.sendMessage(C.color("&cSpawn invalide pour cette équipe.")); return; }
-                p.teleport(spawn);
+                Location lobby = a.getLobby();
+                if (lobby == null || lobby.getWorld() == null) {
+                    p.sendMessage(C.color("&cLobby non défini."));
+                    return;
+                }
+                p.teleport(lobby);
                 p.sendMessage(C.msg("arena.join", "arena", a.getName()));
                 plugin.boards().applyTo(p, a);
+                if (a.getTeamOf(p.getUniqueId()) == null) menus.openTeamSelect(p, a.getName(), "JOIN_TEAM");
+            }
+            case "JOIN_TEAM" -> {
+                Arena a = arenas.get(arenaName);
+                TeamColor t = MenuManager.parseTeam(teamName);
+                if (a == null || t == null) return;
+                if (!a.isTeamEnabled(t) || a.getSpawn(t) == null) {
+                    p.sendMessage(C.color("&cÉquipe indisponible."));
+                    return;
+                }
+                a.addPlayer(t, p);
+                p.sendMessage(C.color("&aÉquipe choisie: " + t.chat() + t.display()));
+                plugin.boards().applyTo(p, a);
+                p.closeInventory();
             }
             case "ARENA_EDIT" -> { if (arenaName != null) menus.openArenaEditor(p, arenaName); }
             case "SET_LOBBY" -> {
@@ -151,12 +163,15 @@ public class MenuListener implements Listener {
                 Arena a = arenas.get(arenaName);
                 if (a == null) return;
                 Location loc = p.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
+                loc.setYaw(p.getLocation().getYaw());
+                loc.setPitch(0f);
                 a.setItemShop(loc);
                 arenas.save(a);
                 Villager v = loc.getWorld().spawn(loc, Villager.class);
                 v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
                 v.setCustomName("§bBoutique"); v.setCustomNameVisible(true);
                 v.getPersistentDataContainer().set(NPC_KEY, PersistentDataType.STRING, "item");
+                v.teleport(loc);
                 p.sendMessage(C.color("&aBoutique d'objets définie et PNJ posé."));
                 menus.openArenaEditor(p, arenaName);
             }
@@ -164,12 +179,15 @@ public class MenuListener implements Listener {
                 Arena a = arenas.get(arenaName);
                 if (a == null) return;
                 Location loc = p.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
+                loc.setYaw(p.getLocation().getYaw());
+                loc.setPitch(0f);
                 a.setUpgradeShop(loc);
                 arenas.save(a);
                 Villager v = loc.getWorld().spawn(loc, Villager.class);
                 v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
                 v.setCustomName("§eAméliorations"); v.setCustomNameVisible(true);
                 v.getPersistentDataContainer().set(NPC_KEY, PersistentDataType.STRING, "upgrade");
+                v.teleport(loc);
                 p.sendMessage(C.color("&aBoutique améliorations définie et PNJ posé."));
                 menus.openArenaEditor(p, arenaName);
             }
@@ -178,7 +196,7 @@ public class MenuListener implements Listener {
                 for (Entity ent : p.getNearbyEntities(8, 8, 8)) {
                     if (ent instanceof Villager v) {
                         String tag = v.getPersistentDataContainer().get(NPC_KEY, PersistentDataType.STRING);
-                        if (tag != null || true) { v.remove(); removed++; }
+                        if (tag != null) { v.remove(); removed++; }
                     }
                 }
                 p.sendMessage(C.color("§ePNJ retirés à proximité: §a" + removed));

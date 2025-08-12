@@ -36,16 +36,12 @@ public class BwCommand implements CommandExecutor, TabCompleter {
                 if (args.length<2){ p.sendMessage(C.msg("error.usage","usage","/bw join <arena>")); return true; }
                 Arena a = arenas.get(args[1]); if (a==null){ p.sendMessage(C.msg("error.no_arena")); return true; }
                 if (a.getState()==GameState.DISABLED){ p.sendMessage(C.color("&cArène désactivée.")); return true; }
-                List<TeamColor> choices = new ArrayList<>();
-                for (TeamColor t:TeamColor.values()) if (a.isTeamEnabled(t) && a.getSpawn(t)!=null) choices.add(t);
-                if (choices.isEmpty()){ p.sendMessage(C.color("&cAucune équipe disponible (spawns non définis).")); return true; }
-                TeamColor team = choices.stream().min(Comparator.comparingInt(a::getTeamSize)).orElse(choices.get(0));
-                a.addPlayer(team, p);
-                org.bukkit.Location spawn = a.getSpawn(team);
-                if (spawn==null || spawn.getWorld()==null){ p.sendMessage(C.color("&cSpawn invalide pour cette équipe.")); return true; }
-                p.teleport(spawn);
+                org.bukkit.Location lobby = a.getLobby();
+                if (lobby==null || lobby.getWorld()==null){ p.sendMessage(C.color("&cLobby non défini.")); return true; }
+                p.teleport(lobby);
                 p.sendMessage(C.msg("arena.join","arena",a.getName()));
                 plugin.boards().applyTo(p,a);
+                if (a.getTeamOf(p.getUniqueId())==null) plugin.menus().openTeamSelect(p, a.getName(), "JOIN_TEAM");
                 return true;
             case "start":
                 if (args.length<2){ sender.sendMessage(C.msg("error.usage","usage","/bw start <arena>")); return true; }
