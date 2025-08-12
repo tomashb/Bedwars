@@ -12,6 +12,11 @@ commands:
     description: Commandes admin BedWars
     usage: /bwadmin <help>
 permissions:
+  bedwars.admin:
+    description: Accès aux commandes admin BedWars
+    default: op
   bedwars.admin.*:
     description: Accès à toutes les commandes admin BedWars
     default: op
+    children:
+      bedwars.admin: true
