@@ -8,6 +8,8 @@ arena:
   stopped: "&cLa partie &e{arena}&c est arrêtée."
   join: "&aVous avez rejoint &e{arena}&a."
   leave: "&eVous avez quitté l'arène."
+  events_enabled: "&aÉvénements activés pour &e{arena}&a."
+  events_disabled: "&cÉvénements désactivés pour &e{arena}&c."
 team:
   bed_destroyed: "&cLe lit de l'équipe &e{team}&c a été détruit par &e{player}&c !"
 error:
@@ -35,6 +37,7 @@ admin:
   menu:
     arenas: "&eArènes"
     create: "&aCréer une arène"
+    events: "&bÉvénements"
     rules: "&bRègles de jeu"
     npc: "&dHologrammes/PNJ"
     rotation: "&dRotation & Reset"

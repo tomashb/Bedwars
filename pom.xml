@@ -2,7 +2,7 @@
 <modelVersion>4.0.0</modelVersion>
 <groupId>com.example</groupId>
 <artifactId>bedwars</artifactId>
-<version>0.2.0</version>
+<version>0.2.2</version>
 <name>Bedwars</name>
 <description>BedWars FR with GUI for Spigot/Paper 1.21</description>
 <properties>

@@ -40,6 +40,7 @@ public class AdminMenu {
         inv.setItem(28, item(Material.ENDER_PEARL, plugin.getMessages().get("admin.menu.rotation")));
         inv.setItem(30, item(Material.REDSTONE_COMPARATOR, plugin.getMessages().get("admin.menu.diagnostics")));
         inv.setItem(32, item(Material.PAPER, plugin.getMessages().get("admin.menu.info")));
+        inv.setItem(34, item(Material.CLOCK, plugin.getMessages().get("admin.menu.events")));
         player.openInventory(inv);
     }
 

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Basic administrative command covering a tiny subset of the desired
  * functionality. It currently supports creating, deleting and listing
- * arenas to illustrate how the real command framework could be wired.
+ * arenas as well as enabling or disabling the simplified event timeline.
  */
 public class AdminCommand implements CommandExecutor, TabCompleter {
 
@@ -29,62 +29,88 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("bedwars.admin.arena")) {
+        if (!sender.hasPermission("bedwars.admin")) {
             sender.sendMessage(plugin.getMessages().get("error.not_admin"));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin arena <create|delete|list>")));
+            sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin <arena|game> ...")));
             return true;
         }
 
-        if (!args[0].equalsIgnoreCase("arena")) {
-            sender.sendMessage(plugin.getMessages().get("command.unknown"));
-            return true;
-        }
-
-        if (args.length < 2) {
-            sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin arena <create|delete|list>")));
-            return true;
-        }
-
-        switch (args[1].toLowerCase()) {
-            case "list" -> {
-                String arenas = String.join(", ", plugin.getArenaManager().getArenas().keySet());
-                sender.sendMessage(plugin.getMessages().get("command.list", Map.of("arenas", arenas)));
-                return true;
+        switch (args[0].toLowerCase()) {
+            case "arena" -> {
+                if (!sender.hasPermission("bedwars.admin.arena")) {
+                    sender.sendMessage(plugin.getMessages().get("error.not_admin"));
+                    return true;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin arena <create|delete|list>")));
+                    return true;
+                }
+                switch (args[1].toLowerCase()) {
+                    case "list" -> {
+                        String arenas = String.join(", ", plugin.getArenaManager().getArenas().keySet());
+                        sender.sendMessage(plugin.getMessages().get("command.list", Map.of("arenas", arenas)));
+                        return true;
+                    }
+                    case "create" -> {
+                        if (args.length < 4) {
+                            sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin arena create <id> <world>")));
+                            return true;
+                        }
+                        World world = Bukkit.getWorld(args[3]);
+                        if (world == null) {
+                            sender.sendMessage(plugin.getMessages().get("error.no_world", Map.of("world", args[3])));
+                            return true;
+                        }
+                        boolean created = plugin.getArenaManager().createArena(args[2], world.getName());
+                        if (created) {
+                            sender.sendMessage(plugin.getMessages().get("arena.created", Map.of("arena", args[2])));
+                        } else {
+                            sender.sendMessage(plugin.getMessages().get("arena.exists", Map.of("arena", args[2])));
+                        }
+                        return true;
+                    }
+                    case "delete" -> {
+                        if (args.length < 3) {
+                            sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin arena delete <id>")));
+                            return true;
+                        }
+                        boolean deleted = plugin.getArenaManager().deleteArena(args[2]);
+                        if (deleted) {
+                            sender.sendMessage(plugin.getMessages().get("arena.deleted", Map.of("arena", args[2])));
+                        } else {
+                            sender.sendMessage(plugin.getMessages().get("error.no_arena"));
+                        }
+                        return true;
+                    }
+                    default -> {
+                        sender.sendMessage(plugin.getMessages().get("command.unknown"));
+                        return true;
+                    }
+                }
             }
-            case "create" -> {
-                if (args.length < 4) {
-                    sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin arena create <id> <world>")));
+            case "game" -> {
+                if (!sender.hasPermission("bedwars.admin.game")) {
+                    sender.sendMessage(plugin.getMessages().get("error.not_admin"));
                     return true;
                 }
-                World world = Bukkit.getWorld(args[3]);
-                if (world == null) {
-                    sender.sendMessage(plugin.getMessages().get("error.no_world", Map.of("world", args[3])));
+                if (args.length < 4 || !args[1].equalsIgnoreCase("events")) {
+                    sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin game events <arena> <enable|disable>")));
                     return true;
                 }
-                boolean created = plugin.getArenaManager().createArena(args[2], world.getName());
-                if (created) {
-                    sender.sendMessage(plugin.getMessages().get("arena.created", Map.of("arena", args[2])));
-                } else {
-                    sender.sendMessage(plugin.getMessages().get("arena.exists", Map.of("arena", args[2])));
-                }
-                return true;
-            }
-            case "delete" -> {
-                if (args.length < 3) {
-                    sender.sendMessage(plugin.getMessages().get("error.usage", Map.of("usage", "/bwadmin arena delete <id>")));
+                return plugin.getArenaManager().getArena(args[2]).map(arena -> {
+                    boolean enable = args[3].equalsIgnoreCase("enable");
+                    arena.setEventsEnabled(enable);
+                    String key = enable ? "arena.events_enabled" : "arena.events_disabled";
+                    sender.sendMessage(plugin.getMessages().get(key, Map.of("arena", arena.getName())));
                     return true;
-                }
-                boolean deleted = plugin.getArenaManager().deleteArena(args[2]);
-                if (deleted) {
-                    sender.sendMessage(plugin.getMessages().get("arena.deleted", Map.of("arena", args[2])));
-                } else {
+                }).orElseGet(() -> {
                     sender.sendMessage(plugin.getMessages().get("error.no_arena"));
-                }
-                return true;
+                    return true;
+                });
             }
             default -> {
                 sender.sendMessage(plugin.getMessages().get("command.unknown"));
@@ -95,20 +121,31 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!sender.hasPermission("bedwars.admin.arena")) {
+        if (!sender.hasPermission("bedwars.admin")) {
             return Collections.emptyList();
         }
         if (args.length == 1) {
-            return Collections.singletonList("arena");
-        } else if (args.length == 2 && args[0].equalsIgnoreCase("arena")) {
-            return List.of("create", "delete", "list");
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("arena")) {
-            if (args[1].equalsIgnoreCase("delete")) {
+            return List.of("arena", "game");
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("arena")) {
+                return List.of("create", "delete", "list");
+            } else if (args[0].equalsIgnoreCase("game")) {
+                return List.of("events");
+            }
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("arena") && args[1].equalsIgnoreCase("delete")) {
+                return new ArrayList<>(plugin.getArenaManager().getArenas().keySet());
+            } else if (args[0].equalsIgnoreCase("game") && args[1].equalsIgnoreCase("events")) {
                 return new ArrayList<>(plugin.getArenaManager().getArenas().keySet());
             }
-        } else if (args.length == 4 && args[0].equalsIgnoreCase("arena") && args[1].equalsIgnoreCase("create")) {
-            return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+        } else if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("arena") && args[1].equalsIgnoreCase("create")) {
+                return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+            } else if (args[0].equalsIgnoreCase("game") && args[1].equalsIgnoreCase("events")) {
+                return List.of("enable", "disable");
+            }
         }
         return Collections.emptyList();
     }
 }
+
