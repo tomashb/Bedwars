@@ -8,6 +8,7 @@ import com.example.bedwars.gui.*;
 import com.example.bedwars.listener.PlayerListener;
 import com.example.bedwars.util.MessageManager;
 import com.example.bedwars.generator.GeneratorManager;
+import com.example.bedwars.scoreboard.ScoreboardManager;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,6 +24,7 @@ public class BedwarsPlugin extends JavaPlugin {
     private MessageManager messageManager;
     private MenuManager menuManager;
     private GeneratorManager generatorManager;
+    private ScoreboardManager scoreboardManager;
     private NamespacedKey arenaKey;
 
     @Override
@@ -32,6 +34,7 @@ public class BedwarsPlugin extends JavaPlugin {
         this.arenaManager = new ArenaManager(this);
         this.menuManager = new MenuManager(this);
         this.generatorManager = new GeneratorManager(this);
+        this.scoreboardManager = new ScoreboardManager(this);
         // Register menus
         menuManager.register(new RootMenu(this));
         menuManager.register(new ArenasMenu(this));
@@ -46,7 +49,9 @@ public class BedwarsPlugin extends JavaPlugin {
         this.arenaKey = new NamespacedKey(this, "bw_arena");
 
         // Register command executors
-        getCommand("bw").setExecutor(new BedwarsCommand(this));
+        BedwarsCommand bwCmd = new BedwarsCommand(this);
+        getCommand("bw").setExecutor(bwCmd);
+        getCommand("bw").setTabCompleter(bwCmd);
         AdminCommand adminCmd = new AdminCommand(this);
         getCommand("bwadmin").setExecutor(adminCmd);
         getCommand("bwadmin").setTabCompleter(adminCmd);
@@ -70,6 +75,10 @@ public class BedwarsPlugin extends JavaPlugin {
 
     public GeneratorManager getGeneratorManager() {
         return generatorManager;
+    }
+
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
     }
 
     /**
