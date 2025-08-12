@@ -76,11 +76,10 @@ public class Arena {
         return data != null ? data.spawn : null;
     }
 
-    public void setTeamBed(TeamColor team, Location block, String facing) {
+    public void setTeamBed(TeamColor team, Location block) {
         TeamData data = teams.computeIfAbsent(team, t -> new TeamData());
         BedData bed = new BedData();
         bed.block = block;
-        bed.facing = facing;
         data.bed = bed;
     }
 
@@ -202,7 +201,6 @@ public class Arena {
     /** bed data container */
     public static class BedData {
         public Location block;
-        public String facing;
     }
 
     /** generator spec container */

@@ -8,6 +8,8 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +24,13 @@ public class ArenaManager {
 
     private final BedwarsPlugin plugin;
     private final Map<String, Arena> arenas = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> mso(Object o) { return (Map<String, Object>) o; }
+
+    private int intOf(Object o) { return ((Number) o).intValue(); }
+
+    private double dblOf(Object o) { return ((Number) o).doubleValue(); }
 
     public ArenaManager(BedwarsPlugin plugin) {
         this.plugin = plugin;
@@ -65,9 +74,9 @@ public class ArenaManager {
                         String bed = teams.getString(key + ".bed");
                         if (bed != null) {
                             String[] parts = bed.split(",");
-                            if (parts.length >= 4) {
+                            if (parts.length >= 3) {
                                 Location loc = parseLocation(arena.getWorld(), parts[0] + "," + parts[1] + "," + parts[2] + ",0,0");
-                                arena.setTeamBed(color, loc, parts[3]);
+                                arena.setTeamBed(color, loc);
                             }
                         }
                     } catch (IllegalArgumentException ignored) {
@@ -83,11 +92,12 @@ public class ArenaManager {
                     arena.addUpgradeShop(parseLocation(arena.getWorld(), s));
                 }
             }
-            for (Map<?, ?> map : cfg.getMapList("generators")) {
+            for (Object obj : cfg.getMapList("generators")) {
                 try {
+                    Map<String, Object> map = mso(obj);
                     GeneratorType type = GeneratorType.valueOf(String.valueOf(map.get("type")));
                     String locStr = String.valueOf(map.get("loc"));
-                    int tier = (int) map.getOrDefault("tier", 1);
+                    int tier = map.containsKey("tier") ? intOf(map.get("tier")) : 1;
                     arena.addGenerator(type, parseLocation(arena.getWorld(), locStr), tier);
                 } catch (Exception ignored) {
                 }
@@ -135,7 +145,7 @@ public class ArenaManager {
             Location spawn = arena.getTeamSpawn(color);
             data.put("spawn", spawn == null ? null : formatLocation(spawn));
             Arena.BedData bed = arena.getTeamBed(color);
-            data.put("bed", bed == null ? null : formatBlock(bed.block) + "," + bed.facing);
+            data.put("bed", bed == null ? null : formatBlock(bed.block));
             teams.put(color.name(), data);
         }
         cfg.set("teams", teams);
@@ -188,9 +198,9 @@ public class ArenaManager {
                     String bed = teams.getString(keyTeam + ".bed");
                     if (bed != null) {
                         String[] parts = bed.split(",");
-                        if (parts.length >= 4) {
+                        if (parts.length >= 3) {
                             Location loc = parseLocation(arena.getWorld(), parts[0] + "," + parts[1] + "," + parts[2] + ",0,0");
-                            arena.setTeamBed(color, loc, parts[3]);
+                            arena.setTeamBed(color, loc);
                         }
                     }
                 } catch (IllegalArgumentException ignored) {
@@ -206,11 +216,12 @@ public class ArenaManager {
                 arena.addUpgradeShop(parseLocation(arena.getWorld(), s));
             }
         }
-        for (Map<?, ?> map : cfg.getMapList("generators")) {
+        for (Object obj : cfg.getMapList("generators")) {
             try {
+                Map<String, Object> map = mso(obj);
                 GeneratorType type = GeneratorType.valueOf(String.valueOf(map.get("type")));
                 String locStr = String.valueOf(map.get("loc"));
-                int tier = (int) map.getOrDefault("tier", 1);
+                int tier = map.containsKey("tier") ? intOf(map.get("tier")) : 1;
                 arena.addGenerator(type, parseLocation(arena.getWorld(), locStr), tier);
             } catch (Exception ignored) {
             }
@@ -239,7 +250,7 @@ public class ArenaManager {
         });
     }
 
-    public void setLobby(String id, Location loc) {
+    public void setArenaSpawn(String id, Location loc) {
         getArena(id).ifPresent(a -> a.setLobby(loc));
     }
 
@@ -247,12 +258,33 @@ public class ArenaManager {
         getArena(id).ifPresent(a -> a.setTeamSpawn(team, loc));
     }
 
-    public void setTeamBed(String id, TeamColor team, Location loc, String facing) {
-        getArena(id).ifPresent(a -> a.setTeamBed(team, loc, facing));
+    public void setTeamBed(String id, TeamColor team, Location loc) {
+        getArena(id).ifPresent(a -> a.setTeamBed(team, loc));
     }
 
-    public void addGenerator(String id, GeneratorType type, Location loc) {
-        getArena(id).ifPresent(a -> a.addGenerator(type, loc, 1));
+    public void addGenerator(String id, GeneratorType type, Location loc, int tier) {
+        getArena(id).ifPresent(a -> a.addGenerator(type, loc, tier));
+    }
+
+    public boolean delete(String id) {
+        String key = id.toLowerCase(Locale.ROOT);
+        Arena arena = arenas.remove(key);
+        File file = new File(plugin.getDataFolder(), "arenas/" + id + ".yml");
+        if (file.exists()) {
+            file.delete();
+        }
+        var arenaKey = plugin.arenaKey();
+        for (World world : plugin.getServer().getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity instanceof Player) continue;
+                String tag = entity.getPersistentDataContainer().get(arenaKey, PersistentDataType.STRING);
+                if (tag != null && tag.equalsIgnoreCase(id)) {
+                    entity.remove();
+                }
+            }
+        }
+        plugin.generators().removeGenMarkers(id);
+        return arena != null;
     }
 
     public void addItemShop(String id, Location loc) {

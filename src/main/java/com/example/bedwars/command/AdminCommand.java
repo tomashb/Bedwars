@@ -79,7 +79,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                             sender.sendMessage(plugin.messages().get("error.usage", Map.of("usage", "/bwadmin arena delete <id>")));
                             return true;
                         }
-                        boolean deleted = plugin.arenas().deleteArena(args[2]);
+                        boolean deleted = plugin.arenas().delete(args[2]);
                         if (deleted) {
                             sender.sendMessage(plugin.messages().get("arena.deleted", Map.of("arena", args[2])));
                         } else {
@@ -96,7 +96,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                             sender.sendMessage(plugin.messages().get("error.usage", Map.of("usage", "/bwadmin arena setlobby <id>")));
                             return true;
                         }
-                        plugin.arenas().setLobby(args[2], player.getLocation());
+                        plugin.arenas().setArenaSpawn(args[2], player.getLocation());
                         sender.sendMessage(plugin.messages().get("wizard.lobby-set"));
                         return true;
                     }
@@ -146,8 +146,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     } else if (args[1].equalsIgnoreCase("setbed")) {
                         var block = player.getTargetBlockExact(5);
                         if (block != null && block.getType().name().endsWith("_BED")) {
-                            var bed = (org.bukkit.block.data.type.Bed) block.getBlockData();
-                            plugin.arenas().setTeamBed(args[2], team, block.getLocation(), bed.getFacing().name());
+                            plugin.arenas().setTeamBed(args[2], team, block.getLocation());
                             sender.sendMessage(plugin.messages().get("wizard.bed-set", Map.of("team", team.name())));
                         } else {
                             sender.sendMessage(plugin.messages().get("wizard.no-bed"));
@@ -174,7 +173,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 }
                 try {
                     var type = com.example.bedwars.generator.GeneratorType.valueOf(args[3].toUpperCase());
-                    plugin.arenas().addGenerator(args[2], type, player.getLocation());
+                    plugin.arenas().addGenerator(args[2], type, player.getLocation(), 1);
                     sender.sendMessage(plugin.messages().get("wizard.gen-added", Map.of("type", type.name())));
                     return true;
                 } catch (IllegalArgumentException ex) {
