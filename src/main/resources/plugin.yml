@@ -8,9 +8,22 @@ commands:
   bw:
     description: Menu BedWars + commandes
     usage: /bw
+  bwadmin:
+    description: Commandes d'administration BedWars
+    usage: /bwadmin
+    permission: bedwars.admin.arena
 permissions:
+  bedwars.admin.*:
+    description: Toutes les permissions admin
+    default: op
+    children:
+      bedwars.admin: true
+      bedwars.admin.arena: true
   bedwars.admin:
-    description: Admin BedWars
+    description: Accès au menu de gestion
+    default: op
+  bedwars.admin.arena:
+    description: Gestion des arènes
     default: op
   bedwars.join:
     description: Rejoindre une arène
