@@ -1,24 +1,22 @@
-# Bedwars
+# Bedwars (Skeleton)
 
-Plugin BedWars pour Spigot/Paper 1.21.
+Ce dépôt contient une implémentation minimale d'un plugin BedWars pour Spigot/Paper 1.21.
+Il s'agit d'un point de départ expérimental : seules quelques fonctionnalités
+essentielles sont fournies (multi-arène simplifié, commande `/bw` de base,
+compte à rebours). L'objectif est de montrer comment structurer le code pour
+une réécriture complète.
 
 ## Mise en route rapide
 
-1. Compilez le plugin : `mvn -DskipTests package`.
-2. Copiez `target/bedwars-0.2.0.jar` dans le dossier `plugins/` de votre serveur 1.21.
-3. Démarrez le serveur puis utilisez `/bw` pour créer une arène :
-   - `/bw create <nom>` crée l'arène et en fait votre arène de configuration.
-   - Placez le lobby, les lits, spawns, générateurs et PNJ via les sous-commandes du menu.
-   - `/bw save` enregistre l'arène dans `plugins/Bedwars/arenas/`.
-4. Rejoignez l'arène avec `/bw join <nom>` et utilisez `/bw start` pour lancer la partie.
-5. À la fin, l'arène est automatiquement réinitialisée.
+1. Compiler le plugin : `mvn -DskipTests package`.
+2. Copier `target/bedwars-0.2.0.jar` dans le dossier `plugins/` du serveur.
+3. Démarrer le serveur et utiliser `/bw list` pour voir les arènes disponibles.
+4. Rejoindre une arène avec `/bw join <nom>` puis quitter avec `/bw leave`.
 
-## Notes de test
+## Limites
 
-1. Créer/éditer une arène avec `/bw` puis poser les générateurs et PNJ.
-2. Démarrer l'arène : les marqueurs « GEN: ... » de setup disparaissent.
-3. Clic droit sur le PNJ « Améliorations » ouvre le menu dédié aux upgrades d'équipe.
-4. Acheter de la laine dans la boutique d'objets donne de la laine à la couleur de votre équipe.
-5. Le scoreboard ne liste que les équipes activées pour l'arène en cours.
+Ce plugin n'implémente pas encore l'ensemble des mécaniques BedWars
+(générateurs, boutiques, upgrades, scoreboard, etc.).
+Il constitue simplement une base sur laquelle bâtir.
 
-Pour plus de détails sur l'architecture et la machine à états, voir [ARCHITECTURE.md](ARCHITECTURE.md).
+Pour quelques notes d'architecture, voir [ARCHITECTURE.md](ARCHITECTURE.md).
