@@ -2,6 +2,7 @@ package com.example.bedwars.gui;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.gui.placeholders.*;
+import com.example.bedwars.gui.editor.*;
 import org.bukkit.entity.Player;
 
 public final class MenuManager {
@@ -15,6 +16,10 @@ public final class MenuManager {
   private final ResetMenu reset;
   private final DiagnosticsMenu diag;
   private final InfoMenu info;
+  private final ArenaEditorMenu editor;
+  private final TeamEditorMenu teamEditor;
+  private final GeneratorsEditorMenu genEditor;
+  private final NpcEditorMenu npcEditor;
 
   public MenuManager(BedwarsPlugin plugin) {
     this.plugin = plugin;
@@ -27,6 +32,10 @@ public final class MenuManager {
     this.reset = new ResetMenu(plugin);
     this.diag = new DiagnosticsMenu(plugin);
     this.info = new InfoMenu(plugin);
+    this.editor = new ArenaEditorMenu(plugin);
+    this.teamEditor = new TeamEditorMenu(plugin);
+    this.genEditor = new GeneratorsEditorMenu(plugin);
+    this.npcEditor = new NpcEditorMenu(plugin);
   }
 
   public void open(AdminView v, Player p, String arenaId) {
@@ -41,6 +50,15 @@ public final class MenuManager {
       case DIAGNOSTICS -> diag.open(p);
       case INFO -> info.open(p);
       default -> root.open(p);
+    }
+  }
+
+  public void openEditor(EditorView v, Player p, String arenaId) {
+    switch (v) {
+      case ARENA -> editor.open(p, arenaId);
+      case TEAM -> teamEditor.open(p, arenaId);
+      case GEN -> genEditor.open(p, arenaId);
+      case NPC -> npcEditor.open(p, arenaId);
     }
   }
 }

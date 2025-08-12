@@ -52,3 +52,29 @@ admin:
 
   placeholders:
     wip: "&7Cette vue sera complétée à l'étape suivante."
+
+editor:
+  title: "&8Éditeur d'arène &7({arena})"
+  team-title: "&8Équipes &7({arena})"
+  gens-title: "&8Générateurs &7({arena})"
+  npc-title:  "&8PNJ &7({arena})"
+
+  create-id: "&eEntre l'ID de la nouvelle arène (a-z,0-9,_,-):"
+  create-id-exists: "&cID déjà utilisé."
+  create-id-invalid: "&cID invalide."
+  created: "&aArène &e{arena}&a créée."
+
+  set-lobby: "&aLobby défini."
+  set-spawn: "&aSpawn &e{team}&a défini."
+  set-bed: "&aLit &e{team}&a défini."
+  not-looking-bed: "&cRegardez un bloc de lit (tête) à portée."
+
+  npc-item-added: "&aPNJ Boutique Objets ajouté."
+  npc-upgrade-added: "&aPNJ Améliorations ajouté."
+  gen-added: "&aGénérateur &e{type}&a ajouté (Tier {tier})."
+
+  saved: "&aArène sauvegardée."
+  reloaded: "&aArène rechargée."
+  deleted: "&aArène supprimée."
+  confirm-delete: "&cTapez &eCONFIRM &cpour supprimer l'arène &e{arena}&c (30s)."
+  timeout: "&cPrompt expiré."

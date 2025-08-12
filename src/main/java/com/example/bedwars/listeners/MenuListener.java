@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import com.example.bedwars.setup.EditorActions;
 
 public final class MenuListener implements Listener {
   private final BedwarsPlugin plugin;
@@ -31,7 +32,10 @@ public final class MenuListener implements Listener {
     if (holder.view == AdminView.ROOT) {
       switch (slot) {
         case RootMenu.SLOT_ARENAS    -> plugin.menus().open(AdminView.ARENAS, p, null);
-        case RootMenu.SLOT_CREATE    -> plugin.menus().open(AdminView.ARENAS, p, null); // Étape 4: lancera le wizard
+        case RootMenu.SLOT_CREATE    -> {
+          p.closeInventory();
+          plugin.prompts().start(p, EditorActions.CREATE_ARENA_ID, null, 20*30);
+        }
         case RootMenu.SLOT_RULES     -> plugin.menus().open(AdminView.RULES_EVENTS, p, null);
         case RootMenu.SLOT_SHOPS     -> plugin.menus().open(AdminView.NPC_SHOPS, p, null);
         case RootMenu.SLOT_GENS      -> plugin.menus().open(AdminView.GENERATORS, p, null);
