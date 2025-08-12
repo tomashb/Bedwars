@@ -23,6 +23,7 @@ public class Arena {
     private final BedwarsPlugin plugin;
     private GameState state = GameState.WAITING;
     private int countdown = 10; // seconds
+    private boolean eventsEnabled = true;
 
     public Arena(BedwarsPlugin plugin, String name) {
         this.plugin = plugin;
@@ -35,6 +36,14 @@ public class Arena {
 
     public GameState getState() {
         return state;
+    }
+
+    public boolean isEventsEnabled() {
+        return eventsEnabled;
+    }
+
+    public void setEventsEnabled(boolean eventsEnabled) {
+        this.eventsEnabled = eventsEnabled;
     }
 
     public void addPlayer(Player player) {
@@ -73,6 +82,7 @@ public class Arena {
     private void reset() {
         state = GameState.WAITING;
         countdown = 10;
+        eventsEnabled = true;
     }
 
     private void broadcast(String msg) {

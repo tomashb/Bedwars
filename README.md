@@ -9,7 +9,7 @@ une réécriture complète.
 ## Mise en route rapide
 
 1. Compiler le plugin : `mvn -DskipTests package`.
-2. Copier `target/bedwars-0.2.0.jar` dans le dossier `plugins/` du serveur.
+2. Copier `target/bedwars-0.2.2.jar` dans le dossier `plugins/` du serveur.
 3. Démarrer le serveur et utiliser `/bw list` pour voir les arènes disponibles.
 4. Rejoindre une arène avec `/bw join <nom>` puis quitter avec `/bw leave`.
 
@@ -28,6 +28,7 @@ permission `bedwars.admin`.
 * `/bwadmin arena list` : liste les arènes chargées.
 * `/bwadmin arena create <id> <monde>` : crée une arène minimale.
 * `/bwadmin arena delete <id>` : supprime une arène et son fichier.
+* `/bwadmin game events <arène> <enable|disable>` : active ou désactive les événements de partie.
 
 Ces commandes ne couvrent qu'une petite partie du framework souhaité mais
 servent de point de départ pour l'étendre.
