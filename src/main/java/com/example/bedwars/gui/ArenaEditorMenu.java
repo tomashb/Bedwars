@@ -95,7 +95,7 @@ public class ArenaEditorMenu implements BWMenu {
                 }
             }
             if (done) {
-                meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+                meta.addEnchant(Enchantment.INFINITY, 1, true);
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             }
             it.setItemMeta(meta);

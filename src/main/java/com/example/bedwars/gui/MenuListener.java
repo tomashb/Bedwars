@@ -4,7 +4,6 @@ import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.generator.GeneratorType;
 import org.bukkit.Bukkit;
-import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -93,7 +92,7 @@ public class MenuListener implements Listener {
                 case "SET_LOBBY" -> {
                     String arenaId = arenaContext.get(player.getUniqueId());
                     if (arenaId != null) {
-                        plugin.arenas().setLobby(arenaId, player.getLocation());
+                        plugin.arenas().setArenaSpawn(arenaId, player.getLocation());
                         player.sendMessage(plugin.messages().get("wizard.lobby-set"));
                         open(player, AdminView.ARENA_EDITOR, arenaId, arenaId);
                     }
@@ -117,10 +116,9 @@ public class MenuListener implements Listener {
                     if (arenaId != null && teamStr != null) {
                         var block = player.getTargetBlockExact(5);
                         if (block != null && block.getType().name().endsWith("_BED")) {
-                            Bed bed = (Bed) block.getBlockData();
                             try {
                                 TeamColor color = TeamColor.valueOf(teamStr);
-                                plugin.arenas().setTeamBed(arenaId, block.getLocation(), bed.getFacing().name());
+                                plugin.arenas().setTeamBed(arenaId, color, block.getLocation());
                                 player.sendMessage(plugin.messages().get("wizard.bed-set", Map.of("team", color.name())));
                                 open(player, AdminView.ARENA_EDITOR, arenaId, arenaId);
                             } catch (IllegalArgumentException ignored) {
@@ -136,7 +134,7 @@ public class MenuListener implements Listener {
                     if (arenaId != null && typeStr != null) {
                         try {
                             GeneratorType type = GeneratorType.valueOf(typeStr);
-                            plugin.arenas().addGenerator(arenaId, type, player.getLocation());
+                            plugin.arenas().addGenerator(arenaId, type, player.getLocation(), 1);
                             player.sendMessage(plugin.messages().get("wizard.gen-added", Map.of("type", type.name())));
                             spawnGenMarker(player, arenaId);
                         } catch (IllegalArgumentException ignored) {
