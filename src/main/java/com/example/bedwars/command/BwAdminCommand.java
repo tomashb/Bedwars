@@ -1,6 +1,9 @@
 package com.example.bedwars.command;
 
 import com.example.bedwars.BedwarsPlugin;
+import com.example.bedwars.arena.Arena;
+import com.example.bedwars.arena.WorldRef;
+import org.bukkit.entity.Player;
 import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,8 +22,91 @@ public final class BwAdminCommand implements CommandExecutor {
       sender.sendMessage(plugin.messages().get("errors.no-perm"));
       return true;
     }
+    if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+      List<String> lines = plugin.messages().getList("help.admin");
+      sender.sendMessage(plugin.messages().get("prefix") + String.join("\n", lines));
+      return true;
+    }
+
+    if (args[0].equalsIgnoreCase("arena")) {
+      handleArena(sender, args);
+      return true;
+    }
+
+    if (args[0].equalsIgnoreCase("version")) {
+      sender.sendMessage(plugin.messages().get("prefix") + plugin.getDescription().getVersion());
+      return true;
+    }
+
     List<String> lines = plugin.messages().getList("help.admin");
     sender.sendMessage(plugin.messages().get("prefix") + String.join("\n", lines));
     return true;
+  }
+
+  private void handleArena(CommandSender sender, String[] args) {
+    if (args.length < 2) {
+      sender.sendMessage(plugin.messages().get("prefix") + "Usage: /bwadmin arena <create|list|save|reload|delete>");
+      return;
+    }
+    String prefix = plugin.messages().get("prefix");
+    switch (args[1].toLowerCase()) {
+      case "create":
+        if (args.length < 3) {
+          sender.sendMessage(prefix + "Usage: /bwadmin arena create <id> [world]");
+          return;
+        }
+        String id = args[2];
+        String worldName;
+        if (args.length >= 4) {
+          worldName = args[3];
+        } else if (sender instanceof Player p) {
+          worldName = p.getWorld().getName();
+        } else {
+          sender.sendMessage(prefix + plugin.messages().get("arena.world-required"));
+          return;
+        }
+        try {
+          plugin.arenas().create(id, new WorldRef(worldName));
+          sender.sendMessage(prefix + String.format(plugin.messages().get("arena.created"), id));
+        } catch (IllegalArgumentException ex) {
+          sender.sendMessage(prefix + String.format(plugin.messages().get("arena.exists"), id));
+        }
+        break;
+      case "list":
+        List<String> ids = plugin.arenas().all().stream().map(Arena::id).toList();
+        String joined = ids.isEmpty() ? "aucune" : String.join(", ", ids);
+        sender.sendMessage(prefix + String.format(plugin.messages().get("arena.list"), joined));
+        break;
+      case "save":
+        if (args.length < 3) {
+          sender.sendMessage(prefix + "Usage: /bwadmin arena save <id>");
+          return;
+        }
+        plugin.arenas().save(args[2]);
+        sender.sendMessage(prefix + String.format(plugin.messages().get("arena.saved"), args[2]));
+        break;
+      case "reload":
+        if (args.length < 3) {
+          sender.sendMessage(prefix + "Usage: /bwadmin arena reload <id>");
+          return;
+        }
+        plugin.arenas().load(args[2]);
+        sender.sendMessage(prefix + String.format(plugin.messages().get("arena.reloaded"), args[2]));
+        break;
+      case "delete":
+        if (args.length < 3) {
+          sender.sendMessage(prefix + "Usage: /bwadmin arena delete <id>");
+          return;
+        }
+        boolean ok = plugin.arenas().delete(args[2]);
+        if (ok) {
+          sender.sendMessage(prefix + String.format(plugin.messages().get("arena.deleted"), args[2]));
+        } else {
+          sender.sendMessage(prefix + String.format(plugin.messages().get("arena.missing"), args[2]));
+        }
+        break;
+      default:
+        sender.sendMessage(prefix + "Usage: /bwadmin arena <create|list|save|reload|delete>");
+    }
   }
 }

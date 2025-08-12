@@ -1,0 +1,37 @@
+id: "arena_test"
+world: "world"
+state: WAITING
+lobby:
+  x: 0.0
+  y: 64.0
+  z: 0.0
+  yaw: 0.0
+  pitch: 0.0
+
+enabled-teams: [RED, BLUE]
+
+teams:
+  RED:
+    maxPlayers: 4
+    spawn: { x: 10.5, y: 65.0, z: 3.5, yaw: 180.0, pitch: 0.0 }
+    bed:   { x: 12.0, y: 65.0, z: 6.0 }
+  BLUE:
+    maxPlayers: 4
+    spawn: { x: -10.5, y: 65.0, z: -3.5, yaw: 0.0, pitch: 0.0 }
+    bed:   { x: -12.0, y: 65.0, z: -6.0 }
+
+generators:
+  - id: "4e3bf0c6-1b3f-4e7d-8c4a-1b4b3d7e0b23"
+    type: IRON
+    tier: 1
+    interval: 120
+    amount: 1
+    location: { x: 0.5, y: 65.0, z: 0.5, yaw: 0.0, pitch: 0.0 }
+
+npcs:
+  - id: "c0d8a6f1-2a42-4f6a-ae6e-4e71ea2d74aa"
+    type: ITEM
+    location: { x: 14.5, y: 65.0, z: 4.5, yaw: 90.0, pitch: 0.0 }
+  - id: "a3f2e2a7-5b61-4d3e-9e22-5c9e3e47a1bd"
+    type: UPGRADE
+    location: { x: -14.5, y: 65.0, z: -4.5, yaw: 270.0, pitch: 0.0 }

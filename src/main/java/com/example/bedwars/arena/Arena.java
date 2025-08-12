@@ -45,4 +45,12 @@ public final class Arena {
   public TeamData team(TeamColor c) { return teams.get(c); }
   public Arena addGenerator(Generator g) { generators.add(Objects.requireNonNull(g)); return this; }
   public Arena addNpc(NpcData n) { npcs.add(Objects.requireNonNull(n)); return this; }
+  public Arena removeGenerator(java.util.UUID id) {
+    generators.removeIf(g -> g.id().equals(id));
+    return this;
+  }
+  public Arena removeNpc(java.util.UUID id) {
+    npcs.removeIf(n -> n.id().equals(id));
+    return this;
+  }
 }
