@@ -2,58 +2,23 @@ name: Bedwars
 main: com.example.bedwars.BedwarsPlugin
 version: 0.2.2
 api-version: '1.21'
-author: You
-description: BedWars FR GUI (non-affilié Hypixel)
 commands:
   bw:
-    description: Menu BedWars + commandes
-    usage: /bw
+    description: BedWars command
     aliases: [bedwars]
   bwadmin:
-    description: Commandes d'administration BedWars
-    usage: /bwadmin
-    permission: bedwars.admin
+    description: BedWars admin command
 permissions:
   bedwars.admin.*:
-    description: Toutes les permissions admin
-    default: op
+    description: All bedwars admin permissions
     children:
-      bedwars.admin: true
       bedwars.admin.arena: true
-      bedwars.admin.game: true
       bedwars.admin.team: true
       bedwars.admin.npc: true
       bedwars.admin.gen: true
       bedwars.admin.rules: true
+      bedwars.admin.game: true
+      bedwars.admin.rotation: true
+      bedwars.admin.reset: true
       bedwars.admin.debug: true
       bedwars.admin.maintenance: true
-  bedwars.admin:
-    description: Accès au menu de gestion
-    default: op
-  bedwars.admin.arena:
-    description: Gestion des arènes
-    default: op
-  bedwars.admin.game:
-    description: Gestion des événements de jeu
-    default: op
-  bedwars.admin.team:
-    description: Gestion des équipes
-    default: op
-  bedwars.admin.npc:
-    description: Gestion des PNJ/Boutiques
-    default: op
-  bedwars.admin.gen:
-    description: Gestion des générateurs
-    default: op
-  bedwars.admin.rules:
-    description: Gestion des règles
-    default: op
-  bedwars.admin.debug:
-    description: Diagnostics
-    default: op
-  bedwars.admin.maintenance:
-    description: Maintenance/cleanup
-    default: op
-  bedwars.join:
-    description: Rejoindre une arène
-    default: true

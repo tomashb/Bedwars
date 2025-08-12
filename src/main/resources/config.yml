@@ -1,22 +1,5 @@
-lobby-world: world
-countdown-seconds: 20
-max-team-size: 4
-teams-enabled: [RED, BLUE, GREEN, YELLOW]
 generators:
-  IRON: { interval: 120, amount: 1 }   # ~6s
-  GOLD: { interval: 300, amount: 1 }   # ~15s
-  DIAMOND: { interval: 900, amount: 1 }   # ~45s
-  EMERALD: { interval: 1800, amount: 1 }   # ~90s
-block-protection: true
-holograms:
-  enabled: true
-  style:
-    useTextDisplay: true
-anti-camp:
-  enabled: true
-  stay-seconds: 20
-  effects: [SLOW, WEAKNESS]
-build:
-  min-height: 0
-  max-height: 256
-  protect-bed-radius: 3
+  IRON:    { interval: 120, amount: 1 }
+  GOLD:    { interval: 300, amount: 1 }
+  DIAMOND: { interval: 900, amount: 1 }
+  EMERALD: { interval: 1800, amount: 1 }

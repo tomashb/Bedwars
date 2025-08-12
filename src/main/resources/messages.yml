@@ -1,58 +1,10 @@
-prefix: "&6[BedWars]&r "
-arena:
-  created: "&aArène &e{arena}&a créée."
-  deleted: "&cArène &e{arena}&c supprimée."
-  exists: "&cL'arène &e{arena}&c existe déjà."
-  saved: "&aArène &e{arena}&a sauvegardée."
-  started: "&aLa partie &e{arena}&a commence !"
-  stopped: "&cLa partie &e{arena}&c est arrêtée."
-  join: "&aVous avez rejoint &e{arena}&a."
-  leave: "&eVous avez quitté l'arène."
-  events_enabled: "&aÉvénements activés pour &e{arena}&a."
-  events_disabled: "&cÉvénements désactivés pour &e{arena}&c."
-team:
-  bed_destroyed: "&cLe lit de l'équipe &e{team}&c a été détruit par &e{player}&c !"
-error:
-  no_arena: "&cAucune arène avec ce nom."
-  not_admin: "&cVous n'avez pas la permission."
-  no_world: "&cMonde introuvable: &e{world}"
-  usage: "&eUtilisation: {usage}"
-shop:
-  not_enough: "&cPas assez de ressources."
-  bought: "&aAchat: &e{item}"
-start:
-  countdown: "&eLa partie démarre dans &c{seconds}s"
-  go: "&aGO!"
-command:
-  player-only: "&cCommandes joueurs uniquement"
-  help:
-    list: "&e/bw list&7 - liste des arènes"
-    join: "&e/bw join <arène>&7 - rejoindre une arène"
-    leave: "&e/bw leave&7 - quitter l'arène"
-  list: "&aArènes disponibles: &e{arenas}"
-  join-usage: "&cUsage: /bw join <arène>"
-  unknown: "&cSous-commande inconnue"
-admin:
-  menu-title: "&8Gestion BedWars"
-  diagnostics-title: "&8Diagnostics"
-  reset-title: "&8Reset d'arène"
-  menu:
-    arenas: "&eArènes"
-    create: "&aCréer une arène"
-    events: "&bÉvénements"
-    rules: "&bRègles de jeu"
-    npc: "&dHologrammes/PNJ"
-    rotation: "&dRotation & Reset"
-    diagnostics: "&bDiagnostics"
-    diagnostics-lore: "&7État, compteurs, cleanup"
+menu:
+  title-root: "&cBedWars Admin"
+  root:
+    arenas: "&aArenas"
+    create-arena: "&bCreate Arena"
+    rules-events: "&eRules & Events"
+    npc-shops: "&dNPC & Shops"
+    rotation: "&6Rotation"
     reset: "&cReset"
-    reset-lore: "&7Stratégie de reset & test"
-    info: "&fRetour / Infos"
-    info-lore: "&7Aide & raccourcis commandes"
-debug:
-  header: "&6Statut de l'arène &e{arena}&6:"    
-  state: "&7État: &e{state}"
-  players: "&7Joueurs: &e{count}"
-  events: "&7Événements: &e{status}"
-maintenance:
-  cleaned: "&aNettoyage de l'arène &e{arena}&a: &e{count}&a entités supprimées."
+    diagnostics: "&7Diagnostics"

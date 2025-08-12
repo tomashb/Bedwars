@@ -1,94 +1,33 @@
 package com.example.bedwars;
 
-import com.example.bedwars.arena.ArenaManager;
-import com.example.bedwars.command.AdminCommand;
-import com.example.bedwars.command.BedwarsCommand;
-import com.example.bedwars.gui.MenuManager;
-import com.example.bedwars.gui.*;
-import com.example.bedwars.listener.PlayerListener;
-import com.example.bedwars.util.MessageManager;
-import com.example.bedwars.generator.GeneratorManager;
-import com.example.bedwars.scoreboard.ScoreboardManager;
-import org.bukkit.NamespacedKey;
+import com.example.bedwars.menu.MenuListener;
+import com.example.bedwars.menu.MenuManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-/**
- * Main plugin class. This is only a lightweight skeleton that wires
- * together a couple of managers and commands so the plugin can
- * actually load. It is not a full BedWars implementation but provides
- * a starting point for further development.
- */
 public class BedwarsPlugin extends JavaPlugin {
-
-    private ArenaManager arenaManager;
-    private MessageManager messageManager;
-    private MenuManager menuManager;
-    private GeneratorManager generatorManager;
-    private ScoreboardManager scoreboardManager;
-    private NamespacedKey arenaKey;
-
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-        this.messageManager = new MessageManager(this);
-        this.arenaManager = new ArenaManager(this);
-        this.menuManager = new MenuManager(this);
-        this.generatorManager = new GeneratorManager(this);
-        this.scoreboardManager = new ScoreboardManager(this);
-        // Register menus
-        menuManager.register(new RootMenu(this));
-        menuManager.register(new ArenasMenu(this));
-        menuManager.register(new ArenaEditorMenu(this));
-        menuManager.register(new RulesEventsMenu(this));
-        menuManager.register(new NpcShopsMenu(this));
-        menuManager.register(new GeneratorsMenu(this));
-        menuManager.register(new RotationMenu(this));
-        menuManager.register(new ResetMenu(this));
-        menuManager.register(new DiagnosticsMenu(this));
-
-        this.arenaKey = new NamespacedKey(this, "bw_arena");
-
-        // Register command executors
-        BedwarsCommand bwCmd = new BedwarsCommand(this);
-        getCommand("bw").setExecutor(bwCmd);
-        getCommand("bw").setTabCompleter(bwCmd);
-        AdminCommand adminCmd = new AdminCommand(this);
-        getCommand("bwadmin").setExecutor(adminCmd);
-        getCommand("bwadmin").setTabCompleter(adminCmd);
-
-        // Register basic listeners
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(menuManager, this);
-    }
-
-    public ArenaManager getArenaManager() {
-        return arenaManager;
-    }
-
-    public MessageManager getMessages() {
-        return messageManager;
-    }
-
-    public MenuManager getMenuManager() {
-        return menuManager;
-    }
-
-    public GeneratorManager getGeneratorManager() {
-        return generatorManager;
-    }
-
-    public ScoreboardManager getScoreboardManager() {
-        return scoreboardManager;
-    }
-
-    /**
-     * Namespaced key used to tag entities belonging to a specific arena.
-     * This key enables maintenance routines such as cleanup to locate
-     * plugin-created entities safely.
-     *
-     * @return NamespacedKey for arena tags
-     */
-    public NamespacedKey getArenaKey() {
-        return arenaKey;
+        getServer().getPluginManager().registerEvents(new MenuListener(), this);
+        if (getCommand("bw") != null) {
+            getCommand("bw").setExecutor((sender, command, label, args) -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("Players only");
+                    return true;
+                }
+                MenuManager.openRoot(player);
+                return true;
+            });
+        }
+        if (getCommand("bwadmin") != null) {
+            getCommand("bwadmin").setExecutor((sender, command, label, args) -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("Players only");
+                    return true;
+                }
+                MenuManager.openRoot(player);
+                return true;
+            });
+        }
     }
 }
