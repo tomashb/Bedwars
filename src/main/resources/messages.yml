@@ -25,3 +25,30 @@ arena.list: "&eArènes: %s"
 arena.exists: "&cL'arène %s existe déjà."
 arena.missing: "&cL'arène %s n'existe pas."
 arena.world-required: "&cMonde requis."
+
+admin:
+  menu-title: "&8Gestion BedWars"
+  no-perm: "&cVous n'avez pas la permission &7(bedwars.admin)."
+
+  root:
+    arenas: "&eArènes"
+    arenas-lore: "&7Lister/éditer les arènes"
+    create: "&aCréer une arène"
+    create-lore: "&7Lancer l'assistant de création"
+    rules: "&6Règles & Événements"
+    rules-lore: "&7Limites de build, timeline"
+    shops: "&bPNJ & Shops"
+    shops-lore: "&7Boutique objets & upgrades"
+    generators: "&3Générateurs"
+    generators-lore: "&7Ajouter/éditer les génés"
+    rotation: "&dRotation"
+    rotation-lore: "&7Liste & poids d'arènes"
+    reset: "&cReset"
+    reset-lore: "&7Stratégie & test de reset"
+    diagnostics: "&9Diagnostics"
+    diagnostics-lore: "&7État, compteurs, cleanup"
+    info: "&fRetour / Infos"
+    info-lore: "&7Aide & raccourcis commandes"
+
+  placeholders:
+    wip: "&7Cette vue sera complétée à l'étape suivante."
