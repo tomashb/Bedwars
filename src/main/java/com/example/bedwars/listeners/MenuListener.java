@@ -72,6 +72,13 @@ public class MenuListener implements Listener {
                 UUID id = p.getUniqueId();
                 arenas.all().forEach(a -> a.removePlayer(id));
                 p.getInventory().clear();
+                org.bukkit.World w = org.bukkit.Bukkit.getWorld(plugin.getConfig().getString("lobby-world", "world"));
+                if (w != null) p.teleport(w.getSpawnLocation());
+                org.bukkit.inventory.ItemStack compass = new org.bukkit.inventory.ItemStack(org.bukkit.Material.COMPASS);
+                org.bukkit.inventory.meta.ItemMeta meta1 = compass.getItemMeta();
+                meta1.setDisplayName("§bMenu BedWars"); compass.setItemMeta(meta1);
+                p.getInventory().setItem(0, compass);
+                p.setScoreboard(org.bukkit.Bukkit.getScoreboardManager().getMainScoreboard());
                 p.sendMessage(C.msg("arena.leave"));
             }
             case "OPEN_SHOP" -> plugin.shops().open(p);
@@ -152,25 +159,28 @@ public class MenuListener implements Listener {
                 Location gl = p.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
                 a.getGenerators().add(new Generator(gt, gl, 1));
                 arenas.save(a);
+                plugin.generators().resetArena(a);
                 ArmorStand as = gl.getWorld().spawn(gl.clone().add(0, 0.1, 0), ArmorStand.class);
                 as.setInvisible(true); as.setMarker(true); as.setGravity(false);
                 as.setCustomName("§bGEN §7: §f" + gt.name()); as.setCustomNameVisible(true);
-                as.getPersistentDataContainer().set(GEN_KEY, PersistentDataType.STRING, gt.name());
+                var pdc = as.getPersistentDataContainer();
+                pdc.set(GEN_KEY, PersistentDataType.STRING, gt.name());
+                pdc.set(Keys.ARENA, PersistentDataType.STRING, arenaName);
                 p.sendMessage(C.color("&aGénérateur " + gt.name() + " ajouté."));
                 menus.openArenaEditor(p, arenaName);
             }
             case "SET_SHOP_ITEM" -> {
                 Arena a = arenas.get(arenaName);
                 if (a == null) return;
-                Location loc = p.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
-                loc.setYaw(p.getLocation().getYaw());
-                loc.setPitch(0f);
+                Location loc = p.getLocation().clone();
                 a.setItemShop(loc);
                 arenas.save(a);
                 Villager v = loc.getWorld().spawn(loc, Villager.class);
                 v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
                 v.setCustomName("§bBoutique"); v.setCustomNameVisible(true);
-                v.getPersistentDataContainer().set(NPC_KEY, PersistentDataType.STRING, "item");
+                var pdc = v.getPersistentDataContainer();
+                pdc.set(NPC_KEY, PersistentDataType.STRING, "item");
+                pdc.set(Keys.ARENA, PersistentDataType.STRING, arenaName);
                 v.teleport(loc);
                 p.sendMessage(C.color("&aBoutique d'objets définie et PNJ posé."));
                 menus.openArenaEditor(p, arenaName);
@@ -178,15 +188,15 @@ public class MenuListener implements Listener {
             case "SET_SHOP_UPGRADE" -> {
                 Arena a = arenas.get(arenaName);
                 if (a == null) return;
-                Location loc = p.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
-                loc.setYaw(p.getLocation().getYaw());
-                loc.setPitch(0f);
+                Location loc = p.getLocation().clone();
                 a.setUpgradeShop(loc);
                 arenas.save(a);
                 Villager v = loc.getWorld().spawn(loc, Villager.class);
                 v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
                 v.setCustomName("§eAméliorations"); v.setCustomNameVisible(true);
-                v.getPersistentDataContainer().set(NPC_KEY, PersistentDataType.STRING, "upgrade");
+                var pdc = v.getPersistentDataContainer();
+                pdc.set(NPC_KEY, PersistentDataType.STRING, "upgrade");
+                pdc.set(Keys.ARENA, PersistentDataType.STRING, arenaName);
                 v.teleport(loc);
                 p.sendMessage(C.color("&aBoutique améliorations définie et PNJ posé."));
                 menus.openArenaEditor(p, arenaName);

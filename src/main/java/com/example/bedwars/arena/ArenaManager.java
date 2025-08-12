@@ -35,7 +35,18 @@ public class ArenaManager {
     }
 
     public void delete(String name){
-        arenas.remove(name.toLowerCase());
+        Arena removed = arenas.remove(name.toLowerCase());
+        if (removed != null){
+            for (org.bukkit.World w : org.bukkit.Bukkit.getWorlds()){
+                for (org.bukkit.entity.Entity ent : w.getEntities()){
+                    var pdc = ent.getPersistentDataContainer();
+                    if (pdc.has(Keys.ARENA, org.bukkit.persistence.PersistentDataType.STRING)){
+                        String tag = pdc.get(Keys.ARENA, org.bukkit.persistence.PersistentDataType.STRING);
+                        if (name.equalsIgnoreCase(tag)) ent.remove();
+                    }
+                }
+            }
+        }
         File f = new File(plugin.getDataFolder(), "arenas/"+name+".yml");
         if (f.exists()) f.delete();
     }
@@ -138,7 +149,9 @@ public class ArenaManager {
             org.bukkit.entity.Villager v = item.getWorld().spawn(item, org.bukkit.entity.Villager.class);
             v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
             v.setCustomName("§bBoutique"); v.setCustomNameVisible(true);
-            v.getPersistentDataContainer().set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "item");
+            var pdc = v.getPersistentDataContainer();
+            pdc.set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "item");
+            pdc.set(Keys.ARENA, org.bukkit.persistence.PersistentDataType.STRING, a.getName());
             v.teleport(item);
         }
         var up = a.getUpgradeShop();
@@ -147,7 +160,9 @@ public class ArenaManager {
             org.bukkit.entity.Villager v = up.getWorld().spawn(up, org.bukkit.entity.Villager.class);
             v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
             v.setCustomName("§eAméliorations"); v.setCustomNameVisible(true);
-            v.getPersistentDataContainer().set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "upgrade");
+            var pdc = v.getPersistentDataContainer();
+            pdc.set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "upgrade");
+            pdc.set(Keys.ARENA, org.bukkit.persistence.PersistentDataType.STRING, a.getName());
             v.teleport(up);
         }
         for (Generator g : a.getGenerators()){
@@ -157,7 +172,9 @@ public class ArenaManager {
             org.bukkit.entity.ArmorStand as = loc.getWorld().spawn(loc.clone().add(0,0.1,0), org.bukkit.entity.ArmorStand.class);
             as.setInvisible(true); as.setMarker(true); as.setGravity(false);
             as.setCustomName("§bGEN §7: §f" + g.getType().name()); as.setCustomNameVisible(true);
-            as.getPersistentDataContainer().set(Keys.GEN, org.bukkit.persistence.PersistentDataType.STRING, g.getType().name());
+            var pdc = as.getPersistentDataContainer();
+            pdc.set(Keys.GEN, org.bukkit.persistence.PersistentDataType.STRING, g.getType().name());
+            pdc.set(Keys.ARENA, org.bukkit.persistence.PersistentDataType.STRING, a.getName());
         }
     }
 

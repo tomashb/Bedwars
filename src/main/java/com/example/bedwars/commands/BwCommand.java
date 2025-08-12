@@ -52,7 +52,15 @@ public class BwCommand implements CommandExecutor, TabCompleter {
             case "leave":
                 if (!(sender instanceof Player p2)) return true;
                 plugin.arenas().all().forEach(ar->ar.removePlayer(p2.getUniqueId()));
-                p2.getInventory().clear(); p2.sendMessage(C.msg("arena.leave")); return true;
+                p2.getInventory().clear();
+                org.bukkit.World w = org.bukkit.Bukkit.getWorld(plugin.getConfig().getString("lobby-world", "world"));
+                if (w != null) p2.teleport(w.getSpawnLocation());
+                org.bukkit.inventory.ItemStack compass = new org.bukkit.inventory.ItemStack(org.bukkit.Material.COMPASS);
+                org.bukkit.inventory.meta.ItemMeta meta = compass.getItemMeta();
+                meta.setDisplayName("§bMenu BedWars"); compass.setItemMeta(meta);
+                p2.getInventory().setItem(0, compass);
+                p2.setScoreboard(org.bukkit.Bukkit.getScoreboardManager().getMainScoreboard());
+                p2.sendMessage(C.msg("arena.leave")); return true;
         }
         return true;
     }
