@@ -45,7 +45,14 @@ public class PlayerListener implements Listener {
         TeamColor team = a.getTeamOf(p.getUniqueId()); if (team==null) return;
         e.getDrops().clear(); e.setDroppedExp(0);
         if (a.isBedAlive(team)){
-            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, ()->{ p.spigot().respawn(); p.getInventory().clear(); p.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD,1)); p.getInventory().addItem(new ItemStack(Material.WHITE_WOOL,16)); p.teleport(a.getSpawn(team)); }, 20L);
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, ()->{
+                p.spigot().respawn();
+                p.getInventory().clear();
+                p.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD,1));
+                // give team-colored wool
+                p.getInventory().addItem(new ItemStack(team.wool(),16));
+                p.teleport(a.getSpawn(team));
+            }, 20L);
         } else {
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, ()->{ p.spigot().respawn(); p.setAllowFlight(true); p.setFlying(true); p.sendMessage(C.color("&cVous êtes éliminé.")); }, 20L);
         }

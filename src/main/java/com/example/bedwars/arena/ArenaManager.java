@@ -185,6 +185,47 @@ public class ArenaManager {
         }
     }
 
+    /**
+     * Removes temporary generator markers that are spawned while editing the
+     * arena. Called when the game actually begins so the setup holograms do not
+     * remain during the match.
+     */
+    public void removeSetupMarkers(Arena a){
+        var w = a.getWorld();
+        if (w == null) return;
+        for (var ent : w.getEntities()){
+            var pdc = ent.getPersistentDataContainer();
+            if (pdc.has(Keys.GEN, org.bukkit.persistence.PersistentDataType.STRING)){
+                String ar = pdc.get(Keys.ARENA, org.bukkit.persistence.PersistentDataType.STRING);
+                if (a.getName().equalsIgnoreCase(ar)) ent.remove();
+            }
+        }
+    }
+
+    /** Spawns clean holograms for diamond and emerald generators during a match. */
+    private void spawnGeneratorHolograms(Arena a){
+        if (!plugin.getConfig().getBoolean("holograms.enabled", true)) return;
+        boolean useText = plugin.getConfig().getBoolean("holograms.style.useTextDisplay", true);
+        for (Generator g : a.getGenerators()){
+            if (g.getType()!=GeneratorType.DIAMOND && g.getType()!=GeneratorType.EMERALD) continue;
+            Location loc = g.getLocation().clone().add(0,1.5,0);
+            if (loc.getWorld()==null) continue;
+            String name = (g.getType()==GeneratorType.DIAMOND?"§bDiamond":"§aEmerald")+" Generator";
+            String tier = switch (g.getTier()){ case 2->"II"; case 3->"III"; default->"I"; };
+            String text = name + "\n§7Tier: " + tier;
+            if (useText){
+                org.bukkit.entity.TextDisplay td = loc.getWorld().spawn(loc, org.bukkit.entity.TextDisplay.class);
+                td.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
+                td.setText(net.kyori.adventure.text.Component.text(text));
+            } else {
+                org.bukkit.entity.ArmorStand as = loc.getWorld().spawn(loc, org.bukkit.entity.ArmorStand.class);
+                as.setInvisible(true); as.setMarker(true); as.setGravity(false);
+                as.customName(net.kyori.adventure.text.Component.text(text));
+                as.setCustomNameVisible(true);
+            }
+        }
+    }
+
     public void startArena(Arena a){
         if (a==null) return;
         a.setState(GameState.STARTING);
@@ -197,6 +238,8 @@ public class ArenaManager {
                 if (s<=0){
                     a.setState(GameState.RUNNING);
                     plugin.generators().resetArena(a);
+                    removeSetupMarkers(a);
+                    spawnGeneratorHolograms(a);
                     a.broadcast(com.example.bedwars.util.C.msg("start.go"));
                     for (UUID id : a.getAllPlayers()){
                         org.bukkit.entity.Player pl = Bukkit.getPlayer(id);
@@ -208,6 +251,9 @@ public class ArenaManager {
                             continue;
                         }
                         pl.teleport(spawn);
+                        pl.getInventory().clear();
+                        pl.getInventory().addItem(new org.bukkit.inventory.ItemStack(org.bukkit.Material.WOODEN_SWORD,1));
+                        if (team!=null) pl.getInventory().addItem(new org.bukkit.inventory.ItemStack(team.wool(),16));
                         plugin.boards().applyTo(pl, a);
                     }
                     cancel();

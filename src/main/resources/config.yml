@@ -8,3 +8,15 @@ generators:
   DIAMOND: { interval: 900, amount: 1 }   # ~45s
   EMERALD: { interval: 1800, amount: 1 }   # ~90s
 block-protection: true
+holograms:
+  enabled: true
+  style:
+    useTextDisplay: true
+anti-camp:
+  enabled: true
+  stay-seconds: 20
+  effects: [SLOW, WEAKNESS]
+build:
+  min-height: 0
+  max-height: 256
+  protect-bed-radius: 3

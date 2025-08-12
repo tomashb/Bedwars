@@ -32,8 +32,9 @@ public class MenuManager {
 
     private ItemStack pane(){ ItemStack it=new ItemStack(Material.GRAY_STAINED_GLASS_PANE); ItemMeta m=it.getItemMeta(); m.setDisplayName(" "); it.setItemMeta(m); return it; }
     private Inventory createGui(int size, String title){ Inventory inv=Bukkit.createInventory(null,size,title); ItemStack f=pane(); for(int i=0;i<size;i++) inv.setItem(i,f); return inv; }
+    // team wool helper kept for backwards compatibility. Now delegates to TeamColor#wool().
     private Material woolFor(com.example.bedwars.arena.TeamColor t){
-        return switch (t){ case RED->Material.RED_WOOL; case BLUE->Material.BLUE_WOOL; case GREEN->Material.GREEN_WOOL; case YELLOW->Material.YELLOW_WOOL; case AQUA->Material.CYAN_WOOL; case WHITE->Material.WHITE_WOOL; case PINK->Material.PINK_WOOL; case GRAY->Material.GRAY_WOOL; };
+        return t.wool();
     }
     private ItemStack actionItem(Material mat, String name, String act, String arena, String team, String gentype){ ItemStack it=new ItemBuilder(mat).name(name).build(); set(it,act,arena,team,gentype); return it; }
     private void set(ItemStack it, String act, String arena, String team, String gentype){
@@ -93,12 +94,22 @@ public class MenuManager {
         int slot=10;
         for (TeamColor t : TeamColor.values()){
             boolean hide=false; Arena a=arenas.get(arena);
+            boolean hasSpawn = false, hasBed = false;
             if (a!=null){
-                if (act.equals("SET_BED") && a.hasBed(t)) hide=true;
-                if (act.equals("JOIN_TEAM") && (!a.isTeamEnabled(t) || a.getSpawn(t)==null)) hide=true;
+                hasSpawn = a.hasSpawn(t);
+                hasBed = a.hasBed(t);
+                if (act.equals("SET_BED") && hasBed) hide=true;
+                if (act.equals("JOIN_TEAM") && (!a.isTeamEnabled(t) || !hasSpawn)) hide=true;
             }
             if (!hide){
                 ItemStack it=new ItemBuilder(woolFor(t)).name(t.chat()+t.display()).build();
+                ItemMeta meta = it.getItemMeta();
+                if (hasSpawn || hasBed){
+                    meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+                    meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+                    if (hasSpawn && hasBed) meta.setDisplayName(ChatColor.GREEN + t.display());
+                }
+                it.setItemMeta(meta);
                 set(it, act, arena, t.name(), null);
                 inv.setItem(slot++, it); if (slot==17) slot=19;
             }
