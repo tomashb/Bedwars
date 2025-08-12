@@ -5,6 +5,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Map;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -37,7 +39,7 @@ public class Arena {
 
     public void addPlayer(Player player) {
         players.add(player.getUniqueId());
-        player.sendMessage("§aVous avez rejoint l'arène " + name);
+        player.sendMessage(plugin.getMessages().get("arena.join", Map.of("arena", name)));
         if (state == GameState.WAITING && players.size() >= 2) {
             startCountdown();
         }
@@ -45,7 +47,7 @@ public class Arena {
 
     public void removePlayer(Player player) {
         players.remove(player.getUniqueId());
-        player.sendMessage("§cVous avez quitté l'arène " + name);
+        player.sendMessage(plugin.getMessages().get("arena.leave", Map.of("arena", name)));
         if (players.isEmpty() && state != GameState.WAITING) {
             reset();
         }
@@ -58,11 +60,11 @@ public class Arena {
             public void run() {
                 if (countdown <= 0) {
                     state = GameState.RUNNING;
-                    broadcast("§aDébut de la partie!");
+                    broadcast(plugin.getMessages().get("arena.started", Map.of("arena", name)));
                     cancel();
                     return;
                 }
-                broadcast("§eLa partie démarre dans " + countdown + "s");
+                broadcast(plugin.getMessages().get("start.countdown", Map.of("seconds", String.valueOf(countdown))));
                 countdown--;
             }
         }.runTaskTimer(plugin, 0L, 20L);

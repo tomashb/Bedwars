@@ -18,3 +18,12 @@ shop:
 start:
   countdown: "&eLa partie démarre dans &c{seconds}s"
   go: "&aGO!"
+command:
+  player-only: "&cCommandes joueurs uniquement"
+  help:
+    list: "&e/bw list&7 - liste des arènes"
+    join: "&e/bw join <arène>&7 - rejoindre une arène"
+    leave: "&e/bw leave&7 - quitter l'arène"
+  list: "&aArènes disponibles: &e{arenas}"
+  join-usage: "&cUsage: /bw join <arène>"
+  unknown: "&cSous-commande inconnue"

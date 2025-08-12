@@ -47,7 +47,7 @@ public class ArenaManager {
 
     public void joinArena(Player player, String name) {
         getArena(name).ifPresentOrElse(arena -> arena.addPlayer(player),
-                () -> player.sendMessage("§cArène inconnue."));
+                () -> player.sendMessage(plugin.getMessages().get("error.no_arena")));
     }
 
     public void leaveArena(Player player) {
