@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Collections;
 
 /**
  * Simplified arena model. Only handles joining, leaving and a very
@@ -62,6 +63,7 @@ public class Arena {
         if (state == GameState.WAITING && players.size() >= 2) {
             startCountdown();
         }
+        plugin.getScoreboardManager().update(this);
     }
 
     public void removePlayer(Player player) {
@@ -70,6 +72,7 @@ public class Arena {
         if (players.isEmpty() && state != GameState.WAITING) {
             reset();
         }
+        plugin.getScoreboardManager().update(this);
     }
 
     private void startCountdown() {
@@ -94,6 +97,13 @@ public class Arena {
         state = GameState.WAITING;
         countdown = 10;
         eventsEnabled = true;
+    }
+
+    /**
+     * Expose current players for scoreboard updates.
+     */
+    public Set<UUID> getPlayers() {
+        return Collections.unmodifiableSet(players);
     }
 
     private void broadcast(String msg) {

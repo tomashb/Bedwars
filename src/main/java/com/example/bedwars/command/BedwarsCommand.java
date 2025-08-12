@@ -4,6 +4,7 @@ import com.example.bedwars.BedwarsPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
  * specification: list, join and leave. This is meant as a convenience
  * for manual testing of the skeleton plugin.
  */
-public class BedwarsCommand implements CommandExecutor {
+public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     private final BedwarsPlugin plugin;
 
@@ -54,6 +55,10 @@ public class BedwarsCommand implements CommandExecutor {
                     player.sendMessage(plugin.getMessages().get("command.join-usage"));
                     return true;
                 }
+                if (!player.hasPermission("bedwars.join")) {
+                    player.sendMessage(plugin.getMessages().get("error.not_admin"));
+                    return true;
+                }
                 plugin.getArenaManager().joinArena(player, args[1]);
                 return true;
             }
@@ -66,5 +71,24 @@ public class BedwarsCommand implements CommandExecutor {
                 return true;
             }
         }
+    }
+
+    @Override
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!(sender instanceof Player player)) {
+            return java.util.Collections.emptyList();
+        }
+        if (args.length == 1) {
+            java.util.List<String> base = new java.util.ArrayList<>();
+            base.add("menu");
+            base.add("list");
+            base.add("join");
+            base.add("leave");
+            return base;
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("join")) {
+            return new java.util.ArrayList<>(plugin.getArenaManager().getArenas().keySet());
+        }
+        return java.util.Collections.emptyList();
     }
 }
