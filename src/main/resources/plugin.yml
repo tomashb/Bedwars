@@ -1,24 +1,17 @@
 name: Bedwars
 main: com.example.bedwars.BedwarsPlugin
-version: 0.2.3
+version: 0.0.1
 api-version: '1.21'
+author: You
 commands:
   bw:
-    description: BedWars command
+    description: Commandes joueur BedWars
+    usage: /bw <help>
     aliases: [bedwars]
   bwadmin:
-    description: BedWars admin command
+    description: Commandes admin BedWars
+    usage: /bwadmin <help>
 permissions:
   bedwars.admin.*:
-    description: All bedwars admin permissions
-    children:
-      bedwars.admin.arena: true
-      bedwars.admin.team: true
-      bedwars.admin.npc: true
-      bedwars.admin.gen: true
-      bedwars.admin.rules: true
-      bedwars.admin.game: true
-      bedwars.admin.rotation: true
-      bedwars.admin.reset: true
-      bedwars.admin.debug: true
-      bedwars.admin.maintenance: true
+    description: Accès à toutes les commandes admin BedWars
+    default: op
