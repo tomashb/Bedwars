@@ -1,16 +1,13 @@
 package com.example.bedwars.arena;
 
 import com.example.bedwars.BedwarsPlugin;
+import com.example.bedwars.generator.GeneratorType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Map;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * Simplified arena model. Only handles joining, leaving and a very
@@ -20,8 +17,19 @@ import java.util.Collections;
 public class Arena {
 
     private final String name;
-    private final Set<UUID> players = new HashSet<>();
     private final BedwarsPlugin plugin;
+
+    // configuration
+    private String world;
+    private Location lobby;
+    private final Set<TeamColor> enabledTeams = EnumSet.noneOf(TeamColor.class);
+    private final Map<TeamColor, TeamData> teams = new EnumMap<>(TeamColor.class);
+    private final List<Location> itemShops = new ArrayList<>();
+    private final List<Location> upgradeShops = new ArrayList<>();
+    private final List<GeneratorSpec> generators = new ArrayList<>();
+
+    // runtime
+    private final Set<UUID> players = new HashSet<>();
     private GameState state = GameState.WAITING;
     private int countdown = 10; // seconds
     private boolean eventsEnabled = true;
@@ -33,6 +41,76 @@ public class Arena {
 
     public String getName() {
         return name;
+    }
+
+    public String getWorld() {
+        return world;
+    }
+
+    public void setWorld(String world) {
+        this.world = world;
+    }
+
+    public Location getLobby() {
+        return lobby;
+    }
+
+    public void setLobby(Location lobby) {
+        this.lobby = lobby;
+    }
+
+    public Set<TeamColor> getEnabledTeams() {
+        return enabledTeams;
+    }
+
+    public void enableTeam(TeamColor team) {
+        enabledTeams.add(team);
+    }
+
+    public void setTeamSpawn(TeamColor team, Location loc) {
+        teams.computeIfAbsent(team, t -> new TeamData()).spawn = loc;
+    }
+
+    public Location getTeamSpawn(TeamColor team) {
+        TeamData data = teams.get(team);
+        return data != null ? data.spawn : null;
+    }
+
+    public void setTeamBed(TeamColor team, Location block, String facing) {
+        TeamData data = teams.computeIfAbsent(team, t -> new TeamData());
+        BedData bed = new BedData();
+        bed.block = block;
+        bed.facing = facing;
+        data.bed = bed;
+    }
+
+    public BedData getTeamBed(TeamColor team) {
+        TeamData data = teams.get(team);
+        return data != null ? data.bed : null;
+    }
+
+    public void addItemShop(Location loc) {
+        itemShops.add(loc);
+    }
+
+    public List<Location> getItemShops() {
+        return itemShops;
+    }
+
+    public void addUpgradeShop(Location loc) {
+        upgradeShops.add(loc);
+    }
+
+    public List<Location> getUpgradeShops() {
+        return upgradeShops;
+    }
+
+    public void addGenerator(GeneratorType type, Location loc, int tier) {
+        generators.add(new GeneratorSpec(type, loc, tier));
+    }
+
+    public List<GeneratorSpec> getGenerators() {
+        return generators;
     }
 
     public GameState getState() {
@@ -112,6 +190,31 @@ public class Arena {
             if (p != null) {
                 p.sendMessage(msg);
             }
+        }
+    }
+
+    /** team data container */
+    private static class TeamData {
+        Location spawn;
+        BedData bed;
+    }
+
+    /** bed data container */
+    public static class BedData {
+        public Location block;
+        public String facing;
+    }
+
+    /** generator spec container */
+    public static class GeneratorSpec {
+        public final GeneratorType type;
+        public final Location loc;
+        public int tier;
+
+        public GeneratorSpec(GeneratorType type, Location loc, int tier) {
+            this.type = type;
+            this.loc = loc;
+            this.tier = tier;
         }
     }
 }

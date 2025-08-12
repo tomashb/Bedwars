@@ -28,6 +28,10 @@ public final class BedwarsPlugin extends JavaPlugin {
     private ScoreboardManager scoreboardManager;
     private MenuListener menuListener;
     private NamespacedKey arenaKey;
+    private NamespacedKey actionKey;
+    private NamespacedKey teamKey;
+    private NamespacedKey genTypeKey;
+    private NamespacedKey npcKey;
 
     @Override
     public void onEnable() {
@@ -40,6 +44,10 @@ public final class BedwarsPlugin extends JavaPlugin {
         this.scoreboardManager = new ScoreboardManager(this);
         this.menuListener = new MenuListener(this);
         this.arenaKey = new NamespacedKey(this, "arena");
+        this.actionKey = new NamespacedKey(this, "bw_action");
+        this.teamKey = new NamespacedKey(this, "bw_team");
+        this.genTypeKey = new NamespacedKey(this, "bw_genType");
+        this.npcKey = new NamespacedKey(this, "bw_npc");
 
         // register menus
         menuListener.register(new RootMenu(this));
@@ -95,5 +103,21 @@ public final class BedwarsPlugin extends JavaPlugin {
 
     public NamespacedKey arenaKey() {
         return arenaKey;
+    }
+
+    public NamespacedKey actionKey() {
+        return actionKey;
+    }
+
+    public NamespacedKey teamKey() {
+        return teamKey;
+    }
+
+    public NamespacedKey genTypeKey() {
+        return genTypeKey;
+    }
+
+    public NamespacedKey npcKey() {
+        return npcKey;
     }
 }

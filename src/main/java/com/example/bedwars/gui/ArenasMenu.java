@@ -43,6 +43,8 @@ public class ArenasMenu implements BWMenu {
         ItemMeta meta = map.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(id);
+            meta.getPersistentDataContainer().set(plugin.actionKey(), org.bukkit.persistence.PersistentDataType.STRING, "ARENA_OPEN");
+            meta.getPersistentDataContainer().set(plugin.arenaKey(), org.bukkit.persistence.PersistentDataType.STRING, id);
             map.setItemMeta(meta);
         }
         return map;
@@ -53,6 +55,7 @@ public class ArenasMenu implements BWMenu {
         ItemMeta meta = it.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(ChatColor.RED + "Retour");
+            meta.getPersistentDataContainer().set(plugin.actionKey(), org.bukkit.persistence.PersistentDataType.STRING, "BACK");
             it.setItemMeta(meta);
         }
         return it;
