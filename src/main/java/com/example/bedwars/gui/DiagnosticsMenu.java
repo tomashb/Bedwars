@@ -24,18 +24,22 @@ public class DiagnosticsMenu implements BWMenu {
 
     @Override
     public void open(Player player, Object... args) {
-        String title = ChatColor.translateAlternateColorCodes('&', "&6Diagnostics");
+        String title = ChatColor.translateAlternateColorCodes('&',
+                String.valueOf(plugin.getMessages().get("admin.diagnostics-title")));
         Inventory inv = Bukkit.createInventory(new BWMenuHolder(AdminView.DIAGNOSTICS, null), 27, title);
-        inv.setItem(26, backItem());
+        inv.setItem(26, icon(Material.BARRIER, plugin.getMessages().get("admin.menu.info"),
+                plugin.getMessages().get("admin.menu.info-lore")));
         player.openInventory(inv);
     }
 
-    private ItemStack backItem() {
-        ItemStack it = new ItemStack(Material.BARRIER);
-        ItemMeta meta = it.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.RED + "Retour");
-            it.setItemMeta(meta);
+    private ItemStack icon(Material mat, String name, String lore) {
+        ItemStack it = new ItemStack(mat);
+        ItemMeta im = it.getItemMeta();
+        if (im != null) {
+            im.setDisplayName(ChatColor.translateAlternateColorCodes('&', String.valueOf(name)));
+            if (lore != null && !lore.isEmpty())
+                im.setLore(java.util.List.of(ChatColor.translateAlternateColorCodes('&', lore)));
+            it.setItemMeta(im);
         }
         return it;
     }

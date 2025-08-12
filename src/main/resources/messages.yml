@@ -33,7 +33,9 @@ command:
   join-usage: "&cUsage: /bw join <arène>"
   unknown: "&cSous-commande inconnue"
 admin:
-  menu-title: "&6Gestion BedWars"
+  menu-title: "&8Gestion BedWars"
+  diagnostics-title: "&8Diagnostics"
+  reset-title: "&8Reset d'arène"
   menu:
     arenas: "&eArènes"
     create: "&aCréer une arène"
@@ -41,8 +43,12 @@ admin:
     rules: "&bRègles de jeu"
     npc: "&dHologrammes/PNJ"
     rotation: "&dRotation & Reset"
-    diagnostics: "&cDiagnostics"
+    diagnostics: "&bDiagnostics"
+    diagnostics-lore: "&7État, compteurs, cleanup"
+    reset: "&cReset"
+    reset-lore: "&7Stratégie de reset & test"
     info: "&fRetour / Infos"
+    info-lore: "&7Aide & raccourcis commandes"
 debug:
   header: "&6Statut de l'arène &e{arena}&6:"    
   state: "&7État: &e{state}"
