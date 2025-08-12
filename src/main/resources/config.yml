@@ -3,8 +3,8 @@ countdown-seconds: 20
 max-team-size: 4
 teams-enabled: [RED, BLUE, GREEN, YELLOW]
 generators:
-  IRON: { interval: 20, amount: 1 }
-  GOLD: { interval: 120, amount: 1 }
-  DIAMOND: { interval: 600, amount: 1 }
-  EMERALD: { interval: 1200, amount: 1 }
+  IRON: { interval: 120, amount: 1 }   # ~6s
+  GOLD: { interval: 300, amount: 1 }   # ~15s
+  DIAMOND: { interval: 900, amount: 1 }   # ~45s
+  EMERALD: { interval: 1800, amount: 1 }   # ~90s
 block-protection: true

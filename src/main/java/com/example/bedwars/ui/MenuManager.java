@@ -94,7 +94,6 @@ public class MenuManager {
         for (TeamColor t : TeamColor.values()){
             boolean hide=false; Arena a=arenas.get(arena);
             if (a!=null){
-                if (act.equals("SET_SPAWN") && a.hasSpawn(t)) hide=true;
                 if (act.equals("SET_BED") && a.hasBed(t)) hide=true;
                 if (act.equals("JOIN_TEAM") && (!a.isTeamEnabled(t) || a.getSpawn(t)==null)) hide=true;
             }
