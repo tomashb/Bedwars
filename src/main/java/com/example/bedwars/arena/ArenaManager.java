@@ -4,6 +4,8 @@ import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.gen.Generator;
 import com.example.bedwars.gen.GeneratorType;
 import com.example.bedwars.util.Loc;
+import com.example.bedwars.util.Keys;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -85,6 +87,8 @@ public class ArenaManager {
             arenas.put(name.toLowerCase(), a);
         }
         plugin.getLogger().info("Chargé " + arenas.size() + " arènes.");
+        // once all arenas are loaded spawn NPCs and generator markers
+        Bukkit.getScheduler().runTask(plugin, this::spawnDecorationsAll);
     }
 
     public void save(Arena a){
@@ -122,6 +126,46 @@ public class ArenaManager {
 
     public void shutdown(){ for (Arena a : arenas.values()) save(a); }
 
+    /** Spawns shop NPCs and generator markers for all arenas. */
+    public void spawnDecorationsAll(){ arenas.values().forEach(this::spawnDecorations); }
+
+    private void spawnDecorations(Arena a){
+        var w = a.getWorld(); if (w==null) return;
+        // spawn item shop
+        var item = a.getItemShop();
+        if (item != null && item.getWorld()!=null){
+            cleanupAround(item, Keys.NPC);
+            org.bukkit.entity.Villager v = item.getWorld().spawn(item, org.bukkit.entity.Villager.class);
+            v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
+            v.setCustomName("§bBoutique"); v.setCustomNameVisible(true);
+            v.getPersistentDataContainer().set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "item");
+        }
+        var up = a.getUpgradeShop();
+        if (up != null && up.getWorld()!=null){
+            cleanupAround(up, Keys.NPC);
+            org.bukkit.entity.Villager v = up.getWorld().spawn(up, org.bukkit.entity.Villager.class);
+            v.setAI(false); v.setInvulnerable(true); v.setSilent(true); v.setCollidable(false);
+            v.setCustomName("§eAméliorations"); v.setCustomNameVisible(true);
+            v.getPersistentDataContainer().set(Keys.NPC, org.bukkit.persistence.PersistentDataType.STRING, "upgrade");
+        }
+        for (Generator g : a.getGenerators()){
+            Location loc = g.getLocation();
+            if (loc.getWorld()==null) continue;
+            cleanupAround(loc, Keys.GEN);
+            org.bukkit.entity.ArmorStand as = loc.getWorld().spawn(loc.clone().add(0,0.1,0), org.bukkit.entity.ArmorStand.class);
+            as.setInvisible(true); as.setMarker(true); as.setGravity(false);
+            as.setCustomName("§bGEN §7: §f" + g.getType().name()); as.setCustomNameVisible(true);
+            as.getPersistentDataContainer().set(Keys.GEN, org.bukkit.persistence.PersistentDataType.STRING, g.getType().name());
+        }
+    }
+
+    private void cleanupAround(Location loc, org.bukkit.NamespacedKey key){
+        for (var ent : loc.getWorld().getNearbyEntities(loc,1,1,1)){
+            var pdc = ent.getPersistentDataContainer();
+            if (pdc.has(key, org.bukkit.persistence.PersistentDataType.STRING)) ent.remove();
+        }
+    }
+
     public void startArena(Arena a){
         if (a==null) return;
         a.setState(GameState.STARTING);
@@ -134,6 +178,10 @@ public class ArenaManager {
                 if (s<=0){
                     a.setState(GameState.RUNNING);
                     a.broadcast(com.example.bedwars.util.C.msg("start.go"));
+                    for (UUID id : a.getAllPlayers()){
+                        org.bukkit.entity.Player pl = Bukkit.getPlayer(id);
+                        if (pl!=null) plugin.boards().applyTo(pl, a);
+                    }
                     cancel();
                     return;
                 }
