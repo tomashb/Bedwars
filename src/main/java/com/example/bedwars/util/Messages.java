@@ -2,6 +2,7 @@ package com.example.bedwars.util;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,6 +23,14 @@ public final class Messages {
   public String get(String path) {
     String raw = cfg.getString(path, path);
     return ChatColor.translateAlternateColorCodes('&', raw);
+  }
+
+  public String format(String path, Map<String, ?> placeholders) {
+    String msg = get(path);
+    for (Map.Entry<String, ?> e : placeholders.entrySet()) {
+      msg = msg.replace("{" + e.getKey() + "}", String.valueOf(e.getValue()));
+    }
+    return msg;
   }
 
   public List<String> getList(String path) {
