@@ -41,7 +41,7 @@ public class BedwarsCommand implements CommandExecutor {
                     player.sendMessage(plugin.getMessages().get("error.not_admin"));
                     return true;
                 }
-                plugin.getAdminMenu().open(player);
+                  plugin.getMenuManager().openRoot(player);
                 return true;
             }
             case "list" -> {

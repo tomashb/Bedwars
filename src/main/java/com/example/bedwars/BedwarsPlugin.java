@@ -3,7 +3,8 @@ package com.example.bedwars;
 import com.example.bedwars.arena.ArenaManager;
 import com.example.bedwars.command.AdminCommand;
 import com.example.bedwars.command.BedwarsCommand;
-import com.example.bedwars.gui.AdminMenu;
+import com.example.bedwars.gui.MenuManager;
+import com.example.bedwars.gui.*;
 import com.example.bedwars.listener.PlayerListener;
 import com.example.bedwars.util.MessageManager;
 import org.bukkit.NamespacedKey;
@@ -19,7 +20,7 @@ public class BedwarsPlugin extends JavaPlugin {
 
     private ArenaManager arenaManager;
     private MessageManager messageManager;
-    private AdminMenu adminMenu;
+    private MenuManager menuManager;
     private NamespacedKey arenaKey;
 
     @Override
@@ -27,7 +28,18 @@ public class BedwarsPlugin extends JavaPlugin {
         saveDefaultConfig();
         this.messageManager = new MessageManager(this);
         this.arenaManager = new ArenaManager(this);
-        this.adminMenu = new AdminMenu(this);
+        this.menuManager = new MenuManager(this);
+        // Register menus
+        menuManager.register(new RootMenu(this));
+        menuManager.register(new ArenasMenu(this));
+        menuManager.register(new ArenaEditorMenu(this));
+        menuManager.register(new RulesEventsMenu(this));
+        menuManager.register(new NpcShopsMenu(this));
+        menuManager.register(new GeneratorsMenu(this));
+        menuManager.register(new RotationMenu(this));
+        menuManager.register(new ResetMenu(this));
+        menuManager.register(new DiagnosticsMenu(this));
+
         this.arenaKey = new NamespacedKey(this, "bw_arena");
 
         // Register command executors
@@ -38,6 +50,7 @@ public class BedwarsPlugin extends JavaPlugin {
 
         // Register basic listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(menuManager, this);
     }
 
     public ArenaManager getArenaManager() {
@@ -48,8 +61,8 @@ public class BedwarsPlugin extends JavaPlugin {
         return messageManager;
     }
 
-    public AdminMenu getAdminMenu() {
-        return adminMenu;
+    public MenuManager getMenuManager() {
+        return menuManager;
     }
 
     /**
