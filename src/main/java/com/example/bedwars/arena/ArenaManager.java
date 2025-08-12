@@ -205,7 +205,6 @@ public class ArenaManager {
     /** Spawns clean holograms for diamond and emerald generators during a match. */
     private void spawnGeneratorHolograms(Arena a){
         if (!plugin.getConfig().getBoolean("holograms.enabled", true)) return;
-        boolean useText = plugin.getConfig().getBoolean("holograms.style.useTextDisplay", true);
         for (Generator g : a.getGenerators()){
             if (g.getType()!=GeneratorType.DIAMOND && g.getType()!=GeneratorType.EMERALD) continue;
             Location loc = g.getLocation().clone().add(0,1.5,0);
@@ -213,16 +212,10 @@ public class ArenaManager {
             String name = (g.getType()==GeneratorType.DIAMOND?"§bDiamond":"§aEmerald")+" Generator";
             String tier = switch (g.getTier()){ case 2->"II"; case 3->"III"; default->"I"; };
             String text = name + "\n§7Tier: " + tier;
-            if (useText){
-                org.bukkit.entity.TextDisplay td = loc.getWorld().spawn(loc, org.bukkit.entity.TextDisplay.class);
-                td.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
-                td.setText(net.kyori.adventure.text.Component.text(text));
-            } else {
-                org.bukkit.entity.ArmorStand as = loc.getWorld().spawn(loc, org.bukkit.entity.ArmorStand.class);
-                as.setInvisible(true); as.setMarker(true); as.setGravity(false);
-                as.customName(net.kyori.adventure.text.Component.text(text));
-                as.setCustomNameVisible(true);
-            }
+            org.bukkit.entity.ArmorStand as = loc.getWorld().spawn(loc, org.bukkit.entity.ArmorStand.class);
+            as.setInvisible(true); as.setMarker(true); as.setGravity(false);
+            as.setCustomName(text);
+            as.setCustomNameVisible(true);
         }
     }
 
