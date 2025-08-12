@@ -30,23 +30,25 @@ public class RootMenu implements BWMenu {
         String title = ChatColor.translateAlternateColorCodes('&',
                 String.valueOf(plugin.getMessages().get("admin.menu-title")));
         Inventory inv = Bukkit.createInventory(new BWMenuHolder(AdminView.ROOT, null), 54, title);
-        inv.setItem(10, item(Material.MAP, plugin.getMessages().get("admin.menu.arenas")));
-        inv.setItem(12, item(Material.LIME_WOOL, plugin.getMessages().get("admin.menu.create")));
-        inv.setItem(14, item(Material.ANVIL, plugin.getMessages().get("admin.menu.rules")));
-        inv.setItem(16, item(Material.ARMOR_STAND, plugin.getMessages().get("admin.menu.npc")));
-        inv.setItem(28, item(Material.ENDER_PEARL, plugin.getMessages().get("admin.menu.rotation")));
-        inv.setItem(30, item(Material.COMPARATOR, plugin.getMessages().get("admin.menu.diagnostics")));
-        inv.setItem(32, item(Material.PAPER, plugin.getMessages().get("admin.menu.info")));
+        inv.setItem(10, icon(Material.MAP, plugin.getMessages().get("admin.menu.arenas"), null));
+        inv.setItem(12, icon(Material.LIME_WOOL, plugin.getMessages().get("admin.menu.create"), null));
+        inv.setItem(14, icon(Material.ANVIL, plugin.getMessages().get("admin.menu.rules"), null));
+        inv.setItem(16, icon(Material.ARMOR_STAND, plugin.getMessages().get("admin.menu.npc"), null));
+        inv.setItem(28, icon(Material.ENDER_PEARL, plugin.getMessages().get("admin.menu.rotation"), null));
+        inv.setItem(30, icon(Material.TNT, plugin.getMessages().get("admin.menu.reset"), plugin.getMessages().get("admin.menu.reset-lore")));
+        inv.setItem(32, icon(Material.COMPARATOR, plugin.getMessages().get("admin.menu.diagnostics"), plugin.getMessages().get("admin.menu.diagnostics-lore")));
+        inv.setItem(34, icon(Material.PAPER, plugin.getMessages().get("admin.menu.info"), plugin.getMessages().get("admin.menu.info-lore")));
         player.openInventory(inv);
     }
 
-    private ItemStack item(Material mat, Object name) {
+    private ItemStack icon(Material mat, String name, String lore) {
         ItemStack it = new ItemStack(mat);
-        ItemMeta meta = it.getItemMeta();
-        if (meta != null) {
-            String display = ChatColor.translateAlternateColorCodes('&', String.valueOf(name));
-            meta.setDisplayName(display);
-            it.setItemMeta(meta);
+        ItemMeta im = it.getItemMeta();
+        if (im != null) {
+            im.setDisplayName(ChatColor.translateAlternateColorCodes('&', String.valueOf(name)));
+            if (lore != null && !lore.isEmpty())
+                im.setLore(java.util.List.of(ChatColor.translateAlternateColorCodes('&', lore)));
+            it.setItemMeta(im);
         }
         return it;
     }
