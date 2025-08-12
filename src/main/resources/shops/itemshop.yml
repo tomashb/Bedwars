@@ -3,7 +3,7 @@ categories:
     icon: BRICKS
     items:
       - name: "Laine x16"
-        material: WHITE_WOOL
+        material: TEAM_WOOL
         amount: 16
         price: {IRON: 8}
       - name: "Argile durcie x16"

@@ -51,6 +51,7 @@ public class PlayerListener implements Listener {
                 p.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD,1));
                 // give team-colored wool
                 p.getInventory().addItem(new ItemStack(team.wool(),16));
+                BedwarsPlugin.get().upgrades().applyTo(p, a);
                 p.teleport(a.getSpawn(team));
             }, 20L);
         } else {

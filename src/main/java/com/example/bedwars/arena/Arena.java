@@ -20,13 +20,24 @@ public class Arena {
     private final Map<TeamColor, Set<UUID>> teamPlayers = new EnumMap<>(TeamColor.class);
     private final Set<TeamColor> enabledTeams = new HashSet<>();
 
+    // team upgrades
+    private final Map<TeamColor, Integer> sharpness = new EnumMap<>(TeamColor.class);
+    private final Map<TeamColor, Integer> armor = new EnumMap<>(TeamColor.class);
+    private final Map<TeamColor, Integer> miner = new EnumMap<>(TeamColor.class);
+    private final Map<TeamColor, Boolean> heal = new EnumMap<>(TeamColor.class);
+
     private final List<Generator> generators = new ArrayList<>();
     private Location itemShop, upgradeShop;
 
     public Arena(String name, String worldName) {
         this.name = name; this.worldName = worldName;
         for (TeamColor t : TeamColor.values()) {
-            bedAlive.put(t, true); teamPlayers.put(t, new HashSet<>());
+            bedAlive.put(t, true);
+            teamPlayers.put(t, new HashSet<>());
+            sharpness.put(t, 0);
+            armor.put(t, 0);
+            miner.put(t, 0);
+            heal.put(t, false);
         }
     }
 
@@ -47,6 +58,7 @@ public class Arena {
     public void removePlayer(UUID id){ for (Set<UUID> s : teamPlayers.values()) s.remove(id); }
     public TeamColor getTeamOf(UUID id){ for (var e:teamPlayers.entrySet()) if (e.getValue().contains(id)) return e.getKey(); return null; }
     public Collection<UUID> getAllPlayers(){ Set<UUID> a=new HashSet<>(); for (Set<UUID> s:teamPlayers.values()) a.addAll(s); return a; }
+    public Set<UUID> getTeamPlayers(TeamColor t){ return teamPlayers.getOrDefault(t, java.util.Collections.emptySet()); }
 
     public void broadcast(String msg){ for(UUID id:getAllPlayers()){ Player p=Bukkit.getPlayer(id); if(p!=null) p.sendMessage(com.example.bedwars.util.C.PREFIX+msg);} }
 
@@ -58,4 +70,14 @@ public class Arena {
     public void setTeamEnabled(TeamColor t, boolean on){ if(on) enabledTeams.add(t); else enabledTeams.remove(t); }
     public boolean hasSpawn(TeamColor t){ return spawns.get(t)!=null; }
     public boolean hasBed(TeamColor t){ return beds.get(t)!=null; }
+
+    // upgrade getters
+    public int getSharpness(TeamColor t){ return sharpness.getOrDefault(t,0); }
+    public void addSharpness(TeamColor t){ sharpness.put(t, getSharpness(t)+1); }
+    public int getArmor(TeamColor t){ return armor.getOrDefault(t,0); }
+    public void addArmor(TeamColor t){ armor.put(t, getArmor(t)+1); }
+    public int getMiner(TeamColor t){ return miner.getOrDefault(t,0); }
+    public void addMiner(TeamColor t){ miner.put(t, getMiner(t)+1); }
+    public boolean hasHeal(TeamColor t){ return heal.getOrDefault(t,false); }
+    public void setHeal(TeamColor t){ heal.put(t,true); }
 }

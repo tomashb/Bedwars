@@ -51,6 +51,18 @@ public class ArenaManager {
         if (f.exists()) f.delete();
     }
 
+    /**
+     * Returns the arena a player currently belongs to, or {@code null} if the
+     * player is not part of any arena.
+     */
+    public Arena arenaOf(org.bukkit.entity.Player p){
+        java.util.UUID id = p.getUniqueId();
+        for (Arena a : arenas.values()){
+            if (a.getAllPlayers().contains(id)) return a;
+        }
+        return null;
+    }
+
     public void loadAll(){
         File dir = new File(plugin.getDataFolder(), "arenas");
         if (!dir.exists()) dir.mkdirs();
@@ -190,7 +202,7 @@ public class ArenaManager {
      * arena. Called when the game actually begins so the setup holograms do not
      * remain during the match.
      */
-    public void removeSetupMarkers(Arena a){
+    public void removeGenMarkers(Arena a){
         var w = a.getWorld();
         if (w == null) return;
         for (var ent : w.getEntities()){
@@ -231,7 +243,7 @@ public class ArenaManager {
                 if (s<=0){
                     a.setState(GameState.RUNNING);
                     plugin.generators().resetArena(a);
-                    removeSetupMarkers(a);
+                    removeGenMarkers(a);
                     spawnGeneratorHolograms(a);
                     a.broadcast(com.example.bedwars.util.C.msg("start.go"));
                     for (UUID id : a.getAllPlayers()){
@@ -247,6 +259,7 @@ public class ArenaManager {
                         pl.getInventory().clear();
                         pl.getInventory().addItem(new org.bukkit.inventory.ItemStack(org.bukkit.Material.WOODEN_SWORD,1));
                         if (team!=null) pl.getInventory().addItem(new org.bukkit.inventory.ItemStack(team.wool(),16));
+                        plugin.upgrades().applyTo(pl, a);
                         plugin.boards().applyTo(pl, a);
                     }
                     cancel();
