@@ -85,30 +85,50 @@ public class ShopManager {
             String name = String.valueOf(m.containsKey("name")? m.get("name"): "Item");
             String id = name.toLowerCase(java.util.Locale.ROOT).replace(" ", "_");
             String matName = String.valueOf(m.containsKey("material")? m.get("material"): "AIR");
-            boolean teamColored = Boolean.parseBoolean(String.valueOf(m.getOrDefault("team-colored", false)));
+
+            boolean teamColored = false;
+            Object teamFlag = m.get("team-colored");
+            if (teamFlag instanceof Boolean b) teamColored = b;
+            else if (teamFlag != null) teamColored = Boolean.parseBoolean(String.valueOf(teamFlag));
+
             Material mat;
             if ("TEAM_WOOL".equalsIgnoreCase(matName)){ teamColored=true; mat = Material.WHITE_WOOL; }
             else mat = Material.valueOf(matName);
-            Object amountObj = m.containsKey("amount")? m.get("amount"): 1; int amount = (amountObj instanceof Number)? ((Number)amountObj).intValue(): Integer.parseInt(String.valueOf(amountObj));
+
+            Object amountObj = m.containsKey("amount")? m.get("amount"): 1;
+            int amount = (amountObj instanceof Number)? ((Number)amountObj).intValue(): Integer.parseInt(String.valueOf(amountObj));
 
             Map<Material, Integer> price = new java.util.HashMap<>();
-            Object rawPrice = m.getOrDefault("price", java.util.Collections.emptyMap());
-            if (rawPrice instanceof Map<?, ?> priceRaw) {
-                for (Map.Entry<?, ?> e : priceRaw.entrySet()) {
-                    Material mat = Material.matchMaterial(String.valueOf(e.getKey()));
-                    Integer val = (e.getValue() instanceof Number)
-                            ? ((Number) e.getValue()).intValue()
-                            : Integer.parseInt(String.valueOf(e.getValue()));
-                    if (mat != null) price.put(mat, val);
+            Object priceObj = m.get("price");
+            if (priceObj instanceof java.util.Map<?,?> pr) {
+                for (java.util.Map.Entry<?,?> e : pr.entrySet()) {
+                    String k = String.valueOf(e.getKey());
+                    Material res = org.bukkit.Material.matchMaterial(k);
+                    if (res == null) {
+                        if (k.equalsIgnoreCase("IRON"))    res = Material.IRON_INGOT;
+                        else if (k.equalsIgnoreCase("GOLD"))   res = Material.GOLD_INGOT;
+                        else if (k.equalsIgnoreCase("DIAMOND"))res = Material.DIAMOND;
+                        else if (k.equalsIgnoreCase("EMERALD"))res = Material.EMERALD;
+                    }
+                    if (res != null) {
+                        Object v = e.getValue();
+                        int amt = (v instanceof Number) ? ((Number) v).intValue()
+                                                        : Integer.parseInt(String.valueOf(v));
+                        price.put(res, amt);
+                    }
                 }
             }
 
-            Map<Enchantment,Integer> ench = new java.util.HashMap<>();
-            Object enchObj = m.containsKey("enchantments")? m.get("enchantments"): java.util.Collections.emptyMap();
-            if (enchObj instanceof Map<?,?> er){
-                for (Map.Entry<?,?> e : er.entrySet()){
-                    Enchantment en = Enchantment.getByName(String.valueOf(e.getKey())); if (en!=null){
-                        Object val = e.getValue(); int lvl = (val instanceof Number)? ((Number)val).intValue(): Integer.parseInt(String.valueOf(val));
+            Map<org.bukkit.enchantments.Enchantment, Integer> ench = new java.util.HashMap<>();
+            Object enchObj = m.get("enchantments");
+            if (enchObj instanceof java.util.Map<?,?> er) {
+                for (java.util.Map.Entry<?,?> e : er.entrySet()) {
+                    String key = String.valueOf(e.getKey()).toUpperCase(java.util.Locale.ROOT);
+                    org.bukkit.enchantments.Enchantment en = org.bukkit.enchantments.Enchantment.getByName(key);
+                    if (en != null) {
+                        Object v = e.getValue();
+                        int lvl = (v instanceof Number) ? ((Number) v).intValue()
+                                                        : Integer.parseInt(String.valueOf(v));
                         ench.put(en, lvl);
                     }
                 }
