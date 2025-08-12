@@ -36,15 +36,14 @@ public class BedwarsCommand implements CommandExecutor {
         }
 
         switch (args[0].toLowerCase()) {
-            case "menu":
-            case "admin":
-            case "setup":
+            case "menu", "admin", "setup" -> {
                 if (!player.hasPermission("bedwars.admin")) {
                     player.sendMessage(plugin.getMessages().get("error.not_admin"));
                     return true;
                 }
                 plugin.getAdminMenu().open(player);
                 return true;
+            }
             case "list" -> {
                 String arenas = String.join(", ", plugin.getArenaManager().getArenas().keySet());
                 player.sendMessage(plugin.getMessages().get("command.list", Map.of("arenas", arenas)));
