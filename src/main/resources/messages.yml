@@ -43,3 +43,10 @@ admin:
     rotation: "&dRotation & Reset"
     diagnostics: "&cDiagnostics"
     info: "&fRetour / Infos"
+debug:
+  header: "&6Statut de l'arène &e{arena}&6:"    
+  state: "&7État: &e{state}"
+  players: "&7Joueurs: &e{count}"
+  events: "&7Événements: &e{status}"
+maintenance:
+  cleaned: "&aNettoyage de l'arène &e{arena}&a: &e{count}&a entités supprimées."
