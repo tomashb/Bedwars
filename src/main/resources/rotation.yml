@@ -1,0 +1,5 @@
+rotation:
+  enabled: true
+  list:
+    - { id: "arena_forest", weight: 3 }
+    - { id: "arena_temple", weight: 1 }
