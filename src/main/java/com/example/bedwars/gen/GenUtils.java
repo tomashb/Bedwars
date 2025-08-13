@@ -9,13 +9,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.UUID;
+import java.util.Collection;
 
 /**
  * Helper utilities for generator runtime.
@@ -123,5 +126,28 @@ public final class GenUtils {
         ent.remove();
       }
     }
+  }
+
+  /** Count tagged items around a point belonging to a specific generator. */
+  public static int countTaggedItemsAround(World w, Keys keys, String arenaId, UUID genId,
+                                           Location center, double radius) {
+    Collection<Entity> ents = w.getNearbyEntities(center, radius, radius, radius, e -> e instanceof Item);
+    int count = 0;
+    for (Entity e : ents) {
+      Item it = (Item) e;
+      var pdc = it.getPersistentDataContainer();
+      String a = pdc.get(keys.ARENA_ID(), PersistentDataType.STRING);
+      String g = pdc.get(keys.GEN_ID(), PersistentDataType.STRING);
+      if (arenaId.equals(a) && genId.toString().equals(g)) {
+        count += it.getItemStack().getAmount();
+      }
+    }
+    return count;
+  }
+
+  /** List nearby players around a location within a radius using Spigot API. */
+  public static java.util.List<Player> nearbyPlayers(World w, Location c, double r) {
+    var ents = w.getNearbyEntities(c, r, r, r, e -> e instanceof Player);
+    return ents.stream().map(e -> (Player) e).toList();
   }
 }
