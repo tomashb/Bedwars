@@ -2,6 +2,9 @@ package com.example.bedwars.listeners;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.gui.*;
+import com.example.bedwars.gui.placeholders.ArenasMenu;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
@@ -45,6 +48,20 @@ public final class MenuListener implements Listener {
         case RootMenu.SLOT_INFO      -> plugin.menus().open(AdminView.INFO, p, null);
         default -> {}
       }
+    }
+
+    if (holder.view == AdminView.ARENAS) {
+      if (slot == ArenasMenu.SLOT_BACK)    { plugin.menus().open(AdminView.ROOT,    p, null); return; }
+      if (slot == ArenasMenu.SLOT_REFRESH) { plugin.menus().open(AdminView.ARENAS, p, null); return; }
+
+      ItemMeta meta = e.getCurrentItem().getItemMeta();
+      if (meta == null) return;
+      String arenaId = meta.getPersistentDataContainer()
+          .get(plugin.keys().ARENA_ID(), PersistentDataType.STRING);
+      if (arenaId != null) {
+        plugin.menus().open(AdminView.ARENA_EDITOR, p, arenaId);
+      }
+      return;
     }
 
     // Bloquer shift-click, swap, number keys (sécurité UX)

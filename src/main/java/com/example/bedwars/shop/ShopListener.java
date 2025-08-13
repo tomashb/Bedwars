@@ -3,7 +3,6 @@ package com.example.bedwars.shop;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
-import com.example.bedwars.ops.Keys;
 import com.example.bedwars.service.PlayerContextService;
 import com.example.bedwars.service.PlayerContextService.Context;
 import java.util.Map;
@@ -38,8 +37,8 @@ public final class ShopListener implements Listener {
   @EventHandler
   public void onNpc(PlayerInteractEntityEvent e) {
     if (!(e.getRightClicked() instanceof LivingEntity le)) return;
-    String arenaId = le.getPersistentDataContainer().get(Keys.ARENA_ID, PersistentDataType.STRING);
-    String kind = le.getPersistentDataContainer().get(Keys.NPC_KIND, PersistentDataType.STRING);
+    String arenaId = le.getPersistentDataContainer().get(plugin.keys().ARENA_ID(), PersistentDataType.STRING);
+    String kind = le.getPersistentDataContainer().get(plugin.keys().NPC_KIND(), PersistentDataType.STRING);
     if (arenaId == null || kind == null) return;
 
     Player p = e.getPlayer();

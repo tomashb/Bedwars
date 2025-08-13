@@ -49,6 +49,7 @@ public final class MenuManager {
       case RESET -> reset.open(p);
       case DIAGNOSTICS -> diag.open(p);
       case INFO -> info.open(p);
+      case ARENA_EDITOR -> editor.open(p, arenaId);
       default -> root.open(p);
     }
   }

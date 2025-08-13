@@ -59,8 +59,8 @@ editor:
   gens-title: "&8Générateurs &7({arena})"
   npc-title:  "&8PNJ &7({arena})"
 
-  create-id: "&eEntre l'ID de la nouvelle arène (a-z,0-9,_,-):"
-  create-id-exists: "&cID déjà utilisé."
+  create-id: "&eEntre l'ID de la nouvelle arène (&7a-z,0-9,_,-&e ; 1–32 ; commence par lettre/chiffre):"
+  create-id-exists: "&cL'ID &e{arena}&c est déjà utilisé."
   create-id-invalid: "&cID invalide."
   created: "&aArène &e{arena}&a créée."
 
