@@ -6,7 +6,8 @@ import com.example.bedwars.arena.GameState;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
+import java.nio.file.StandardCopyOption;
+import com.example.bedwars.util.DirUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -41,33 +42,36 @@ public final class DefaultSnapshotReset implements ArenaResetStrategy {
   public void reset(Arena a) throws IOException {
     Path template = manager.templatesPath().resolve(a.id());
     Path worldContainer = Bukkit.getWorldContainer().toPath();
-    Path worldDir = worldContainer.resolve(a.world().name());
+    Path runtime = worldContainer.resolve(a.world().name());
+    Path tmp = worldContainer.resolve(a.world().name() + ".tmp");
+    Path backup = worldContainer.resolve(a.world().name() + "__old__");
+
     World world = Bukkit.getWorld(a.world().name());
     if (world != null) Bukkit.unloadWorld(world, false);
-    if (Files.exists(worldDir)) deleteDir(worldDir);
-    if (Files.exists(template)) copyDir(template, worldDir);
+
+    if (Files.exists(backup)) DirUtils.deleteDir(backup);
+    if (Files.exists(runtime)) {
+      Files.move(runtime, backup, StandardCopyOption.ATOMIC_MOVE);
+    }
+
+    try {
+      if (Files.exists(tmp)) DirUtils.deleteDir(tmp);
+      Files.createDirectories(tmp);
+      DirUtils.copyDir(template, tmp);
+      Files.move(tmp, runtime, StandardCopyOption.ATOMIC_MOVE);
+      DirUtils.deleteDir(backup);
+    } catch (IOException ex) {
+      if (Files.exists(tmp)) DirUtils.deleteDir(tmp);
+      if (!Files.exists(runtime) && Files.exists(backup)) {
+        Files.move(backup, runtime, StandardCopyOption.ATOMIC_MOVE);
+      }
+      throw ex;
+    }
+
     Bukkit.createWorld(new WorldCreator(a.world().name()));
     plugin.arenas().load(a.id());
   }
 
   @Override public String name(){ return "DefaultSnapshotReset"; }
 
-  private static void deleteDir(Path path) throws IOException {
-    if (!Files.exists(path)) return;
-    Files.walk(path).sorted(Comparator.reverseOrder()).forEach(p -> {
-      try { Files.delete(p); } catch (IOException ignored) {} });
-  }
-
-  private static void copyDir(Path src, Path dest) throws IOException {
-    Files.walk(src).forEach(p -> {
-      try {
-        Path target = dest.resolve(src.relativize(p));
-        if (Files.isDirectory(p)) {
-          Files.createDirectories(target);
-        } else {
-          Files.copy(p, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-        }
-      } catch (IOException ignored) {}
-    });
-  }
 }
