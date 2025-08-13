@@ -95,6 +95,9 @@ kit:
   give_compass_on_spawn: false
   give_blocks_on_spawn: false
 
+armor:
+  dye_colored: true
+
 tnt:
   fuse_ticks: 40
   attribute_owner: true

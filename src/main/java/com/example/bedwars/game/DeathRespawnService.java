@@ -71,7 +71,7 @@ public final class DeathRespawnService {
         spectator.fromSpectator(p);
         p.setGameMode(org.bukkit.GameMode.SURVIVAL);
         kit.giveRespawnKit(p, team);
-        plugin.upgrades().applySharpness(arenaId, team);
+        if (td.upgrades().sharpness()) plugin.upgrades().applySharpness(arenaId, team);
         plugin.upgrades().applyProtection(arenaId, team, td.upgrades().protection());
         plugin.upgrades().applyManicMiner(arenaId, team, td.upgrades().manicMiner());
         p.sendMessage(plugin.messages().get("respawn.respawned"));

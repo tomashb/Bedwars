@@ -80,7 +80,22 @@ public final class ShopListener implements Listener {
         Material mat = si.teamColored ? ih.team.wool : si.mat;
         ItemStack it = new ItemStack(mat, si.amount);
         si.enchants.forEach((en,l)-> it.addEnchantment(en,l));
-        p.getInventory().addItem(it);
+        if (mat.name().endsWith("_SWORD")) {
+          for (int i = 0; i < p.getInventory().getSize(); i++) {
+            ItemStack cur = p.getInventory().getItem(i);
+            if (cur != null && cur.getType().name().endsWith("_SWORD")) {
+              p.getInventory().setItem(i, null);
+            }
+          }
+          p.getInventory().setItemInMainHand(it);
+          plugin.arenas().get(ih.arenaId).ifPresent(arena -> {
+            if (arena.team(ih.team).upgrades().sharpness()) {
+              plugin.upgrades().applySharpness(ih.arenaId, ih.team);
+            }
+          });
+        } else {
+          p.getInventory().addItem(it);
+        }
         String name = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', si.name.replace("{team}", ih.team.display)));
         p.sendMessage(plugin.messages().format("shop.bought", Map.of("item", name)));
       } else {

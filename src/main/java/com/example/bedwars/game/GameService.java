@@ -137,7 +137,7 @@ public final class GameService {
       Location spawn = td.spawn();
       if (spawn != null) p.teleport(spawn);
       kit.giveStartKit(p, team);
-      plugin.upgrades().applySharpness(a.id(), team);
+      if (td.upgrades().sharpness()) plugin.upgrades().applySharpness(a.id(), team);
       plugin.upgrades().applyProtection(a.id(), team, td.upgrades().protection());
       plugin.upgrades().applyManicMiner(a.id(), team, td.upgrades().manicMiner());
       contexts.markAlive(p);

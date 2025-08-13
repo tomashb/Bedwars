@@ -25,7 +25,11 @@ public final class UpgradeApplyListener implements Listener {
     Player p = e.getPlayer();
     String ar = ctx.getArena(p);
     TeamColor tm = ctx.getTeam(p);
-    if (ar != null && tm != null) plugin.upgrades().applySharpness(ar, tm);
+    if (ar == null || tm == null) return;
+    plugin.arenas().get(ar).ifPresent(arena -> {
+      TeamData td = arena.team(tm);
+      if (td.upgrades().sharpness()) plugin.upgrades().applySharpness(ar, tm);
+    });
   }
 
   @EventHandler
@@ -38,7 +42,7 @@ public final class UpgradeApplyListener implements Listener {
       TeamData td = arena.team(tm);
       TeamUpgradesState st = td.upgrades();
       plugin.getServer().getScheduler().runTask(plugin, () -> {
-        plugin.upgrades().applySharpness(ar, tm);
+        if (st.sharpness()) plugin.upgrades().applySharpness(ar, tm);
         plugin.upgrades().applyProtection(ar, tm, st.protection());
       });
     });
