@@ -104,6 +104,8 @@ game:
   bed-own: "&cC'est votre lit !"
   eliminated: "&c{player} a été éliminé."
   victory: "&6Victoire de l'équipe {team} !"
+  win: "&6Victoire de l'équipe {team} !"
+  bed_broken: "&cLe lit de {team} &ca été détruit !"
   respawn-in: "&eRespawn dans &6{sec}s"
   respawn-now: "&aVous réapparaissez !"
   spectating: "&7Vous êtes spectateur."
@@ -157,3 +159,6 @@ reset:
   preparing: "&7Préparation du reset..."
   done: "&aReset terminé. Retour en &fWAITING"
   failed: "&cÉchec du reset: &f{error}"
+forcestart:
+  countdown: "&eLa partie démarre dans &6{sec}s"
+  started: "&aLa partie commence !"
