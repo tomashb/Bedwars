@@ -38,7 +38,7 @@ public final class BuildRulesListener implements Listener {
     if (this.allowedStates.isEmpty()) this.allowedStates.add(GameState.RUNNING);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onPlace(BlockPlaceEvent e) {
     Player p = e.getPlayer();
     String arenaId = ctx.getArena(p);
@@ -56,14 +56,11 @@ public final class BuildRulesListener implements Listener {
       plugin.messages().send(p, "errors.map_protected");
       return;
     }
-    if (e.isCancelled() && plugin.getConfig().getBoolean("build.bypass_external_protection", false)) {
-      e.setCancelled(false);
-    }
     e.getBlockPlaced().setMetadata("bw_placed", new FixedMetadataValue(plugin, true));
     buildRules.recordPlacement(arenaId, e.getBlockPlaced().getLocation());
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onBreak(BlockBreakEvent e) {
     Player p = e.getPlayer();
     String arenaId = ctx.getArena(p);
@@ -81,7 +78,16 @@ public final class BuildRulesListener implements Listener {
       TeamColor bedTeam = null;
       for (TeamColor tc : a.enabledTeams()) {
         var loc = a.team(tc).bedBlock();
-        if (loc != null && loc.getBlock().equals(foot)) { bedTeam = tc; break; }
+        if (loc != null) {
+          Block stored = loc.getBlock();
+          BlockData bd = stored.getBlockData();
+          if (bd instanceof Bed sb) {
+            Block storedFoot = (sb.getPart() == Bed.Part.FOOT)
+                ? stored
+                : stored.getRelative(sb.getFacing().getOppositeFace());
+            if (storedFoot.equals(foot)) { bedTeam = tc; break; }
+          }
+        }
       }
       if (bedTeam == null) {
         e.setCancelled(true);
@@ -108,13 +114,11 @@ public final class BuildRulesListener implements Listener {
       return;
     }
 
-    if (plugin.getConfig().getBoolean("rules.break-only-placed", true) && !buildRules.wasPlaced(arenaId, b.getLocation())) {
+    if (plugin.getConfig().getBoolean("rules.break-only-placed", true)
+        && !buildRules.wasPlaced(arenaId, b.getLocation())) {
       e.setCancelled(true);
       plugin.messages().send(p, "errors.map_protected");
     } else {
-      if (e.isCancelled() && plugin.getConfig().getBoolean("build.bypass_external_protection", false)) {
-        e.setCancelled(false);
-      }
       b.removeMetadata("bw_placed", plugin);
       buildRules.removePlaced(arenaId, b.getLocation());
     }
