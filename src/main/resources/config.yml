@@ -35,3 +35,22 @@ holograms:
   line-1: "&b{type} &7T{tier}"
   line-2: "&f{cooldown}s"
   y-offset: 1.7
+
+game:
+  min-players: 2
+  countdown: 20
+  respawn-seconds: 5
+  void-kill-y: -5
+  keep-inventory: false
+
+kit:
+  give-on-start: true
+  items:
+    - { mat: WOOL_TEAM, amount: 16 }
+    - { mat: STONE_SWORD, amount: 1 }
+    - { mat: COMPASS, amount: 1 }
+
+rules:
+  protect-lobby: true
+  friendly-fire: false
+  break-only-enemy-bed: true

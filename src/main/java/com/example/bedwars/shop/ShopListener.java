@@ -3,8 +3,7 @@ package com.example.bedwars.shop;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
-import com.example.bedwars.service.PlayerContextService;
-import com.example.bedwars.service.PlayerContextService.Context;
+import com.example.bedwars.game.PlayerContextService;
 import java.util.Map;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -42,12 +41,13 @@ public final class ShopListener implements Listener {
     if (arenaId == null || kind == null) return;
 
     Player p = e.getPlayer();
-    Context c = ctx.get(p).orElse(null);
-    if (c == null) { p.sendMessage(plugin.messages().get("shop.no-context")); return; }
+    String ar = ctx.getArena(p);
+    TeamColor tm = ctx.getTeam(p);
+    if (ar == null || tm == null || !ar.equals(arenaId)) { p.sendMessage(plugin.messages().get("shop.no-context")); return; }
     if (kind.equalsIgnoreCase("item")) {
-      itemMenu.open(p, arenaId, c.team, ShopCategory.BLOCKS);
+      itemMenu.open(p, arenaId, tm, ShopCategory.BLOCKS);
     } else if (kind.equalsIgnoreCase("upgrade")) {
-      upgradesMenu.open(p, arenaId, c.team);
+      upgradesMenu.open(p, arenaId, tm);
     }
     e.setCancelled(true);
   }
