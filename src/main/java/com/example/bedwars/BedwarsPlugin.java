@@ -39,6 +39,8 @@ import com.example.bedwars.game.GameService;
 import com.example.bedwars.game.DeathRespawnService;
 import com.example.bedwars.gen.GeneratorManager;
 import com.example.bedwars.services.BuildRulesService;
+import com.example.bedwars.game.RotationManager;
+import com.example.bedwars.game.ResetManager;
 
 public final class BedwarsPlugin extends JavaPlugin {
 
@@ -63,6 +65,8 @@ public final class BedwarsPlugin extends JavaPlugin {
   private TeamSelectMenu teamSelectMenu;
   private com.example.bedwars.hud.ScoreboardManager scoreboardManager;
   private com.example.bedwars.hud.ActionBarBus actionBarBus;
+  private RotationManager rotationManager;
+  private ResetManager resetManager;
 
   @Override
   public void onEnable() {
@@ -72,6 +76,9 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.keys = new Keys(this);
     this.arenaManager = new ArenaManager(this);
     this.arenaManager.loadAll();
+    saveResource("rotation.yml", false);
+    this.rotationManager = new RotationManager(this);
+    this.resetManager = new ResetManager(this);
     this.menuManager = new MenuManager(this);
     this.promptService = new PromptService(this);
     this.shopConfig = new ShopConfig(this);
@@ -165,4 +172,6 @@ public final class BedwarsPlugin extends JavaPlugin {
   public BuildRulesService buildRules() { return buildRules; }
   public com.example.bedwars.hud.ScoreboardManager scoreboard() { return scoreboardManager; }
   public com.example.bedwars.hud.ActionBarBus actionBar() { return actionBarBus; }
+  public RotationManager rotation() { return rotationManager; }
+  public ResetManager reset() { return resetManager; }
 }

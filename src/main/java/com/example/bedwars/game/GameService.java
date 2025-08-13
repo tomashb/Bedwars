@@ -7,6 +7,7 @@ import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
 import com.example.bedwars.game.ArenaStateChangeEvent;
 import com.example.bedwars.game.DeathRespawnService;
+import com.example.bedwars.game.ArenaResetStrategy;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Bukkit;
@@ -197,20 +198,27 @@ public final class GameService {
     Bukkit.getPluginManager().callEvent(new ArenaStateChangeEvent(a, GameState.RUNNING, GameState.ENDING));
     if (winner != null) messages.broadcast(a, "game.victory", Map.of("team", winner.display));
     for (Player p : contexts.playersInArena(a.id())) {
-      if (a.lobby() != null) p.teleport(a.lobby());
-      p.getInventory().clear();
       spectator.fromSpectator(p);
-      contexts.clear(p);
     }
     plugin.generators().cleanupArena(a.id());
     Integer timer = timerTasks.remove(a.id());
     if (timer != null) Bukkit.getScheduler().cancelTask(timer);
-    a.setState(GameState.RESTARTING);
-    Bukkit.getPluginManager().callEvent(new ArenaStateChangeEvent(a, GameState.ENDING, GameState.RESTARTING));
-    plugin.arenas().load(a.id());
-    a.setState(GameState.WAITING);
-    Bukkit.getPluginManager().callEvent(new ArenaStateChangeEvent(a, GameState.RESTARTING, GameState.WAITING));
-    contexts.clearArena(a.id());
+
+    plugin.messages().broadcast(a, "rotation.picking", Map.of());
+    var next = plugin.rotation().pickNext();
+    Arena target = next.flatMap(id -> plugin.arenas().get(id)).orElse(a);
+    next.ifPresent(id -> plugin.messages().broadcast(a, "rotation.picked", Map.of("arena", id)));
+
+    ArenaResetStrategy strat = plugin.reset().strategyFor(target);
+    try {
+      plugin.messages().broadcast(a, "reset.preparing", Map.of());
+      strat.prepare(a);
+      strat.reset(target);
+      plugin.messages().broadcast(target, "reset.done", Map.of());
+    } catch (Exception ex) {
+      plugin.getLogger().severe("Reset failed: " + ex.getMessage());
+      plugin.messages().broadcast(target, "reset.failed", Map.of("error", ex.getMessage()));
+    }
   }
 
   public void handleBedBreak(Player p, Arena a, TeamColor broken) {

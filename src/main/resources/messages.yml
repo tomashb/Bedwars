@@ -148,3 +148,12 @@ ab:
   trap_triggered: "&cPiège déclenché !"
   bed_broken: "&eLit de &f{team}&e détruit !"
   tier_up: "&b{res} Tier {tier} atteint"
+
+rotation:
+  picking: "&7Sélection de la prochaine arène..."
+  picked: "&aArène suivante: &f{arena}"
+
+reset:
+  preparing: "&7Préparation du reset..."
+  done: "&aReset terminé. Retour en &fWAITING"
+  failed: "&cÉchec du reset: &f{error}"
