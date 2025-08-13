@@ -131,6 +131,7 @@ public final class GenUtils {
   /** Count tagged items around a point belonging to a specific generator. */
   public static int countTaggedItemsAround(World w, Keys keys, String arenaId, UUID genId,
                                            Location center, double radius) {
+    if (w == null) return 0;
     Collection<Entity> ents = w.getNearbyEntities(center, radius, radius, radius, e -> e instanceof Item);
     int count = 0;
     for (Entity e : ents) {

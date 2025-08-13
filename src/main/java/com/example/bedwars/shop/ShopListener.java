@@ -93,77 +93,83 @@ public final class ShopListener implements Listener {
         ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.SHARPNESS);
         if (st.sharpness()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         Map<Material,Integer> cost = def.costs.get(0);
-        if (PriceUtil.hasAndRemove(p, cost)) {
+        int d = cost.getOrDefault(Material.DIAMOND,0);
+        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
           st.setSharpness(true);
           plugin.upgrades().applySharpness(uh.arenaId, uh.team);
           p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", PriceUtil.formatCost(cost))));
+          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_PROT) {
         ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.PROTECTION);
         int lvl = st.protection();
         if (lvl >= def.maxLevel) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         Map<Material,Integer> cost = def.costs.get(lvl);
-        if (PriceUtil.hasAndRemove(p, cost)) {
+        int d = cost.getOrDefault(Material.DIAMOND,0);
+        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
           st.setProtection(lvl+1);
           plugin.upgrades().applyProtection(uh.arenaId, uh.team, st.protection());
           String name = def.name.replace("{level}", String.valueOf(st.protection()));
           p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", PriceUtil.formatCost(cost))));
+          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_HASTE) {
         ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.MANIC_MINER);
         int lvl = st.manicMiner();
         if (lvl >= def.maxLevel) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         Map<Material,Integer> cost = def.costs.get(lvl);
-        if (PriceUtil.hasAndRemove(p, cost)) {
+        int d = cost.getOrDefault(Material.DIAMOND,0);
+        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
           st.setManicMiner(lvl+1);
           plugin.upgrades().applyManicMiner(uh.arenaId, uh.team, st.manicMiner());
           String name = def.name.replace("{level}", String.valueOf(st.manicMiner()));
           p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", PriceUtil.formatCost(cost))));
+          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_HEAL) {
         ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.HEAL_POOL);
         if (st.healPool()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         Map<Material,Integer> cost = def.costs.get(0);
-        if (PriceUtil.hasAndRemove(p, cost)) {
+        int d = cost.getOrDefault(Material.DIAMOND,0);
+        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
           st.setHealPool(true);
           plugin.upgrades().applyHealPool(uh.arenaId, uh.team, true);
           p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", PriceUtil.formatCost(cost))));
+          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_FORGE) {
         ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.FORGE);
         int lvl = st.forge();
         if (lvl >= def.maxLevel) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         Map<Material,Integer> cost = def.costs.get(lvl);
-        if (PriceUtil.hasAndRemove(p, cost)) {
+        int d = cost.getOrDefault(Material.DIAMOND,0);
+        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
           st.setForge(lvl+1);
           plugin.upgrades().applyForge(uh.arenaId, uh.team, st.forge());
           String name = def.name.replace("{level}", String.valueOf(st.forge()));
           p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", PriceUtil.formatCost(cost))));
+          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_TRAP) {
         ShopConfig.TrapDef def = plugin.shopConfig().trap(TrapType.ALARM);
         if (st.trapQueue().size() >= 3) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        if (PriceUtil.hasAndRemove(p, def.cost)) {
+        int d = def.cost.getOrDefault(Material.DIAMOND,0);
+        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
           st.trapQueue().add(TrapType.ALARM);
           p.sendMessage(plugin.messages().format("shop.trap-added", Map.of("count", st.trapQueue().size())));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", PriceUtil.formatCost(def.cost))));
+          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       }
     }

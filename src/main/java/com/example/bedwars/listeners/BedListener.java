@@ -6,7 +6,9 @@ import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.game.GameService;
 import com.example.bedwars.game.PlayerContextService;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,25 +24,33 @@ public final class BedListener implements Listener {
     this.plugin = plugin; this.game = game; this.ctx = ctx;
   }
 
-  @EventHandler
+  @EventHandler(ignoreCancelled = true)
   public void onBreak(BlockBreakEvent e) {
+    Block b = e.getBlock();
+    if (!Tag.BEDS.isTagged(b.getType())) return;
     Player p = e.getPlayer();
     String arenaId = ctx.getArena(p);
-    if (arenaId == null) return;
+    if (arenaId == null) { e.setCancelled(true); return; }
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     if (a == null || a.state() != GameState.RUNNING) { e.setCancelled(true); return; }
-    Block b = e.getBlock();
-    if (!b.getType().name().endsWith("_BED")) return;
-    TeamColor teamBed = null;
+
+    Bed bed = (Bed) b.getBlockData();
+    Block head = bed.getPart() == Bed.Part.HEAD ? b : b.getRelative(bed.getFacing());
+    TeamColor bedTeam = null;
     for (TeamColor tc : a.enabledTeams()) {
-      if (a.team(tc).bedBlock() != null && a.team(tc).bedBlock().getBlock().equals(b)) {
-        teamBed = tc; break;
-      }
+      var loc = a.team(tc).bedBlock();
+      if (loc != null && loc.getBlock().equals(head)) { bedTeam = tc; break; }
     }
-    if (teamBed == null) return;
+    if (bedTeam == null) { e.setCancelled(true); return; }
+
     TeamColor playerTeam = ctx.getTeam(p);
-    boolean breakOnlyEnemy = plugin.getConfig().getBoolean("rules.break-only-enemy-bed", true);
-    if (breakOnlyEnemy && teamBed == playerTeam) { e.setCancelled(true); return; }
-    game.handleBedBreak(p, a, teamBed);
+    if (bedTeam == playerTeam) {
+      p.sendMessage("§cC’est votre lit !");
+      e.setCancelled(true);
+      return;
+    }
+
+    game.handleBedBreak(p, a, bedTeam);
+    e.setCancelled(false);
   }
 }

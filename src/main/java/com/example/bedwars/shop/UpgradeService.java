@@ -7,7 +7,9 @@ import com.example.bedwars.game.PlayerContextService;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -112,5 +114,40 @@ public final class UpgradeService {
 
   public void applyForge(String arenaId, TeamColor team, int level) {
     // placeholder - actual generator boosting is implemented later
+  }
+
+  // === Diamond purchase helpers ===
+  public int countDiamonds(Player p) {
+    return count(p.getInventory(), Material.DIAMOND);
+  }
+
+  public boolean tryBuyWithDiamonds(Player p, int cost) {
+    int have = countDiamonds(p);
+    if (have < cost) {
+      p.sendMessage("§cIl faut §b" + cost + "◆ diamants.");
+      return false;
+    }
+    remove(p.getInventory(), Material.DIAMOND, cost);
+    p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.2f);
+    return true;
+  }
+
+  private int count(Inventory inv, Material m) {
+    int total = 0;
+    for (ItemStack is : inv.getContents()) {
+      if (is != null && is.getType() == m) total += is.getAmount();
+    }
+    return total;
+  }
+
+  private void remove(Inventory inv, Material m, int amount) {
+    for (int i = 0; i < inv.getSize(); i++) {
+      ItemStack is = inv.getItem(i);
+      if (is == null || is.getType() != m) continue;
+      int take = Math.min(amount, is.getAmount());
+      is.setAmount(is.getAmount() - take);
+      amount -= take;
+      if (amount <= 0) break;
+    }
   }
 }

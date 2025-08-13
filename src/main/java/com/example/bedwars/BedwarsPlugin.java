@@ -17,6 +17,7 @@ import com.example.bedwars.listeners.BedListener;
 import com.example.bedwars.listeners.DeathRespawnListener;
 import com.example.bedwars.listeners.BlockRulesListener;
 import com.example.bedwars.listeners.DamageRulesListener;
+import com.example.bedwars.listeners.EntityExplodeListener;
 import com.example.bedwars.setup.PromptService;
 import com.example.bedwars.shop.ShopConfig;
 import com.example.bedwars.shop.UpgradeService;
@@ -28,6 +29,7 @@ import com.example.bedwars.game.SpectatorService;
 import com.example.bedwars.game.GameMessages;
 import com.example.bedwars.game.GameService;
 import com.example.bedwars.gen.GeneratorManager;
+import com.example.bedwars.services.BuildRulesService;
 
 public final class BedwarsPlugin extends JavaPlugin {
 
@@ -46,6 +48,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private SpectatorService spectatorService;
   private GameMessages gameMessages;
   private GameService gameService;
+  private BuildRulesService buildRules;
 
   @Override
   public void onEnable() {
@@ -65,6 +68,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.gameMessages = new GameMessages(this, contextService);
     this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages);
     this.upgradeService = new UpgradeService(this, contextService);
+    this.buildRules = new BuildRulesService(this);
     this.generatorManager = new GeneratorManager(this);
     this.generatorManager.start();
 
@@ -80,8 +84,9 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new JoinLeaveListener(gameService), this);
     getServer().getPluginManager().registerEvents(new BedListener(this, gameService, contextService), this);
     getServer().getPluginManager().registerEvents(new DeathRespawnListener(this, gameService, contextService), this);
-    getServer().getPluginManager().registerEvents(new BlockRulesListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new BlockRulesListener(this, contextService, buildRules), this);
     getServer().getPluginManager().registerEvents(new DamageRulesListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new EntityExplodeListener(buildRules), this);
 
     getLogger().info("Bedwars loaded.");
   }
@@ -122,4 +127,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public UpgradeService upgrades() { return upgradeService; }
   public GeneratorManager generators() { return generatorManager; }
   public GameService game() { return gameService; }
+  public BuildRulesService buildRules() { return buildRules; }
 }
