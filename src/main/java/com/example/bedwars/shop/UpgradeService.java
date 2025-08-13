@@ -8,11 +8,13 @@ import com.example.bedwars.service.PlayerContextService.Context;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import com.example.bedwars.util.Compat;
 
 /**
  * Applies upgrades to players based on team state.
@@ -31,38 +33,58 @@ public final class UpgradeService {
     return ctx.get(p).map(c -> c.arenaId.equals(arenaId) && c.team == team).orElse(false);
   }
 
+  private void applySharpness(Player p) {
+    ItemStack is = p.getInventory().getItemInMainHand();
+    if (is == null) return;
+    Material m = is.getType();
+    if (!m.name().endsWith("_SWORD")) return;
+
+    ItemMeta meta = is.getItemMeta();
+    if (meta == null) return;
+
+    meta.addEnchant(Compat.sharpness(), 1, true);
+    is.setItemMeta(meta);
+  }
+
+  private void applyProtection(Player p, int level) {
+    if (level <= 0) return;
+    for (ItemStack armor : p.getInventory().getArmorContents()) {
+      if (armor == null) continue;
+      ItemMeta meta = armor.getItemMeta();
+      if (meta == null) continue;
+      meta.addEnchant(Compat.protection(), level, true);
+      armor.setItemMeta(meta);
+    }
+  }
+
+  private void applyManicMiner(Player p, int level) {
+    PotionEffectType type = Compat.haste();
+    if (level <= 0) {
+      p.removePotionEffect(type);
+      return;
+    }
+    int amplifier = Math.max(0, level - 1);
+    p.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, false, false, false));
+  }
+
   public void applySharpness(String arenaId, TeamColor team) {
     for (Player p : plugin.getServer().getOnlinePlayers()) {
       if (!matches(p, arenaId, team)) continue;
-      for (ItemStack is : p.getInventory().getContents()) {
-        if (is != null && is.getType().name().endsWith("_SWORD")) {
-          is.addEnchantment(Enchantment.DAMAGE_ALL, 1);
-        }
-      }
+      applySharpness(p);
     }
   }
 
   public void applyProtection(String arenaId, TeamColor team, int level) {
     for (Player p : plugin.getServer().getOnlinePlayers()) {
       if (!matches(p, arenaId, team)) continue;
-      ItemStack[] armor = p.getInventory().getArmorContents();
-      for (ItemStack is : armor) {
-        if (is != null && is.getType() != org.bukkit.Material.AIR) {
-          is.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, level);
-        }
-      }
-      p.getInventory().setArmorContents(armor);
+      applyProtection(p, level);
     }
   }
 
   public void applyManicMiner(String arenaId, TeamColor team, int level) {
     for (Player p : plugin.getServer().getOnlinePlayers()) {
       if (!matches(p, arenaId, team)) continue;
-      if (level > 0) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, level-1, true, false, false));
-      } else {
-        p.removePotionEffect(PotionEffectType.FAST_DIGGING);
-      }
+      applyManicMiner(p, level);
     }
   }
 

@@ -9,6 +9,7 @@ import com.example.bedwars.arena.ArenaManager;
 import com.example.bedwars.gui.MenuManager;
 import com.example.bedwars.listeners.MenuListener;
 import com.example.bedwars.listeners.EditorListener;
+import com.example.bedwars.listeners.UpgradeApplyListener;
 import com.example.bedwars.setup.PromptService;
 import com.example.bedwars.shop.ShopConfig;
 import com.example.bedwars.shop.UpgradeService;
@@ -46,6 +47,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new EditorListener(this), this);
     getServer().getPluginManager().registerEvents(promptService, this);
     getServer().getPluginManager().registerEvents(new ShopListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new UpgradeApplyListener(this, contextService), this);
 
     getLogger().info("Bedwars loaded.");
   }
