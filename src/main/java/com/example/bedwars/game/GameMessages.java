@@ -14,23 +14,36 @@ public final class GameMessages {
     this.plugin = plugin; this.ctx = ctx;
   }
 
-  private String format(String key, Map<String, Object> params) {
+  public String raw(String key) {
     String msg = plugin.messages().get(key);
-    if (msg == null) return "";
-    if (params != null) {
-      for (var e : params.entrySet()) {
+    return msg != null ? msg : key;
+  }
+
+  public String format(String key, Map<String, ?> tokens) {
+    String msg = raw(key);
+    if (tokens != null) {
+      for (var e : tokens.entrySet()) {
         msg = msg.replace("{" + e.getKey() + "}", String.valueOf(e.getValue()));
       }
     }
     return plugin.messages().get("prefix") + msg;
   }
 
-  public void send(Player p, String key, Map<String, Object> params) {
-    p.sendMessage(format(key, params));
+  public void send(Player p, String key) {
+    p.sendMessage(format(key, null));
   }
 
-  public void broadcast(Arena a, String key, Map<String, Object> params) {
-    String msg = format(key, params);
+  public void send(Player p, String key, Map<String, ?> tokens) {
+    p.sendMessage(format(key, tokens));
+  }
+
+  public void broadcast(Arena a, String key) {
+    String msg = format(key, null);
+    for (Player p : ctx.playersInArena(a.id())) p.sendMessage(msg);
+  }
+
+  public void broadcast(Arena a, String key, Map<String, ?> tokens) {
+    String msg = format(key, tokens);
     for (Player p : ctx.playersInArena(a.id())) p.sendMessage(msg);
   }
 }
