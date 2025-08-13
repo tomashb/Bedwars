@@ -10,7 +10,7 @@ import com.example.bedwars.shop.TeamUpgradesState;
  */
 public final class TeamData {
   private Location spawn;        // null until defined
-  private Location bedBlock;     // "head" block of the bed
+  private Location bedBlock;     // "foot" block of the bed
   private int maxPlayers = 4;
   private final TeamUpgradesState upgrades = new TeamUpgradesState();
 

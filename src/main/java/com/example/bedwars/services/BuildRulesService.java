@@ -47,10 +47,9 @@ public final class BuildRulesService {
   }
 
   public boolean isAllowed(Material mat) {
-    if (plugin.getConfig().getBoolean("build.allow_all_shop_blocks", true)) {
-      return dynamicAllowed.contains(mat);
-    }
-    return staticAllowed.contains(mat);
+    boolean dynamic = plugin.getConfig().getBoolean("build.allow_all_shop_blocks", true)
+        && dynamicAllowed.contains(mat);
+    return dynamic || staticAllowed.contains(mat);
   }
 
   public void recordPlacement(String arenaId, Location loc) {

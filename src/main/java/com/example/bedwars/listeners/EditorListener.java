@@ -103,7 +103,10 @@ public final class EditorListener implements Listener {
         p.sendMessage(plugin.messages().get("editor.not-looking-bed"));
         return;
       }
-      plugin.arenas().setTeamBed(id, c, head);
+      Block hb = head.getBlock();
+      Bed bedData = (Bed) hb.getBlockData();
+      Block foot = hb.getRelative(bedData.getFacing().getOppositeFace());
+      plugin.arenas().setTeamBed(id, c, foot.getLocation());
       p.sendMessage(plugin.messages().format("editor.set-bed", Map.of("team", c.display)));
       plugin.menus().openEditor(EditorView.TEAM, p, id);
       return;
