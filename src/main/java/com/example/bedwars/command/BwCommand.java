@@ -3,6 +3,7 @@ package com.example.bedwars.command;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.game.GameService;
+import com.example.bedwars.gui.AdminView;
 import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

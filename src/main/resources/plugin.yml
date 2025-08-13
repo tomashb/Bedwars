@@ -6,17 +6,12 @@ author: You
 commands:
   bw:
     description: Commandes joueur BedWars
-    usage: /bw <help>
     aliases: [bedwars]
+    usage: /bw <join|leave|team|menu>
   bwadmin:
     description: Commandes admin BedWars
-    usage: /bwadmin <help>
+    usage: /bwadmin <arena|game|menu>
 permissions:
   bedwars.admin:
     description: Accès aux commandes admin BedWars
     default: op
-  bedwars.admin.*:
-    description: Accès à toutes les commandes admin BedWars
-    default: op
-    children:
-      bedwars.admin: true
