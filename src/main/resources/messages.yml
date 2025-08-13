@@ -100,6 +100,7 @@ game:
   choose-team-title: "&8Choisissez votre &lÉquipe"
   bed-destroyed: "&cLe lit de {team} &ca été détruit par {player} !"
   bed-destroyed-you: "&cVotre lit a été détruit ! Dernière vie."
+  bed-own: "&cC'est votre lit !"
   eliminated: "&c{player} a été éliminé."
   victory: "&6Victoire de l'équipe {team} !"
   respawn-in: "&eRespawn dans &6{sec}s"

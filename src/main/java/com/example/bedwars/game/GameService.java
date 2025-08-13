@@ -24,18 +24,21 @@ public final class GameService {
   private final KitService kit;
   private final SpectatorService spectator;
   private final GameMessages messages;
+  private final com.example.bedwars.lobby.LobbyItemsService lobbyItems;
   private DeathRespawnService deathService;
   private final Map<String, Integer> countdownTasks = new HashMap<>();
   private final Map<String, Integer> timerTasks = new HashMap<>();
 
   public GameService(BedwarsPlugin plugin, PlayerContextService ctx, TeamAssignment ta,
-                     KitService kit, SpectatorService spec, GameMessages msgs) {
+                     KitService kit, SpectatorService spec, GameMessages msgs,
+                     com.example.bedwars.lobby.LobbyItemsService lobbyItems) {
     this.plugin = plugin;
     this.contexts = ctx;
     this.teamAssignment = ta;
     this.kit = kit;
     this.spectator = spec;
     this.messages = msgs;
+    this.lobbyItems = lobbyItems;
   }
 
   public void setDeathService(DeathRespawnService drs) { this.deathService = drs; }
@@ -69,6 +72,7 @@ public final class GameService {
     contexts.join(p, arenaId);
     p.getInventory().clear();
     if (a.lobby() != null) p.teleport(a.lobby());
+    lobbyItems.giveLobbyItems(p);
     messages.send(p, "game.join", Map.of("arena", arenaId));
     // auto assign
     TeamColor team = teamAssignment.assign(a, p);

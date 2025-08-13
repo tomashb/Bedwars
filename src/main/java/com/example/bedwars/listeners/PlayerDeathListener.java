@@ -3,6 +3,7 @@ package com.example.bedwars.listeners;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.game.DeathRespawnService;
 import com.example.bedwars.game.PlayerContextService;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,6 +32,7 @@ public final class PlayerDeathListener implements Listener {
     Player p = e.getEntity();
     if (ctx.getArena(p) == null) return;
     death.handleDeath(p);
+    Bukkit.getScheduler().runTask(plugin, () -> p.spigot().respawn());
   }
 
   @EventHandler
