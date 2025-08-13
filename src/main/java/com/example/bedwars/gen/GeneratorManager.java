@@ -71,6 +71,26 @@ public final class GeneratorManager {
     return Math.max(0, g.cooldown / 20);
   }
 
+  /** Returns seconds until next diamond generator drop in arena. */
+  public int nextDiamondDropSeconds(String arenaId) {
+    Map<UUID, RuntimeGen> m = runtime.get(arenaId);
+    if (m == null) return 0;
+    return m.values().stream()
+        .filter(g -> g.type == GeneratorType.DIAMOND)
+        .mapToInt(g -> Math.max(0, g.cooldown / 20))
+        .min().orElse(0);
+  }
+
+  /** Returns seconds until next emerald generator drop in arena. */
+  public int nextEmeraldDropSeconds(String arenaId) {
+    Map<UUID, RuntimeGen> m = runtime.get(arenaId);
+    if (m == null) return 0;
+    return m.values().stream()
+        .filter(g -> g.type == GeneratorType.EMERALD)
+        .mapToInt(g -> Math.max(0, g.cooldown / 20))
+        .min().orElse(0);
+  }
+
   // Called at STARTING->RUNNING and on arena reload
   public void refreshArena(String arenaId) {
     plugin.arenas().get(arenaId).ifPresent(arena -> {

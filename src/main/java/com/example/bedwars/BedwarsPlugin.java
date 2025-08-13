@@ -61,6 +61,8 @@ public final class BedwarsPlugin extends JavaPlugin {
   private DeathRespawnService deathService;
   private LobbyItemsService lobbyItems;
   private TeamSelectMenu teamSelectMenu;
+  private com.example.bedwars.hud.ScoreboardManager scoreboardManager;
+  private com.example.bedwars.hud.ActionBarBus actionBarBus;
 
   @Override
   public void onEnable() {
@@ -87,6 +89,15 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.buildRules = new BuildRulesService(this);
     this.generatorManager = new GeneratorManager(this);
     this.generatorManager.start();
+
+    this.actionBarBus = new com.example.bedwars.hud.ActionBarBus();
+    if (getConfig().getBoolean("actionbar.enabled", true)) {
+      this.actionBarBus.start(this);
+    }
+    this.scoreboardManager = new com.example.bedwars.hud.ScoreboardManager(this);
+    if (getConfig().getBoolean("scoreboard.enabled", true)) {
+      org.bukkit.Bukkit.getScheduler().runTaskTimer(this, () -> scoreboardManager.tick(), 20L, 20L);
+    }
 
     Objects.requireNonNull(getCommand("bw")).setExecutor(new BwCommand(this));
     Objects.requireNonNull(getCommand("bwadmin")).setExecutor(new BwAdminCommand(this));
@@ -118,6 +129,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   public void onDisable() {
     if (arenaManager != null) arenaManager.saveAll();
     if (generatorManager != null) generatorManager.stop();
+    if (scoreboardManager != null) scoreboardManager.clear();
     getLogger().info("Bedwars disabled.");
   }
 
@@ -151,4 +163,6 @@ public final class BedwarsPlugin extends JavaPlugin {
   public GeneratorManager generators() { return generatorManager; }
   public GameService game() { return gameService; }
   public BuildRulesService buildRules() { return buildRules; }
+  public com.example.bedwars.hud.ScoreboardManager scoreboard() { return scoreboardManager; }
+  public com.example.bedwars.hud.ActionBarBus actionBar() { return actionBarBus; }
 }

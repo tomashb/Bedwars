@@ -137,3 +137,14 @@ eliminated_title: "&cÉliminé"
 eliminated_sub: "&7Votre lit est détruit"
 build:
   not_allowed: "&cVous ne pouvez pas construire ici."
+sb:
+  title: "&e&lBEDWARS"
+  bed_ok: "✔"
+  bed_broken: "✖"
+  diamond_line: "&bDiamant: &fTier {tier} &7t-{sec}s"
+  emerald_line: "&aÉmeraude: &fTier {tier} &7t-{sec}s"
+ab:
+  starting_in: "&eDépart dans &6{sec}s"
+  trap_triggered: "&cPiège déclenché !"
+  bed_broken: "&eLit de &f{team}&e détruit !"
+  tier_up: "&b{res} Tier {tier} atteint"

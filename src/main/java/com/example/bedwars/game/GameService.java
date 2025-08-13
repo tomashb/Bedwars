@@ -43,6 +43,11 @@ public final class GameService {
 
   public void setDeathService(DeathRespawnService drs) { this.deathService = drs; }
 
+  /** Returns number of alive players for a team in an arena. */
+  public int aliveCount(String arenaId, TeamColor team) {
+    return contexts.aliveCount(arenaId, team);
+  }
+
   public int diamondTier(String arenaId) {
     return plugin.generators().diamondTier(arenaId);
   }
@@ -121,6 +126,10 @@ public final class GameService {
         if (a.state() != GameState.STARTING) { cancel(); return; }
         if (sec <= 0) { cancel(); beginRunning(a); return; }
         messages.broadcast(a, "game.starting-in", Map.of("sec", sec));
+        String ab = plugin.messages().format("ab.starting_in", Map.of("sec", sec));
+        for (Player p : contexts.playersInArena(a.id())) {
+          plugin.actionBar().push(p, ab, 1);
+        }
         sec--;
       }
     }.runTaskTimer(plugin, 0L, 20L).getTaskId();
