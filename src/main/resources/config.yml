@@ -126,7 +126,6 @@ lobby:
 
 scoreboard:
   enabled: true
-  brand_line: "play: exemple.fr"
 actionbar:
   enabled: true
 

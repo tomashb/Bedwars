@@ -4,6 +4,7 @@ import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
+import com.example.bedwars.util.Io;
 import com.example.bedwars.arena.TeamData;
 import com.example.bedwars.game.ArenaStateChangeEvent;
 import com.example.bedwars.game.DeathRespawnService;
@@ -100,14 +101,14 @@ public final class GameService {
     int capacity = a.activeTeams().size() * a.maxTeamSize();
     int current = contexts.countPlayers(arenaId);
     if (current >= capacity) {
-      messages.send(p, "team.full", Map.of("count", current, "max", capacity));
+      messages.send(p, "errors.team_full", Map.of("count", current, "max", capacity));
       return;
     }
     contexts.join(p, arenaId);
     p.getInventory().clear();
     if (a.lobby() != null) p.teleport(a.lobby());
     lobbyItems.giveLobbyItems(p);
-    messages.send(p, "game.join", Map.of("arena", arenaId));
+    messages.send(p, "player.joined_arena", Map.of("arena", arenaId));
 
     int count = contexts.countPlayers(arenaId);
     int min = plugin.getConfig().getInt("game.min-players", 2);
@@ -123,7 +124,7 @@ public final class GameService {
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     contexts.clear(p);
     if (a != null && toLobby && a.lobby() != null) p.teleport(a.lobby());
-    messages.send(p, "game.left", Map.of());
+    messages.send(p, "player.left_arena", Map.of());
     if (a != null && a.state() == GameState.RUNNING) {
       checkVictory(a);
     }
@@ -149,7 +150,7 @@ public final class GameService {
         if (a.state() != GameState.STARTING) { cancel(); return; }
         if (sec <= 0) { cancel(); beginRunning(a); return; }
         messages.broadcast(a, "game.starting-in", Map.of("sec", sec));
-        String ab = plugin.messages().format("ab.starting_in", Map.of("sec", sec));
+        String ab = plugin.messages().format("actionbar.starting_in", Map.of("sec", sec));
         for (Player p : contexts.playersInArena(a.id())) {
           plugin.actionBar().push(p, ab, 1);
         }
@@ -234,15 +235,23 @@ public final class GameService {
     next.ifPresent(id -> plugin.messages().broadcast(a, "rotation.picked", Map.of("arena", id)));
 
     ArenaResetStrategy strat = plugin.reset().strategyFor(target);
-    try {
-      plugin.messages().broadcast(a, "reset.preparing", Map.of());
-      strat.prepare(a);
-      strat.reset(target);
-      plugin.messages().broadcast(target, "reset.done", Map.of());
-    } catch (Exception ex) {
-      plugin.getLogger().severe("Reset failed: " + ex.getMessage());
-      plugin.messages().broadcast(target, "reset.failed", Map.of("error", ex.getMessage()));
-    }
+    plugin.messages().broadcast(a, "reset.preparing", Map.of());
+    strat.prepare(a);
+    Io.async(() -> {
+      try {
+        strat.reset(target);
+        return null;
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
+    }).whenComplete((v, ex) -> org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+      if (ex != null) {
+        plugin.logSevere("Reset failed: %s", ex.getCause().getMessage());
+        plugin.messages().broadcast(target, "reset.failed", Map.of("error", ex.getCause().getMessage()));
+      } else {
+        plugin.messages().broadcast(target, "reset.done", Map.of());
+      }
+    }));
   }
 
   public void handleBedBreak(Player p, Arena a, TeamColor broken) {

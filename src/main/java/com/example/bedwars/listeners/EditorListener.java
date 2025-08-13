@@ -36,7 +36,7 @@ public final class EditorListener implements Listener {
     if(!(top.getHolder() instanceof BWMenuHolder holder)) return;
     e.setCancelled(true);
     if(!(e.getWhoClicked() instanceof Player p)) return;
-    if(!p.hasPermission("bedwars.menu.admin")) { p.sendMessage(plugin.messages().get("admin.no-perm")); return; }
+    if(!p.hasPermission("bedwars.admin.arena")) { p.sendMessage(plugin.messages().get("errors.no_perm")); return; }
     if(holder.view != AdminView.ARENA_EDITOR || holder.editorView == null) return;
     if(e.getClickedInventory() != top) return;
     int slot = e.getRawSlot();

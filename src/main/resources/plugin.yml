@@ -12,21 +12,23 @@ commands:
     description: Commandes admin BedWars
     usage: /bwadmin <arena|game|menu>
 permissions:
-  bedwars.admin:
-    description: Accès aux commandes admin BedWars
+  bedwars.admin.*:
+    description: Tous les droits BedWars
     default: op
-  bedwars.admin.debug:
-    description: Debug d'une arène (status)
-    default: op
-  bedwars.admin.maintenance:
-    description: Maintenance (cleanup entités taguées)
-    default: op
+    children:
+      bedwars.admin.arena: true
+      bedwars.admin.team: true
+      bedwars.admin.npc: true
+      bedwars.admin.gen: true
+      bedwars.admin.rules: true
+      bedwars.admin.game: true
+      bedwars.admin.rotation: true
+      bedwars.admin.reset: true
+      bedwars.admin.debug: true
+      bedwars.admin.maintenance: true
   bedwars.menu.rules:
     description: Ouvrir le menu Règles via la boussole
     default: true
   bedwars.build.place:
     description: Poser des blocs whitelistes en arène
     default: true
-  bedwars.menu.admin:
-    description: Accès menus admin BedWars
-    default: op

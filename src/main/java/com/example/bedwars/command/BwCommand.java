@@ -48,8 +48,8 @@ public final class BwCommand implements CommandExecutor {
           }
           return true;
         case "menu":
-          if (!player.hasPermission("bedwars.admin")) {
-            player.sendMessage(plugin.messages().get("admin.no-perm"));
+          if (!player.hasPermission("bedwars.admin.arena")) {
+            player.sendMessage(plugin.messages().get("errors.no_perm"));
             return true;
           }
           plugin.menus().open(AdminView.ROOT, player, null);

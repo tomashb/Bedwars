@@ -1,33 +1,41 @@
-# Bedwars
+# Guide Admin BedWars
 
-Squelette minimal d'un plugin BedWars pour Spigot/Paper 1.21.
+Plugin BedWars pour Spigot/Paper 1.21.
 
-## Compilation
+## Installation
+1. Compiler le plugin : `mvn package`.
+2. Déposer `target/bedwars-0.0.1.jar` dans `plugins/`.
+3. Démarrer le serveur pour générer la structure :
+   - `plugins/Bedwars/arenas/`
+   - `plugins/Bedwars/templates/`
+   - fichiers `config.yml`, `messages.yml`, `shop.yml`, `upgrades.yml`, `rotation.yml`.
 
-```bash
-mvn -DskipTests package
-```
+## Setup rapide
+1. `/bw menu` → menu admin.
+2. Créer une arène → définir Lobby, Spawns/Lits pour chaque équipe.
+3. Ajouter PNJ boutique & upgrades, générateurs.
+4. `Save` puis `/bwadmin game start <id>` pour tester.
 
-Le JAR généré se trouve dans `target/bedwars-0.0.1.jar` et doit être
-placé dans le dossier `plugins/` d'un serveur Paper/Spigot 1.21.
+## Commandes & permissions
+| Commande | Permission |
+|---------|------------|
+| `/bw help` | *(aucune)* |
+| `/bw join <arène>` | *(aucune)* |
+| `/bw menu` | `bedwars.admin.arena` |
+| `/bwadmin arena <...>` | `bedwars.admin.arena` |
+| `/bwadmin game <...>` | `bedwars.admin.game` |
+| `/bwadmin debug status <arène>` | `bedwars.admin.debug` |
+| `/bwadmin maintenance cleanup <arène>` | `bedwars.admin.maintenance` |
 
-## Éditeur d'arène (Étape 4)
+Permissions globales : `bedwars.admin.*` (ops par défaut) et gameplay :
+`bedwars.menu.rules`, `bedwars.build.place`.
 
-Un assistant permet de créer une arène via le menu admin (laine verte).
-Après saisie de l'identifiant, l'éditeur s'ouvre avec les actions
-suivantes (slots principaux) :
+## Captures
+Captures d'écran à insérer ici.
 
-| Slot | Action |
-|-----:|--------|
-| 10 | Définir le lobby |
-| 12 | Ouvrir la gestion des équipes |
-| 14 | Ajouter des PNJ |
-| 16 | Ajouter des générateurs |
-| 28 | Sauvegarder |
-| 30 | Recharger |
-| 32 | Supprimer |
-| 49 | Retour |
+## FAQ
+- **Je ne peux pas placer de blocs en arène** : vérifier `bedwars.build.place`.
+- **Le TNT ne s'allume pas** : assurez-vous que l'arène n'est pas en mode `WAITING`.
+- **Le scoreboard n'apparaît pas** : vérifier `scoreboard.enabled` dans `config.yml`.
+- **Permissions** : utiliser `bedwars.admin.*` ou les sous-permissions détaillées ci-dessus.
 
-Les sous-menus permettent d'activer une équipe, de positionner ses spawns
-et lits, de poser les PNJ boutique/upgrade et d'ajouter les générateurs
-marqués.

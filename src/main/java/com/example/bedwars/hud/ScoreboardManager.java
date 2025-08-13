@@ -8,7 +8,6 @@ import com.example.bedwars.game.PlayerContextService;
 import java.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -37,7 +36,7 @@ public final class ScoreboardManager {
   public void attach(Player p) {
     if (boards.containsKey(p.getUniqueId())) return;
     Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
-    Objective o = sb.registerNewObjective("bw", org.bukkit.scoreboard.Criteria.DUMMY, color(msg("sb.title")));
+    Objective o = sb.registerNewObjective("bw", org.bukkit.scoreboard.Criteria.DUMMY, color(msg("scoreboard.title")));
     o.setDisplaySlot(DisplaySlot.SIDEBAR);
     for (int i = 0; i < KEYS.length; i++) {
       Team t = sb.registerNewTeam("L" + i);
@@ -60,12 +59,11 @@ public final class ScoreboardManager {
   /** Tick rendering for all arenas and players. */
   public void tick() {
     Set<UUID> seen = new HashSet<>();
-    FileConfiguration config = plugin.getConfig();
     for (Arena a : plugin.arenas().all()) {
       if (a.state() != GameState.STARTING && a.state() != GameState.RUNNING) continue;
       for (Player p : players.playersInArena(a.id())) {
         attach(p);
-        renderFor(p, a, config);
+        renderFor(p, a);
         seen.add(p.getUniqueId());
       }
     }
@@ -80,14 +78,14 @@ public final class ScoreboardManager {
     }
   }
 
-  private void renderFor(Player p, Arena a, FileConfiguration config) {
+  private void renderFor(Player p, Arena a) {
     Scoreboard sb = boards.get(p.getUniqueId()).board();
     int i = 0;
     set(sb, i++, color("&7Carte: &f" + a.id()));
     set(sb, i++, " ");
     for (TeamColor tc : a.activeTeams()) {
       boolean bed = a.team(tc).bedBlock() != null;
-      String sym = bed ? msg("sb.bed_ok") : msg("sb.bed_broken");
+      String sym = bed ? msg("scoreboard.bed_ok") : msg("scoreboard.bed_broken");
       int alive = players.aliveCount(a.id(), tc);
       String line = tc.color + tc.display + " &7" + sym + " &f(" + alive + ")";
       set(sb, i++, color(line));
@@ -98,10 +96,10 @@ public final class ScoreboardManager {
     int dSec = plugin.generators().nextDiamondDropSeconds(a.id());
     int eTier = plugin.generators().emeraldTier(a.id());
     int eSec = plugin.generators().nextEmeraldDropSeconds(a.id());
-    set(sb, i++, color(msg("sb.diamond_line").replace("{tier}", roman(dTier)).replace("{sec}", String.valueOf(dSec))));
-    set(sb, i++, color(msg("sb.emerald_line").replace("{tier}", roman(eTier)).replace("{sec}", String.valueOf(eSec))));
+    set(sb, i++, color(msg("scoreboard.diamond_line").replace("{tier}", roman(dTier)).replace("{sec}", String.valueOf(dSec))));
+    set(sb, i++, color(msg("scoreboard.emerald_line").replace("{tier}", roman(eTier)).replace("{sec}", String.valueOf(eSec))));
     set(sb, i++, "   ");
-    set(sb, i++, color("&7" + config.getString("scoreboard.brand_line", "play: exemple.fr")));
+    set(sb, i++, color("&7" + plugin.messages().get("brand.line")));
     while (i < KEYS.length) set(sb, i++, "");
   }
 
