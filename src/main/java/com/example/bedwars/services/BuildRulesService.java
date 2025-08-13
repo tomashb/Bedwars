@@ -4,6 +4,7 @@ import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.shop.ShopCategory;
 import com.example.bedwars.shop.ShopConfig;
 import com.example.bedwars.shop.ShopItem;
+import com.example.bedwars.arena.Arena;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -74,5 +75,10 @@ public final class BuildRulesService {
 
   public void clearArena(String arenaId) {
     placed.clearArena(arenaId);
+  }
+
+  /** Clear and remove all player placed blocks in the arena world. */
+  public void clearArenaBlocks(Arena arena) {
+    placed.clearAll(plugin, arena);
   }
 }

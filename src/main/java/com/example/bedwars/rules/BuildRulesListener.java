@@ -80,8 +80,10 @@ public final class BuildRulesListener implements Listener {
       plugin.messages().send(p, "errors.map_protected");
       return;
     }
-    e.getBlockPlaced().setMetadata("bw_placed", new FixedMetadataValue(plugin, true));
-    buildRules.recordPlacement(arenaId, e.getBlockPlaced().getLocation());
+    if (plugin.getConfig().getBoolean("build.track_placed_blocks", true)) {
+      e.getBlockPlaced().setMetadata("bw_placed", new FixedMetadataValue(plugin, true));
+      buildRules.recordPlacement(arenaId, e.getBlockPlaced().getLocation());
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -138,11 +140,13 @@ public final class BuildRulesListener implements Listener {
       return;
     }
 
+    boolean track = plugin.getConfig().getBoolean("build.track_placed_blocks", true);
     if (plugin.getConfig().getBoolean("rules.break-only-placed", true)
+        && track
         && !buildRules.wasPlaced(arenaId, b.getLocation())) {
       e.setCancelled(true);
       plugin.messages().send(p, "errors.map_protected");
-    } else {
+    } else if (track) {
       b.removeMetadata("bw_placed", plugin);
       buildRules.removePlaced(arenaId, b.getLocation());
     }

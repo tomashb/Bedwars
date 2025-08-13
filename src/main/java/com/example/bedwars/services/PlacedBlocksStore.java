@@ -1,42 +1,76 @@
 package com.example.bedwars.services;
 
+import com.example.bedwars.arena.Arena;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.Location;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Tracks blocks placed by players per arena.
+ * Tracks blocks placed by players per arena using packed coordinates for
+ * efficient storage and lookup.
  */
 public final class PlacedBlocksStore {
-  private final Map<String, String> placed = new ConcurrentHashMap<>();
+  private final Map<String, LongOpenHashSet> byArena = new ConcurrentHashMap<>();
 
-  private String key(Location loc) {
-    return loc.getWorld().getName()+":"+loc.getBlockX()+","+loc.getBlockY()+","+loc.getBlockZ();
+  private static long pack(Location loc) {
+    long x = loc.getBlockX() & 0x3FFFFFFL;
+    long y = loc.getBlockY() & 0xFFFL;
+    long z = loc.getBlockZ() & 0x3FFFFFFL;
+    return (x << 38) | (y << 26) | z;
   }
 
   /** Record a placed block for the given arena. */
   public void add(String arenaId, Location loc) {
-    placed.put(key(loc), arenaId);
+    byArena.computeIfAbsent(arenaId, k -> new LongOpenHashSet()).add(pack(loc));
   }
 
   /** Check if the block at location belongs to the given arena and was placed. */
   public boolean contains(String arenaId, Location loc) {
-    return arenaId.equals(placed.get(key(loc)));
+    LongOpenHashSet set = byArena.get(arenaId);
+    return set != null && set.contains(pack(loc));
   }
 
   /** Remove a placed block entry. */
   public void remove(String arenaId, Location loc) {
-    String k = key(loc);
-    if (arenaId.equals(placed.get(k))) placed.remove(k);
+    LongOpenHashSet set = byArena.get(arenaId);
+    if (set != null) set.remove(pack(loc));
   }
 
   /** Get arena id associated with location, or null. */
   public String arenaAt(Location loc) {
-    return placed.get(key(loc));
+    long k = pack(loc);
+    for (var e : byArena.entrySet()) {
+      if (e.getValue().contains(k)) return e.getKey();
+    }
+    return null;
   }
 
-  /** Clear all placed blocks for an arena. */
+  /** Clear tracked entries for an arena without modifying the world. */
   public void clearArena(String arenaId) {
-    placed.entrySet().removeIf(e -> arenaId.equals(e.getValue()));
+    byArena.remove(arenaId);
+  }
+
+  /**
+   * Remove all tracked blocks in an arena's world by setting them to AIR.
+   */
+  public void clearAll(JavaPlugin plugin, Arena a) {
+    LongOpenHashSet set = byArena.get(a.id());
+    if (set == null || set.isEmpty()) return;
+    World w = a.world();
+    for (long k : set) {
+      int x = (int) (k >> 38);
+      int y = (int) ((k >> 26) & 0xFFF);
+      int z = (int) (k & 0x3FFFFFFL);
+      Block b = w.getBlockAt(x, y, z);
+      b.setType(Material.AIR, false);
+      b.removeMetadata("bw_placed", plugin);
+    }
+    set.clear();
   }
 }
+

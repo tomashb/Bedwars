@@ -21,6 +21,7 @@ public final class ShopItem {
   public final String name;
   public final boolean teamColored;
   public final boolean permanent;
+  public final String bwItem;
 
   private ShopItem(
       String id,
@@ -31,7 +32,8 @@ public final class ShopItem {
       Map<Enchantment, Integer> enchants,
       String name,
       boolean teamColored,
-      boolean permanent) {
+      boolean permanent,
+      String bwItem) {
 
     this.id = Objects.requireNonNull(id, "id");
     this.mat = Objects.requireNonNull(mat, "mat");
@@ -42,6 +44,7 @@ public final class ShopItem {
     this.name = Objects.requireNonNullElse(name, "");
     this.teamColored = teamColored;
     this.permanent = permanent;
+    this.bwItem = Objects.requireNonNullElse(bwItem, "");
   }
 
   // ---------- Builder ----------
@@ -57,6 +60,7 @@ public final class ShopItem {
     private String name = "";
     private boolean teamColored = false;
     private boolean permanent = false;
+    private String bwItem = "";
 
     public Builder id(String id) { this.id = id; return this; }
     public Builder mat(Material m) { this.mat = m; return this; }
@@ -67,10 +71,11 @@ public final class ShopItem {
     public Builder name(String n) { this.name = n; return this; }
     public Builder teamColored(boolean yes) { this.teamColored = yes; return this; }
     public Builder permanent(boolean yes) { this.permanent = yes; return this; }
+    public Builder bwItem(String tag) { this.bwItem = tag; return this; }
 
     public ShopItem build() {
       if (id == null || id.isBlank()) throw new IllegalStateException("ShopItem id is required");
-      return new ShopItem(id, mat, amount, currency, cost, enchants, name, teamColored, permanent);
+      return new ShopItem(id, mat, amount, currency, cost, enchants, name, teamColored, permanent, bwItem);
     }
   }
 }

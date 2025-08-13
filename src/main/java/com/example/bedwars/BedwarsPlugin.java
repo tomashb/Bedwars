@@ -18,6 +18,8 @@ import com.example.bedwars.listeners.DamageRulesListener;
 import com.example.bedwars.listeners.EntityExplodeListener;
 import com.example.bedwars.listeners.CompassListener;
 import com.example.bedwars.listeners.ArmorLockListener;
+import com.example.bedwars.listeners.GameplayListener;
+import com.example.bedwars.listeners.FireballListener;
 import com.example.bedwars.rules.BuildRulesListener;
 import com.example.bedwars.listeners.DeathListener;
 import com.example.bedwars.listeners.VoidFailSafeListener;
@@ -127,12 +129,14 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new PlayerRespawnListener(contextService), this);
     getServer().getPluginManager().registerEvents(new BuildRulesListener(this, contextService, buildRules), this);
     getServer().getPluginManager().registerEvents(new DamageRulesListener(this, contextService), this);
-    getServer().getPluginManager().registerEvents(new EntityExplodeListener(buildRules), this);
+    getServer().getPluginManager().registerEvents(new EntityExplodeListener(this, buildRules), this);
     getServer().getPluginManager().registerEvents(new TntListener(this, contextService, buildRules), this);
     getServer().getPluginManager().registerEvents(teamSelectMenu, this);
     getServer().getPluginManager().registerEvents(new LobbyListener(this, lobbyItems, teamSelectMenu, contextService, gameService), this);
     getServer().getPluginManager().registerEvents(new CompassListener(this, contextService, teamSelectMenu), this);
     getServer().getPluginManager().registerEvents(new ArmorLockListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new GameplayListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new FireballListener(this, contextService), this);
 
     getLogger().info("Bedwars loaded.");
   }

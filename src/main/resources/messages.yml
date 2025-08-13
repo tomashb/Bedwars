@@ -11,6 +11,8 @@ errors:
   bed_already_broken: "&eCe lit est déjà détruit."
   no_build_npc: "&cImpossible de construire à côté d’un PNJ."
   no_build_generator: "&cImpossible de construire sur un générateur."
+  cannot_remove_armor: "&cTu ne peux pas enlever ton armure."
+  cannot_drop_sword: "&cTu ne peux pas jeter ton épée."
 
 menu:
   title_admin: "&eMenu Admin"
@@ -173,6 +175,9 @@ build:
 rotation:
   picking: "&7Sélection de la prochaine arène..."
   picked: "&aArène suivante: &f{arena}"
+
+fireball:
+  cooldown: "&ePatiente un instant avant de renvoyer une boule de feu."
 
 reset:
   preparing: "&7Préparation du reset..."

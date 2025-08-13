@@ -226,6 +226,9 @@ public final class GameService {
       spectator.fromSpectator(p);
     }
     plugin.generators().cleanupArena(a.id());
+    if (plugin.getConfig().getBoolean("reset.clear_placed_blocks_on_end", true)) {
+      plugin.buildRules().clearArenaBlocks(a);
+    }
     Integer timer = timerTasks.remove(a.id());
     if (timer != null) Bukkit.getScheduler().cancelTask(timer);
     gameTime.remove(a.id());
