@@ -6,6 +6,7 @@ import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
 import com.example.bedwars.game.ArenaStateChangeEvent;
+import com.example.bedwars.game.DeathRespawnService;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Bukkit;
@@ -23,6 +24,7 @@ public final class GameService {
   private final KitService kit;
   private final SpectatorService spectator;
   private final GameMessages messages;
+  private DeathRespawnService deathService;
   private final Map<String, Integer> countdownTasks = new HashMap<>();
   private final Map<String, Integer> timerTasks = new HashMap<>();
 
@@ -35,6 +37,8 @@ public final class GameService {
     this.spectator = spec;
     this.messages = msgs;
   }
+
+  public void setDeathService(DeathRespawnService drs) { this.deathService = drs; }
 
   public int diamondTier(String arenaId) {
     return plugin.generators().diamondTier(arenaId);
@@ -164,7 +168,7 @@ public final class GameService {
     endGame(a, team);
   }
 
-  private void checkVictory(Arena a) {
+  public void checkVictory(Arena a) {
     var alive = contexts.aliveTeams(a.id());
     if (alive.size() <= 1) {
       TeamColor winner = alive.isEmpty() ? null : alive.iterator().next();
@@ -201,42 +205,6 @@ public final class GameService {
         messages.send(pl, "game.bed-destroyed-you", Map.of());
       }
     }
-  }
-
-  public void handleDeath(Player p) {
-    String arenaId = contexts.getArena(p);
-    if (arenaId == null) return;
-    Arena a = plugin.arenas().get(arenaId).orElse(null);
-    if (a == null || a.state() != GameState.RUNNING) return;
-    TeamColor team = contexts.getTeam(p);
-    contexts.markDead(p);
-    TeamData td = a.team(team);
-    if (td.bedBlock() != null) {
-      int respawn = plugin.getConfig().getInt("game.respawn-seconds", 5);
-      new BukkitRunnable() {
-        int sec = respawn;
-        public void run() {
-          if (sec <= 0) {
-            cancel();
-            contexts.markAlive(p);
-            Location spawn = td.spawn();
-            if (spawn != null) p.teleport(spawn);
-            kit.giveRespawnKit(p, team);
-            plugin.upgrades().applySharpness(arenaId, team);
-            plugin.upgrades().applyProtection(arenaId, team, td.upgrades().protection());
-            plugin.upgrades().applyManicMiner(arenaId, team, td.upgrades().manicMiner());
-            messages.send(p, "game.respawn-now", Map.of());
-          } else {
-            messages.send(p, "game.respawn-in", Map.of("sec", sec));
-            sec--;
-          }
-        }
-      }.runTaskTimer(plugin, 20L, 20L);
-    } else {
-      spectator.toSpectator(p, a);
-      messages.send(p, "game.spectating", Map.of());
-      messages.broadcast(a, "game.eliminated", Map.of("player", p.getName()));
-      checkVictory(a);
-    }
+    if (deathService != null) deathService.handleBedDestroyed(a, broken);
   }
 }

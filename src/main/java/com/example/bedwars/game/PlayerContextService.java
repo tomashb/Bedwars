@@ -16,6 +16,8 @@ public final class PlayerContextService {
     public final String arenaId;
     private TeamColor team;
     private boolean alive = true;
+    private boolean spectating = false;
+    private int respawnTask = -1;
 
     public Context(String arenaId, TeamColor team) {
       this.arenaId = arenaId;
@@ -26,6 +28,10 @@ public final class PlayerContextService {
     public void team(TeamColor t) { this.team = t; }
     public boolean alive() { return alive; }
     public void alive(boolean a) { this.alive = a; }
+    public boolean spectating() { return spectating; }
+    public void spectating(boolean s) { this.spectating = s; }
+    public int respawnTask() { return respawnTask; }
+    public void respawnTask(int id) { this.respawnTask = id; }
   }
 
   private final Map<UUID, Context> contexts = new ConcurrentHashMap<>();
@@ -63,6 +69,30 @@ public final class PlayerContextService {
   public void markAlive(Player p) {
     Context c = contexts.get(p.getUniqueId());
     if (c != null) c.alive(true);
+  }
+
+  public boolean isSpectating(Player p) {
+    Context c = contexts.get(p.getUniqueId());
+    return c != null && c.spectating();
+  }
+
+  public void setSpectating(Player p, boolean s) {
+    Context c = contexts.get(p.getUniqueId());
+    if (c != null) c.spectating(s);
+  }
+
+  public int getRespawnTask(Player p) {
+    Context c = contexts.get(p.getUniqueId());
+    return c == null ? -1 : c.respawnTask();
+  }
+
+  public void setRespawnTask(Player p, int id) {
+    Context c = contexts.get(p.getUniqueId());
+    if (c != null) c.respawnTask(id);
+  }
+
+  public void clearRespawnTask(Player p) {
+    setRespawnTask(p, -1);
   }
 
   public Collection<Player> playersInArena(String arenaId) {
