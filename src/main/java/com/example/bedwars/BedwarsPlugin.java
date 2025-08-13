@@ -11,11 +11,13 @@ import com.example.bedwars.ops.Keys;
 import com.example.bedwars.listeners.MenuListener;
 import com.example.bedwars.listeners.EditorListener;
 import com.example.bedwars.listeners.UpgradeApplyListener;
+import com.example.bedwars.listeners.GameStateListener;
 import com.example.bedwars.setup.PromptService;
 import com.example.bedwars.shop.ShopConfig;
 import com.example.bedwars.shop.UpgradeService;
 import com.example.bedwars.shop.ShopListener;
 import com.example.bedwars.service.PlayerContextService;
+import com.example.bedwars.gen.GeneratorManager;
 
 public final class BedwarsPlugin extends JavaPlugin {
 
@@ -28,6 +30,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private ShopConfig shopConfig;
   private PlayerContextService contextService;
   private UpgradeService upgradeService;
+  private GeneratorManager generatorManager;
 
   @Override
   public void onEnable() {
@@ -42,6 +45,8 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.shopConfig = new ShopConfig(this);
     this.contextService = new PlayerContextService();
     this.upgradeService = new UpgradeService(this, contextService);
+    this.generatorManager = new GeneratorManager(this);
+    this.generatorManager.start();
 
     Objects.requireNonNull(getCommand("bw")).setExecutor(new BwCommand(this));
     Objects.requireNonNull(getCommand("bwadmin")).setExecutor(new BwAdminCommand(this));
@@ -51,6 +56,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(promptService, this);
     getServer().getPluginManager().registerEvents(new ShopListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new UpgradeApplyListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new GameStateListener(this), this);
 
     getLogger().info("Bedwars loaded.");
   }
@@ -58,6 +64,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   @Override
   public void onDisable() {
     if (arenaManager != null) arenaManager.saveAll();
+    if (generatorManager != null) generatorManager.stop();
     getLogger().info("Bedwars disabled.");
   }
 
@@ -88,4 +95,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public ShopConfig shopConfig() { return shopConfig; }
   public PlayerContextService contexts() { return contextService; }
   public UpgradeService upgrades() { return upgradeService; }
+  public GeneratorManager generators() { return generatorManager; }
 }
