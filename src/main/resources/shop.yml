@@ -20,7 +20,7 @@ items:
   MELEE:
     - id: "stone_sword"
       mat: "STONE_SWORD"
-      enchants: { DAMAGE_ALL: 1 }
+      enchants: { SHARPNESS: 1 }
       price: { IRON: 10 }
       name: "&fÉpée en pierre"
 
