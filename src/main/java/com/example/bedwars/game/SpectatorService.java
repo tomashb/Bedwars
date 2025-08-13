@@ -17,7 +17,7 @@ public final class SpectatorService {
   }
 
   public void fromSpectator(Player p) {
-    p.setGameMode(GameMode.ADVENTURE);
+    p.setGameMode(GameMode.SURVIVAL);
     p.setCollidable(true);
     p.setInvisible(false);
     p.removePotionEffect(PotionEffectType.NIGHT_VISION);

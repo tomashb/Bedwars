@@ -117,3 +117,10 @@ gens:
 upgrades:
   need_diamond: "&cIl faut &b{cost}◆ diamants."
   bought: "&aAmélioration achetée: &f{name}."
+
+respawn:
+  countdown: "&7Réapparition dans &e{sec}s"
+  respawned: "&aVous avez réapparu !"
+eliminated: "&cVous êtes éliminé(e)."
+build:
+  not_allowed: "&cVous ne pouvez pas construire ici."

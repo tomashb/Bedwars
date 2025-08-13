@@ -70,19 +70,21 @@ debug: false
 game:
   min-players: 2
   countdown: 20
-  respawn-seconds: 5
   void-kill-y: -5
   keep-inventory: false
-kit:
-  give-on-start: true
-  items:
-    - { mat: WOOL_TEAM, amount: 16 }
-    - { mat: STONE_SWORD, amount: 1 }
-    - { mat: COMPASS, amount: 1 }
 rules:
   protect-lobby: true
   friendly-fire: false
   break-only-enemy-bed: true
   protect-map: true
-  place-allow: [WHITE_WOOL, GLASS, LADDER, TNT]
   break-only-placed: true
+  place-allow: [WHITE_WOOL, GLASS, LADDER, TNT]
+  allow-build-states: [RUNNING]
+
+respawn:
+  delay_seconds: 5
+  clear_drops_on_death: true
+
+kit:
+  give_compass_on_spawn: false
+  give_blocks_on_spawn: false
