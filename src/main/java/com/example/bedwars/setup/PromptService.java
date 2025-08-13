@@ -1,24 +1,32 @@
 package com.example.bedwars.setup;
 
 import com.example.bedwars.BedwarsPlugin;
-import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.WorldRef;
+import com.example.bedwars.gui.AdminView;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.scheduler.BukkitTask;
 
+import java.text.Normalizer;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public final class PromptService implements Listener {
-  private static final Pattern ID = Pattern.compile("^[a-z0-9_-]{3,32}$");
+  private static final Pattern ARENA_ID = Pattern.compile("^[a-z0-9](?:[a-z0-9_-]{0,31})$");
   private final BedwarsPlugin plugin;
   private final Map<UUID, PendingAction> pending = new ConcurrentHashMap<>();
+
+  private static String normalizeId(String raw) {
+    if (raw == null) return "";
+    String s = Normalizer.normalize(raw, Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
+    s = s.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", "_");
+    return s;
+  }
 
   public PromptService(BedwarsPlugin plugin){
     this.plugin = plugin;
@@ -52,31 +60,21 @@ public final class PromptService implements Listener {
     if(System.currentTimeMillis() > pa.expiresAt()){ pending.remove(p.getUniqueId()); return; }
     switch(pa.action()){
       case CREATE_ARENA_ID -> {
-        int attempts = pa.payload() instanceof Integer i ? i : 0;
-        if(!ID.matcher(msg).matches()){
-          if(attempts >= 1){
-            p.sendMessage(plugin.messages().get("editor.create-id-invalid"));
-            pending.remove(p.getUniqueId());
-            return;
-          }
+        String id = normalizeId(msg);
+        if (!ARENA_ID.matcher(id).matches()) {
           p.sendMessage(plugin.messages().get("editor.create-id-invalid"));
-          start(p, EditorActions.CREATE_ARENA_ID, attempts+1, 20*30);
+          p.sendMessage(plugin.messages().get("editor.create-id"));
           return;
         }
-        if(plugin.arenas().get(msg).isPresent()){
-          if(attempts >= 1){
-            p.sendMessage(plugin.messages().get("editor.create-id-exists"));
-            pending.remove(p.getUniqueId());
-            return;
-          }
-          p.sendMessage(plugin.messages().get("editor.create-id-exists"));
-          start(p, EditorActions.CREATE_ARENA_ID, attempts+1, 20*30);
+        if (plugin.arenas().get(id).isPresent()) {
+          p.sendMessage(plugin.messages().format("editor.create-id-exists", Map.of("arena", id)));
+          p.sendMessage(plugin.messages().get("editor.create-id"));
           return;
         }
-        pending.remove(p.getUniqueId());
-        Arena a = plugin.arenas().create(msg, new WorldRef(p.getWorld().getName()));
-        p.sendMessage(plugin.messages().get("editor.created").replace("{arena}", a.id()));
-        plugin.menus().openEditor(com.example.bedwars.gui.editor.EditorView.ARENA, p, a.id());
+        var a = plugin.arenas().create(id, new WorldRef(p.getWorld().getName()));
+        p.sendMessage(plugin.messages().format("editor.created", Map.of("arena", a.id())));
+        cancel(p);
+        plugin.menus().open(AdminView.ARENA_EDITOR, p, a.id());
       }
       case CONFIRM_DELETE -> {
         pending.remove(p.getUniqueId());

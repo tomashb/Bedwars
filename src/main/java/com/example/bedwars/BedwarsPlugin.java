@@ -7,6 +7,7 @@ import com.example.bedwars.command.BwCommand;
 import com.example.bedwars.command.BwAdminCommand;
 import com.example.bedwars.arena.ArenaManager;
 import com.example.bedwars.gui.MenuManager;
+import com.example.bedwars.ops.Keys;
 import com.example.bedwars.listeners.MenuListener;
 import com.example.bedwars.listeners.EditorListener;
 import com.example.bedwars.listeners.UpgradeApplyListener;
@@ -20,6 +21,7 @@ public final class BedwarsPlugin extends JavaPlugin {
 
   private static BedwarsPlugin instance;
   private Messages messages;
+  private Keys keys;
   private ArenaManager arenaManager;
   private MenuManager menuManager;
   private PromptService promptService;
@@ -32,6 +34,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     instance = this;
     saveDefaultConfig();
     this.messages = new Messages(this);
+    this.keys = new Keys(this);
     this.arenaManager = new ArenaManager(this);
     this.arenaManager.loadAll();
     this.menuManager = new MenuManager(this);
@@ -68,6 +71,10 @@ public final class BedwarsPlugin extends JavaPlugin {
 
   public ArenaManager arenas() {
     return arenaManager;
+  }
+
+  public Keys keys() {
+    return keys;
   }
 
   public MenuManager menus() {

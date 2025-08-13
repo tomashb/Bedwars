@@ -7,7 +7,6 @@ import com.example.bedwars.gen.GeneratorType;
 import com.example.bedwars.gui.BWMenuHolder;
 import com.example.bedwars.gui.AdminView;
 import com.example.bedwars.gui.editor.*;
-import com.example.bedwars.ops.Keys;
 import com.example.bedwars.shop.NpcType;
 import org.bukkit.ChatColor;
 import org.bukkit.FluidCollisionMode;
@@ -116,8 +115,8 @@ public final class EditorListener implements Listener {
       if(!ensureWorld(p, id)) return;
       LivingEntity e = (LivingEntity)p.getWorld().spawnEntity(p.getLocation(), EntityType.VILLAGER);
       e.setAI(false); e.setInvulnerable(true); e.setCollidable(false); e.setRemoveWhenFarAway(false);
-      e.getPersistentDataContainer().set(Keys.ARENA_ID, PersistentDataType.STRING, id);
-      e.getPersistentDataContainer().set(Keys.NPC_KIND, PersistentDataType.STRING, "item");
+      e.getPersistentDataContainer().set(plugin.keys().ARENA_ID(), PersistentDataType.STRING, id);
+      e.getPersistentDataContainer().set(plugin.keys().NPC_KIND(), PersistentDataType.STRING, "item");
       e.setCustomName(ChatColor.GREEN + "Objets");
       e.setCustomNameVisible(true);
       plugin.arenas().addNpc(id, NpcType.ITEM, e.getLocation());
@@ -126,8 +125,8 @@ public final class EditorListener implements Listener {
       if(!ensureWorld(p, id)) return;
       LivingEntity e = (LivingEntity)p.getWorld().spawnEntity(p.getLocation(), EntityType.VILLAGER);
       e.setAI(false); e.setInvulnerable(true); e.setCollidable(false); e.setRemoveWhenFarAway(false);
-      e.getPersistentDataContainer().set(Keys.ARENA_ID, PersistentDataType.STRING, id);
-      e.getPersistentDataContainer().set(Keys.NPC_KIND, PersistentDataType.STRING, "upgrade");
+      e.getPersistentDataContainer().set(plugin.keys().ARENA_ID(), PersistentDataType.STRING, id);
+      e.getPersistentDataContainer().set(plugin.keys().NPC_KIND(), PersistentDataType.STRING, "upgrade");
       e.setCustomName(ChatColor.AQUA + "Améliorations");
       e.setCustomNameVisible(true);
       plugin.arenas().addNpc(id, NpcType.UPGRADE, e.getLocation());
@@ -150,9 +149,9 @@ public final class EditorListener implements Listener {
       ArmorStand as = (ArmorStand)p.getWorld().spawnEntity(p.getLocation(), EntityType.ARMOR_STAND);
       as.setInvisible(true); as.setMarker(true); as.setCustomNameVisible(true);
       as.setCustomName(type.name());
-      as.getPersistentDataContainer().set(Keys.ARENA_ID, PersistentDataType.STRING, id);
-      as.getPersistentDataContainer().set(Keys.GEN_MARKER, PersistentDataType.STRING, "1");
-      as.getPersistentDataContainer().set(Keys.GEN_KIND, PersistentDataType.STRING, type.name());
+      as.getPersistentDataContainer().set(plugin.keys().ARENA_ID(), PersistentDataType.STRING, id);
+      as.getPersistentDataContainer().set(plugin.keys().GEN_MARKER(), PersistentDataType.STRING, "1");
+      as.getPersistentDataContainer().set(plugin.keys().GEN_KIND(), PersistentDataType.STRING, type.name());
       p.sendMessage(plugin.messages().format("editor.gen-added", Map.of("type", type.name(), "tier", String.valueOf(g.tier()))));
     }
   }
