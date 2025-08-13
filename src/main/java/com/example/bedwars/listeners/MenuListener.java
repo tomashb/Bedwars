@@ -29,7 +29,7 @@ public final class MenuListener implements Listener {
     // Bloquer toute interaction par défaut
     e.setCancelled(true);
     if (!(e.getWhoClicked() instanceof Player p)) return;
-    if (!p.hasPermission("bedwars.admin")) { p.sendMessage(plugin.messages().get("admin.no-perm")); return; }
+    if (!p.hasPermission("bedwars.menu.admin")) { p.sendMessage(plugin.messages().get("admin.no-perm")); return; }
     if (e.getClickedInventory() != top) return; // on ignore l'inventaire bas
     if (e.getCurrentItem() == null) return;
 

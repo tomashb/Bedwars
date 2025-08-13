@@ -18,6 +18,7 @@ public final class PlayerContextService {
     private boolean alive = true;
     private boolean spectating = false;
     private int respawnTask = -1;
+    private int armorTier = 0;
 
     public Context(String arenaId, TeamColor team) {
       this.arenaId = arenaId;
@@ -32,6 +33,9 @@ public final class PlayerContextService {
     public void spectating(boolean s) { this.spectating = s; }
     public int respawnTask() { return respawnTask; }
     public void respawnTask(int id) { this.respawnTask = id; }
+
+    public int armorTier() { return armorTier; }
+    public void armorTier(int tier) { this.armorTier = tier; }
   }
 
   private final Map<UUID, Context> contexts = new ConcurrentHashMap<>();
@@ -97,6 +101,16 @@ public final class PlayerContextService {
 
   public void clearRespawnTask(Player p) {
     setRespawnTask(p, -1);
+  }
+
+  public int getArmorTier(Player p) {
+    Context c = contexts.get(p.getUniqueId());
+    return c == null ? 0 : c.armorTier();
+  }
+
+  public void setArmorTier(Player p, int tier) {
+    Context c = contexts.get(p.getUniqueId());
+    if (c != null) c.armorTier(tier);
   }
 
   public Collection<Player> playersInArena(String arenaId) {

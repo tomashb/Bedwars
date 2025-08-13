@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 
 /**
  * Handles build protections: only allow breaking player placed blocks and
@@ -44,7 +45,10 @@ public final class BuildRulesListener implements Listener {
       p.sendMessage(plugin.messages().get("prefix") + plugin.messages().get("build.not_allowed"));
       return;
     }
+    if (plugin.getConfig().getBoolean("build.require_permission", false)
+        && !p.hasPermission("bedwars.build.place")) { e.setCancelled(true); return; }
     if (!buildRules.isAllowed(e.getBlockPlaced().getType())) { e.setCancelled(true); return; }
+    e.getBlockPlaced().setMetadata("bw_placed", new FixedMetadataValue(plugin, true));
     buildRules.recordPlacement(arenaId, e.getBlockPlaced().getLocation());
   }
 
@@ -57,9 +61,10 @@ public final class BuildRulesListener implements Listener {
     if (a == null || !allowedStates.contains(a.state())) { e.setCancelled(true); return; }
     Block b = e.getBlock();
     if (Tag.BEDS.isTagged(b.getType())) { return; }
-    if (plugin.getConfig().getBoolean("rules.break-only-placed", true) && !buildRules.wasPlaced(arenaId, b.getLocation())) {
+    if (plugin.getConfig().getBoolean("rules.break-only-placed", true) && !b.hasMetadata("bw_placed")) {
       e.setCancelled(true);
     } else {
+      b.removeMetadata("bw_placed", plugin);
       buildRules.removePlaced(arenaId, b.getLocation());
     }
   }

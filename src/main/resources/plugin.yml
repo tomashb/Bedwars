@@ -15,3 +15,12 @@ permissions:
   bedwars.admin:
     description: Accès aux commandes admin BedWars
     default: op
+  bedwars.menu.rules:
+    description: Ouvrir le menu Règles via la boussole
+    default: true
+  bedwars.build.place:
+    description: Poser des blocs whitelistes en arène
+    default: true
+  bedwars.menu.admin:
+    description: Accès menus admin BedWars
+    default: op

@@ -18,6 +18,7 @@ public final class EntityExplodeListener implements Listener {
   public void onExplode(EntityExplodeEvent e) {
     e.blockList().removeIf(b -> {
       if (Tag.BEDS.isTagged(b.getType())) return true;
+      if (!b.hasMetadata("bw_placed")) return true;
       String arena = buildRules.arenaAt(b.getLocation());
       if (arena == null) return true;
       buildRules.removePlaced(arena, b.getLocation());

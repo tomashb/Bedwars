@@ -93,6 +93,8 @@ public final class ShopListener implements Listener {
               plugin.upgrades().applySharpness(ih.arenaId, ih.team);
             }
           });
+        } else if (mat.name().endsWith("_BOOTS")) {
+          applyArmorPurchase(p, mat);
         } else {
           p.getInventory().addItem(it);
         }
@@ -167,6 +169,32 @@ public final class ShopListener implements Listener {
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
+      }
+    }
+  }
+
+  private void applyArmorPurchase(Player p, Material bootsMat) {
+    int tier = switch (bootsMat) {
+      case CHAINMAIL_BOOTS -> 1;
+      case IRON_BOOTS -> 2;
+      case DIAMOND_BOOTS -> 3;
+      default -> 0;
+    };
+    int current = ctx.getArmorTier(p);
+    if (tier <= current) return;
+    ctx.setArmorTier(p, tier);
+    switch (tier) {
+      case 3 -> {
+        p.getInventory().setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
+        p.getInventory().setBoots(new ItemStack(Material.DIAMOND_BOOTS));
+      }
+      case 2 -> {
+        p.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+        p.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
+      }
+      case 1 -> {
+        p.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS));
+        p.getInventory().setBoots(new ItemStack(Material.CHAINMAIL_BOOTS));
       }
     }
   }
