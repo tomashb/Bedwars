@@ -120,6 +120,10 @@ public final class GeneratorManager {
         RuntimeGen g = entry.getValue();
         g.cooldown -= 20;
         World w = g.dropLoc.getWorld();
+        if (w == null) {
+          plugin.getLogger().warning("Generator has null world in arena " + arena.id());
+          continue;
+        }
         int count = GenUtils.countTaggedItemsAround(w, plugin.keys(), arena.id(), g.id, g.dropLoc, 2.5);
         boolean capReached = count >= g.cap;
         if (capReached) {
@@ -142,8 +146,13 @@ public final class GeneratorManager {
   private void drop(String arenaId, RuntimeGen g) {
     Material mat = Material.matchMaterial(plugin.getConfig().getString("drops." + g.type.name(), "IRON_INGOT"));
     List<Player> nearby = List.of();
+    var world = g.dropLoc.getWorld();
+    if (world == null) {
+      plugin.getLogger().warning("Generator drop location missing world for arena " + arenaId);
+      return;
+    }
     if (g.teamBase) {
-      nearby = GenUtils.nearbyPlayers(g.dropLoc.getWorld(), g.dropLoc, 1.1).stream()
+      nearby = GenUtils.nearbyPlayers(world, g.dropLoc, 1.1).stream()
           .filter(p -> arenaId.equals(plugin.contexts().getArena(p)))
           .toList();
     }

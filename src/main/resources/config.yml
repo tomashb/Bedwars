@@ -27,7 +27,7 @@ generators:
       gold_interval_multiplier: 0.55
       emerald_interval_multiplier: 0.66
   split_generator: true
-  auto_collect_radius: 1.4
+  auto_collect_radius: 1.2
   spawn_offset_y: 0.5
 global_tiers:
   diamond:
@@ -78,3 +78,6 @@ rules:
   protect-lobby: true
   friendly-fire: false
   break-only-enemy-bed: true
+  protect-map: true
+  place-allow: [WHITE_WOOL, GLASS, LADDER, TNT]
+  break-only-placed: true
