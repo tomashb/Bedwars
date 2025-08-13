@@ -97,6 +97,19 @@ kit:
 
 armor:
   dye_colored: true
+  lock_legs_feet: true
+
+compass:
+  opens: rules   # rules | team_selector
+  require_permission: false
+
+build:
+  allowed_materials: [WHITE_WOOL, GLASS, STAINED_GLASS, END_STONE, OAK_PLANKS, HARDENED_CLAY]
+  require_permission: false
+  bypass_external_protection: true
+
+shop:
+  armor_persistent: true
 
 tnt:
   fuse_ticks: 40

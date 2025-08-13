@@ -17,7 +17,9 @@ public final class BuildRulesService {
 
   public BuildRulesService(BedwarsPlugin plugin) {
     this.plugin = plugin;
-    this.allowedPlace = plugin.getConfig().getStringList("rules.place-allow").stream()
+    java.util.List<String> mats = plugin.getConfig().getStringList("build.allowed_materials");
+    if (mats.isEmpty()) mats = plugin.getConfig().getStringList("rules.place-allow");
+    this.allowedPlace = mats.stream()
         .map(Material::matchMaterial)
         .filter(java.util.Objects::nonNull)
         .collect(Collectors.toCollection(HashSet::new));

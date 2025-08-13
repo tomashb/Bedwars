@@ -16,6 +16,8 @@ import com.example.bedwars.listeners.JoinLeaveListener;
 import com.example.bedwars.listeners.BedListener;
 import com.example.bedwars.listeners.DamageRulesListener;
 import com.example.bedwars.listeners.EntityExplodeListener;
+import com.example.bedwars.listeners.CompassListener;
+import com.example.bedwars.listeners.ArmorLockListener;
 import com.example.bedwars.rules.BuildRulesListener;
 import com.example.bedwars.listeners.DeathListener;
 import com.example.bedwars.listeners.VoidFailSafeListener;
@@ -73,7 +75,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.shopConfig = new ShopConfig(this);
     this.contextService = new PlayerContextService();
     this.teamAssignment = new TeamAssignment(contextService);
-    this.kitService = new KitService(this);
+    this.kitService = new KitService(this, contextService);
     this.spectatorService = new SpectatorService();
     this.gameMessages = new GameMessages(this, contextService);
     this.lobbyItems = new LobbyItemsService(this);
@@ -106,6 +108,8 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new TntListener(this, contextService, buildRules), this);
     getServer().getPluginManager().registerEvents(teamSelectMenu, this);
     getServer().getPluginManager().registerEvents(new LobbyListener(this, lobbyItems, teamSelectMenu, contextService, gameService), this);
+    getServer().getPluginManager().registerEvents(new CompassListener(this, contextService, teamSelectMenu), this);
+    getServer().getPluginManager().registerEvents(new ArmorLockListener(this, contextService), this);
 
     getLogger().info("Bedwars loaded.");
   }
