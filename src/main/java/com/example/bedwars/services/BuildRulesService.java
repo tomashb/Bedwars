@@ -4,7 +4,9 @@ import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.shop.ShopCategory;
 import com.example.bedwars.shop.ShopConfig;
 import com.example.bedwars.shop.ShopItem;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +24,9 @@ public final class BuildRulesService {
 
   public BuildRulesService(BedwarsPlugin plugin) {
     this.plugin = plugin;
-    java.util.List<String> mats = plugin.getConfig().getStringList("build.allowed_materials");
+    List<String> mats = new ArrayList<>();
+    mats.addAll(plugin.getConfig().getStringList("build.extra_allowed_materials"));
+    mats.addAll(plugin.getConfig().getStringList("build.allowed_materials"));
     if (mats.isEmpty()) mats = plugin.getConfig().getStringList("rules.place-allow");
     this.staticAllowed = mats.stream()
         .map(Material::matchMaterial)
@@ -30,7 +34,7 @@ public final class BuildRulesService {
         .collect(Collectors.toCollection(HashSet::new));
   }
 
-  /** Rebuild dynamic whitelist from shop config and extra materials. */
+  /** Rebuild dynamic whitelist from shop config. */
   public void rebuildWhitelistFromShop(ShopConfig shop) {
     dynamicAllowed.clear();
     for (ShopCategory cat : ShopCategory.values()) {
@@ -39,14 +43,14 @@ public final class BuildRulesService {
         if (m != null && m.isBlock()) dynamicAllowed.add(m);
       }
     }
-    plugin.getConfig().getStringList("build.extra_allowed_materials").stream()
-        .map(Material::matchMaterial)
-        .filter(Objects::nonNull)
-        .forEach(dynamicAllowed::add);
     plugin.getLogger().info("[Build] Dynamic whitelist size=" + dynamicAllowed.size());
   }
 
   public boolean isAllowed(Material mat) {
+    if (plugin.getConfig().getBoolean("build.wool_all_colors_allowed", true)
+        && mat.name().endsWith("_WOOL")) {
+      return true;
+    }
     boolean dynamic = plugin.getConfig().getBoolean("build.allow_all_shop_blocks", true)
         && dynamicAllowed.contains(mat);
     return dynamic || staticAllowed.contains(mat);

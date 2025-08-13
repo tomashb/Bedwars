@@ -9,6 +9,8 @@ errors:
   map_protected: "&cCarte protégée."
   own_bed: "&cTu ne peux pas casser ton propre lit !"
   bed_already_broken: "&eCe lit est déjà détruit."
+  no_build_npc: "&cImpossible de construire à côté d’un PNJ."
+  no_build_generator: "&cImpossible de construire sur un générateur."
 
 menu:
   title_admin: "&eMenu Admin"
