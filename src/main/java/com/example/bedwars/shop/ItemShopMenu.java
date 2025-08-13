@@ -2,7 +2,9 @@ package com.example.bedwars.shop;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -56,8 +58,9 @@ public final class ItemShopMenu {
       if (im != null) {
         String name = si.name.replace("{team}", team.display);
         im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        String lore = ChatColor.GRAY + si.cost + "x " + si.currency.name();
-        im.setLore(java.util.List.of(lore));
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Coût: " + si.cost + " " + displayCurrency(si.currency));
+        im.setLore(lore);
         si.enchants.forEach((e,l) -> im.addEnchant(e, l, true));
         it.setItemMeta(im);
       }
@@ -65,6 +68,15 @@ public final class ItemShopMenu {
     }
 
     p.openInventory(inv);
+  }
+
+  private static String displayCurrency(Currency c) {
+    return switch (c) {
+      case IRON -> "§fFer";
+      case GOLD -> "§6Or";
+      case EMERALD -> "§aÉmeraudes";
+      case DIAMOND -> "§bDiamants";
+    };
   }
 
   static final class Holder implements InventoryHolder {
