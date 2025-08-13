@@ -3,6 +3,9 @@ package com.example.bedwars.listeners;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.gui.*;
 import com.example.bedwars.gui.placeholders.ArenasMenu;
+import com.example.bedwars.arena.ArenaMode;
+import com.example.bedwars.arena.TeamColor;
+import com.example.bedwars.gui.editor.EditorView;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.event.EventHandler;
@@ -60,6 +63,45 @@ public final class MenuListener implements Listener {
           .get(plugin.keys().ARENA_ID(), PersistentDataType.STRING);
       if (arenaId != null) {
         plugin.menus().open(AdminView.ARENA_EDITOR, p, arenaId);
+      }
+      return;
+    }
+
+    if (holder.view == AdminView.ARENA_MODE) {
+      String arenaId = holder.arenaId;
+      if (slot == ArenaModeMenu.SLOT_BACK) {
+        plugin.menus().openEditor(EditorView.ARENA, p, arenaId);
+        return;
+      }
+      var opt = plugin.arenas().get(arenaId);
+      if (opt.isEmpty()) return;
+      var arena = opt.get();
+      ArenaMode mode = switch (slot) {
+        case ArenaModeMenu.SLOT_8X1 -> ArenaMode.EIGHT_X1;
+        case ArenaModeMenu.SLOT_8X2 -> ArenaMode.EIGHT_X2;
+        case ArenaModeMenu.SLOT_4X3 -> ArenaMode.FOUR_X3;
+        case ArenaModeMenu.SLOT_4X4 -> ArenaMode.FOUR_X4;
+        default -> null;
+      };
+      if (mode != null) {
+        arena.setMode(mode);
+        arena.setActiveTeams(new java.util.HashSet<>(mode.palette));
+        arena.setMaxTeamSize(mode.teamSize);
+        plugin.arenas().save(arenaId);
+        p.sendMessage(plugin.messages().format("arena.mode_applied",
+            java.util.Map.of("mode", mode.display(),
+                "teams", mode.teams,
+                "size", mode.teamSize)));
+        java.util.List<String> missing = new java.util.ArrayList<>();
+        for (TeamColor tc : arena.activeTeams()) {
+          var td = arena.team(tc);
+          if (td.spawn() == null || td.bedBlock() == null) missing.add(tc.display);
+        }
+        if (!missing.isEmpty()) {
+          p.sendMessage(plugin.messages().format("arena.not_ready_missing_points",
+              java.util.Map.of("teams", String.join(", ", missing))));
+        }
+        plugin.menus().open(AdminView.ARENA_MODE, p, arenaId);
       }
       return;
     }

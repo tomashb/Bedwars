@@ -58,6 +58,7 @@ editor:
   team-title: "&8Équipes &7({arena})"
   gens-title: "&8Générateurs &7({arena})"
   npc-title:  "&8PNJ &7({arena})"
+  mode-title: "&8Mode d'arène &7({arena})"
 
   create-id: "&eEntre l'ID de la nouvelle arène (&7a-z,0-9,_,-&e ; 1–32 ; commence par lettre/chiffre):"
   create-id-exists: "&cL'ID &e{arena}&c est déjà utilisé."
@@ -108,6 +109,15 @@ game:
   spectating: "&7Vous êtes spectateur."
   no-arena: "&cAucune arène spécifiée ou introuvable."
   not-in-arena: "&cVous n'êtes pas dans une arène."
+arena:
+  mode_applied: "&aMode appliqué: &e{mode} &7({teams} équipes, {size} joueurs/équipe)."
+  not_ready_missing_points: "&cPoints manquants pour: {teams}"
+team:
+  full: "&cCette équipe est complète ({count}/{max})."
+  chosen: "&aÉquipe choisie: {team}."
+ui:
+  team_selector: "&aSélecteur d'équipe"
+  leave_item: "&cQuitter l'arène"
 gens:
   diamond_t2: "&bDiamant II &7→ Générateurs diamant accélérés !"
   diamond_t3: "&bDiamant III &7→ Vitesse maximale diamant !"

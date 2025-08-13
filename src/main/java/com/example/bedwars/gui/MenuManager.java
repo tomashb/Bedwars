@@ -20,6 +20,7 @@ public final class MenuManager {
   private final TeamEditorMenu teamEditor;
   private final GeneratorsEditorMenu genEditor;
   private final NpcEditorMenu npcEditor;
+  private final ArenaModeMenu arenaModeMenu;
 
   public MenuManager(BedwarsPlugin plugin) {
     this.plugin = plugin;
@@ -36,6 +37,7 @@ public final class MenuManager {
     this.teamEditor = new TeamEditorMenu(plugin);
     this.genEditor = new GeneratorsEditorMenu(plugin);
     this.npcEditor = new NpcEditorMenu(plugin);
+    this.arenaModeMenu = new ArenaModeMenu(plugin);
   }
 
   public void open(AdminView v, Player p, String arenaId) {
@@ -50,6 +52,7 @@ public final class MenuManager {
       case DIAGNOSTICS -> diag.open(p);
       case INFO -> info.open(p);
       case ARENA_EDITOR -> editor.open(p, arenaId);
+      case ARENA_MODE -> arenaModeMenu.open(p, arenaId);
       default -> root.open(p);
     }
   }

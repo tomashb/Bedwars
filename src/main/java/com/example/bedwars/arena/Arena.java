@@ -15,7 +15,9 @@ public final class Arena {
   private GameState state = GameState.WAITING;
 
   private Location lobby; // null if undefined
-  private final EnumSet<TeamColor> enabledTeams = EnumSet.noneOf(TeamColor.class);
+  private ArenaMode mode = ArenaMode.EIGHT_X1;
+  private int maxTeamSize = mode.teamSize;
+  private final EnumSet<TeamColor> activeTeams = EnumSet.noneOf(TeamColor.class);
   private final EnumMap<TeamColor, TeamData> teams = new EnumMap<>(TeamColor.class);
   private final List<Generator> generators = new ArrayList<>();
   private final List<NpcData> npcs = new ArrayList<>();
@@ -24,13 +26,17 @@ public final class Arena {
     this.id = Objects.requireNonNull(id);
     this.world = Objects.requireNonNull(world);
     for (TeamColor c : TeamColor.values()) teams.put(c, new TeamData());
+    activeTeams.addAll(mode.palette);
   }
 
   public String id() { return id; }
   public WorldRef world() { return world; }
   public GameState state() { return state; }
   public Location lobby() { return lobby; }
-  public Set<TeamColor> enabledTeams() { return Collections.unmodifiableSet(enabledTeams); }
+  public ArenaMode mode() { return mode; }
+  public int maxTeamSize() { return maxTeamSize; }
+  public Set<TeamColor> activeTeams() { return Collections.unmodifiableSet(activeTeams); }
+  @Deprecated public Set<TeamColor> enabledTeams() { return activeTeams(); }
   public Map<TeamColor, TeamData> teams() { return Collections.unmodifiableMap(teams); }
   public List<Generator> generators() { return Collections.unmodifiableList(generators); }
   public List<NpcData> npcs() { return Collections.unmodifiableList(npcs); }
@@ -39,8 +45,11 @@ public final class Arena {
   public Arena setState(GameState s) { this.state = Objects.requireNonNull(s); return this; }
   public Arena setLobby(Location lobby) { this.lobby = Objects.requireNonNull(lobby); return this; }
 
-  public Arena enableTeam(TeamColor c) { enabledTeams.add(c); return this; }
-  public Arena disableTeam(TeamColor c) { enabledTeams.remove(c); return this; }
+  public Arena setMode(ArenaMode m) { this.mode = Objects.requireNonNull(m); return this; }
+  public Arena setMaxTeamSize(int s) { this.maxTeamSize = s; return this; }
+  public Arena setActiveTeams(Set<TeamColor> set) { activeTeams.clear(); activeTeams.addAll(set); return this; }
+  public Arena enableTeam(TeamColor c) { activeTeams.add(c); return this; }
+  public Arena disableTeam(TeamColor c) { activeTeams.remove(c); return this; }
 
   public TeamData team(TeamColor c) { return teams.get(c); }
   public Arena addGenerator(Generator g) { generators.add(Objects.requireNonNull(g)); return this; }

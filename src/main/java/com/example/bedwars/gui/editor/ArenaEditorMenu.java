@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class ArenaEditorMenu {
   private final BedwarsPlugin plugin;
   public static final int SLOT_LOBBY = 10;
+  public static final int SLOT_MODE = 11;
   public static final int SLOT_TEAMS = 12;
   public static final int SLOT_NPC = 14;
   public static final int SLOT_GENS = 16;
@@ -29,6 +30,7 @@ public final class ArenaEditorMenu {
     String title = plugin.messages().get("editor.title").replace("{arena}", arenaId);
     Inventory inv = Bukkit.createInventory(new BWMenuHolder(EditorView.ARENA, arenaId), 54, title);
     inv.setItem(SLOT_LOBBY, icon(Material.PAPER, "Set Lobby", a.lobby()!=null));
+    inv.setItem(SLOT_MODE, icon(Material.COMPARATOR, "⚙ Mode d'arène", false));
     inv.setItem(SLOT_TEAMS, icon(Material.WHITE_WOOL, "Équipes", false));
     inv.setItem(SLOT_NPC, icon(Material.EMERALD, "PNJ", !a.npcs().isEmpty()));
     inv.setItem(SLOT_GENS, icon(Material.HOPPER, "Générateurs", !a.generators().isEmpty()));

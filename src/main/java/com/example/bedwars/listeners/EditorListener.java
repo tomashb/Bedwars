@@ -57,6 +57,7 @@ public final class EditorListener implements Listener {
         p.sendMessage(plugin.messages().get("editor.set-lobby"));
         plugin.menus().openEditor(EditorView.ARENA, p, id);
       }
+      case ArenaEditorMenu.SLOT_MODE -> plugin.menus().open(AdminView.ARENA_MODE, p, id);
       case ArenaEditorMenu.SLOT_TEAMS -> plugin.menus().openEditor(EditorView.TEAM, p, id);
       case ArenaEditorMenu.SLOT_NPC -> plugin.menus().openEditor(EditorView.NPC, p, id);
       case ArenaEditorMenu.SLOT_GENS -> plugin.menus().openEditor(EditorView.GEN, p, id);
