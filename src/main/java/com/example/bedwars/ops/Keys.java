@@ -18,6 +18,7 @@ public final class Keys {
   private final NamespacedKey HOLO_KIND;
   private final NamespacedKey GEN_ID;
   private final NamespacedKey GEN_HOLO;
+  private final NamespacedKey GEN_CAP;
 
   public Keys(Plugin plugin) {
     this.ARENA_ID = new NamespacedKey(plugin, "arena_id");
@@ -27,6 +28,7 @@ public final class Keys {
     this.HOLO_KIND = new NamespacedKey(plugin, "holo_kind");
     this.GEN_ID = new NamespacedKey(plugin, "gen_id");
     this.GEN_HOLO = new NamespacedKey(plugin, "gen_holo");
+    this.GEN_CAP = new NamespacedKey(plugin, "gen_cap");
   }
 
   public NamespacedKey ARENA_ID() { return ARENA_ID; }
@@ -42,5 +44,7 @@ public final class Keys {
   public NamespacedKey GEN_ID() { return GEN_ID; }
 
   public NamespacedKey GEN_HOLO() { return GEN_HOLO; }
+
+  public NamespacedKey GEN_CAP() { return GEN_CAP; }
 }
 
