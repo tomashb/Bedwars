@@ -1,6 +1,7 @@
 package com.example.bedwars.gen;
 
 import com.example.bedwars.BedwarsPlugin;
+import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.GameState;
 import com.example.bedwars.ops.Keys;
 import org.bukkit.Bukkit;
@@ -98,6 +99,18 @@ public final class GeneratorManager {
     });
   }
 
+  /** Hook called by the listener when an arena changes state. */
+  public void onArenaStateChange(Arena arena, GameState oldS, GameState newS) {
+    if (oldS == GameState.STARTING && newS == GameState.RUNNING) {
+      GenUtils.removeSetupMarkers(arena);
+      refreshArena(arena.id());
+    }
+    if (oldS == GameState.RUNNING &&
+        (newS == GameState.ENDING || newS == GameState.RESTARTING || newS == GameState.WAITING)) {
+      cleanupArena(arena.id());
+    }
+  }
+
   private void tickAll() {
     plugin.arenas().all().forEach(arena -> {
       if (arena.state() != GameState.RUNNING) return;
@@ -106,7 +119,8 @@ public final class GeneratorManager {
       for (var entry : map.entrySet()) {
         RuntimeGen g = entry.getValue();
         g.cooldown -= 20;
-        int count = countItems(arena.id(), g);
+        World w = g.dropLoc.getWorld();
+        int count = GenUtils.countTaggedItemsAround(w, plugin.keys(), arena.id(), g.id, g.dropLoc, 2.5);
         boolean capReached = count >= g.cap;
         if (capReached) {
           holoService.spawnOrUpdate(arena.id(), g, count, true);
@@ -125,23 +139,13 @@ public final class GeneratorManager {
     });
   }
 
-  private int countItems(String arenaId, RuntimeGen g) {
-    int capCount = 0;
-    Keys keys = plugin.keys();
-    for (Item item : g.dropLoc.getWorld().getNearbyEntitiesByType(Item.class, g.dropLoc, 2.5)) {
-      var pdc = item.getPersistentDataContainer();
-      String a = pdc.get(keys.ARENA_ID(), PersistentDataType.STRING);
-      String gid = pdc.get(keys.GEN_ID(), PersistentDataType.STRING);
-      if (arenaId.equals(a) && g.id.toString().equals(gid)) capCount += item.getItemStack().getAmount();
-    }
-    return capCount;
-  }
-
   private void drop(String arenaId, RuntimeGen g) {
     Material mat = Material.matchMaterial(plugin.getConfig().getString("drops." + g.type.name(), "IRON_INGOT"));
-    Collection<Player> nearby = Collections.emptyList();
+    List<Player> nearby = List.of();
     if (g.teamBase) {
-      nearby = g.dropLoc.getWorld().getNearbyPlayers(g.dropLoc, 1.2, p -> arenaId.equals(plugin.contexts().getArena(p)));
+      nearby = GenUtils.nearbyPlayers(g.dropLoc.getWorld(), g.dropLoc, 1.1).stream()
+          .filter(p -> arenaId.equals(plugin.contexts().getArena(p)))
+          .toList();
     }
     splitService.distribute(g, mat, g.amount, nearby, autoCollect, arenaId);
     telemetry.recordDrop(g.type, g.amount);
