@@ -24,6 +24,7 @@ public final class GameService {
   private final SpectatorService spectator;
   private final GameMessages messages;
   private final Map<String, Integer> countdownTasks = new HashMap<>();
+  private final Map<String, Integer> timerTasks = new HashMap<>();
 
   public GameService(BedwarsPlugin plugin, PlayerContextService ctx, TeamAssignment ta,
                      KitService kit, SpectatorService spec, GameMessages msgs) {
@@ -119,6 +120,17 @@ public final class GameService {
       contexts.markAlive(p);
     }
     messages.broadcast(a, "game.started", Map.of());
+
+    // start game timer for global tier announcements
+    int timerTask = new BukkitRunnable() {
+      int sec = 0;
+      @Override public void run() {
+        if (a.state() != GameState.RUNNING) { cancel(); return; }
+        sec++;
+        plugin.generators().onGlobalTime(a.id(), sec);
+      }
+    }.runTaskTimer(plugin, 20L, 20L).getTaskId();
+    timerTasks.put(a.id(), timerTask);
   }
 
   public void stop(String arenaId, String reason) {
@@ -128,6 +140,8 @@ public final class GameService {
       Integer t = countdownTasks.remove(arenaId);
       if (t != null) Bukkit.getScheduler().cancelTask(t);
     }
+    Integer timer = timerTasks.remove(arenaId);
+    if (timer != null) Bukkit.getScheduler().cancelTask(timer);
     endGame(a, null);
     messages.broadcast(a, "game.stopped", Map.of());
   }
@@ -157,6 +171,8 @@ public final class GameService {
       contexts.clear(p);
     }
     plugin.generators().cleanupArena(a.id());
+    Integer timer = timerTasks.remove(a.id());
+    if (timer != null) Bukkit.getScheduler().cancelTask(timer);
     a.setState(GameState.RESTARTING);
     Bukkit.getPluginManager().callEvent(new ArenaStateChangeEvent(a, GameState.ENDING, GameState.RESTARTING));
     plugin.arenas().load(a.id());

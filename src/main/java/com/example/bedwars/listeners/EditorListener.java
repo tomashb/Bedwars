@@ -138,8 +138,8 @@ public final class EditorListener implements Listener {
 
   private void handleGen(int slot, Player p, String id){
     GeneratorType type = null;
-    if(slot == GeneratorsEditorMenu.SLOT_IRON) type = GeneratorType.IRON;
-    else if(slot == GeneratorsEditorMenu.SLOT_GOLD) type = GeneratorType.GOLD;
+    if(slot == GeneratorsEditorMenu.SLOT_IRON) type = GeneratorType.TEAM_IRON;
+    else if(slot == GeneratorsEditorMenu.SLOT_GOLD) type = GeneratorType.TEAM_GOLD;
     else if(slot == GeneratorsEditorMenu.SLOT_DIAMOND) type = GeneratorType.DIAMOND;
     else if(slot == GeneratorsEditorMenu.SLOT_EMERALD) type = GeneratorType.EMERALD;
     else if(slot == GeneratorsEditorMenu.SLOT_BACK) { plugin.menus().openEditor(EditorView.ARENA, p, id); return; }

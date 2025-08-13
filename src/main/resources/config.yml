@@ -1,55 +1,79 @@
-# Configuration de base - Etape 0
-language: fr
-debug: false
-
 generators:
-  base-intervals:
-    IRON: 120
-    GOLD: 300
-    DIAMOND: 900
-    EMERALD: 1800
-  base-amounts:
-    IRON: 1
-    GOLD: 1
-    DIAMOND: 1
-    EMERALD: 1
-  spawn-offset-y: 0.5
-  base-radius: 10.0
-
+  team:
+    iron:
+      interval_ticks: 8
+      amount: 1
+      cap: 48
+    gold:
+      interval_ticks: 180
+      amount: 1
+      cap: 12
+    emerald:
+      enabled: false
+      interval_ticks: 1200
+      amount: 1
+      cap: 4
+  upgrades:
+    forge_I:
+      gold_interval_multiplier: 0.85
+    forge_II:
+      gold_interval_multiplier: 0.75
+      enable_emerald: true
+      emerald_interval_ticks: 900
+    forge_III:
+      gold_interval_multiplier: 0.65
+      emerald_interval_multiplier: 0.75
+    molten:
+      gold_interval_multiplier: 0.55
+      emerald_interval_multiplier: 0.66
+  split_generator: true
+  auto_collect_radius: 1.4
+  spawn_offset_y: 0.5
+global_tiers:
+  diamond:
+    tier1_interval_ticks: 600
+    tier2_interval_ticks: 400
+    tier3_interval_ticks: 300
+    announce_times_sec: [300, 540]
+  emerald:
+    tier1_interval_ticks: 1300
+    tier2_interval_ticks: 1000
+    tier3_interval_ticks: 640
+    announce_times_sec: [420, 780]
+entity_caps:
+  team_iron: 48
+  team_gold: 12
+  team_emerald: 4
+  diamond_island: 8
+  mid_emerald: 8
 drops:
-  IRON: IRON_INGOT
-  GOLD: GOLD_INGOT
+  TEAM_IRON: IRON_INGOT
+  TEAM_GOLD: GOLD_INGOT
+  TEAM_EMERALD: EMERALD
   DIAMOND: DIAMOND
   EMERALD: EMERALD
-
-forge:
-  multipliers:
-    0: 1.00
-    1: 1.25
-    2: 1.50
-    3: 1.75
-    4: 2.00
-
 holograms:
   enabled: true
-  line-1: "&b{type} &7T{tier}"
-  line-2: "&f{cooldown}s"
-  y-offset: 1.7
-
+  line_1: "&b{type} &7T{tier}"
+  line_2: "&f{cooldown}s &7(Cap {count}/{cap})"
+  y_offset: 1.7
+paper_tuning:
+  merge_radius_item: 2.5
+  despawn_ticks: 900
+language: fr
+debug: false
 game:
   min-players: 2
   countdown: 20
   respawn-seconds: 5
   void-kill-y: -5
   keep-inventory: false
-
 kit:
   give-on-start: true
   items:
     - { mat: WOOL_TEAM, amount: 16 }
     - { mat: STONE_SWORD, amount: 1 }
     - { mat: COMPASS, amount: 1 }
-
 rules:
   protect-lobby: true
   friendly-fire: false

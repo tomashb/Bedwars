@@ -24,9 +24,11 @@ public final class GenUtils {
 
   private GenUtils(){}
 
-  // Is generator a base one (iron/gold near team spawn)?
+  // Is generator a base one (team generators near spawn)?
   public static boolean isBaseGenerator(Arena arena, com.example.bedwars.gen.Generator g, double radius) {
-    if (g.type() != GeneratorType.IRON && g.type() != GeneratorType.GOLD) return false;
+    if (g.type() != GeneratorType.TEAM_IRON &&
+        g.type() != GeneratorType.TEAM_GOLD &&
+        g.type() != GeneratorType.TEAM_EMERALD) return false;
     var loc = g.location();
     for (var entry : arena.teams().entrySet()) {
       var td = entry.getValue();

@@ -108,3 +108,9 @@ game:
   spectating: "&7Vous êtes spectateur."
   no-arena: "&cAucune arène spécifiée ou introuvable."
   not-in-arena: "&cVous n'êtes pas dans une arène."
+gens:
+  diamond_t2: "&bDiamant II &7→ Générateurs diamant accélérés !"
+  diamond_t3: "&bDiamant III &7→ Vitesse maximale diamant !"
+  emerald_t2: "&aÉmeraude II &7→ Générateurs émeraude accélérés !"
+  emerald_t3: "&aÉmeraude III &7→ Vitesse maximale émeraude !"
+  cap_reached: "&7Cap atteint: &f{type} &7({count}/{cap}). Videz le pad !"
