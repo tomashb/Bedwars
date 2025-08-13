@@ -2,8 +2,11 @@ package com.example.bedwars.game;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.example.bedwars.util.DirUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -20,6 +23,9 @@ public final class ResetManager {
   private final ArenaResetStrategy slimeStrategy;
   private final Location lobbySpawn;
   private final Path templatesPath;
+  private final String runtimePrefix;
+  private final boolean preserveOnDisable;
+  private final boolean atomicCopy;
 
   public ResetManager(BedwarsPlugin plugin){
     this.plugin = plugin;
@@ -38,6 +44,9 @@ public final class ResetManager {
     }
     this.lobbySpawn = lobby;
     this.templatesPath = Paths.get(cfg.getString("reset.templates_path", "plugins/Bedwars/templates"));
+    this.runtimePrefix = cfg.getString("reset.runtime_prefix", "bw_");
+    this.preserveOnDisable = cfg.getBoolean("reset.preserve_on_disable", true);
+    this.atomicCopy = cfg.getBoolean("reset.atomic_copy", true);
     this.defaultStrategy = new DefaultSnapshotReset(plugin, this);
     this.slimeStrategy = Bukkit.getPluginManager().getPlugin("SlimeWorldManager") != null
         ? new SlimeWorldManagerReset(plugin, this) : null;
@@ -49,6 +58,29 @@ public final class ResetManager {
 
   public Location lobbySpawn(){ return lobbySpawn; }
   public Path templatesPath(){ return templatesPath; }
+  public String runtimePrefix(){ return runtimePrefix; }
+  public boolean preserveOnDisable(){ return preserveOnDisable; }
+  public boolean atomicCopy(){ return atomicCopy; }
+
+  /** Restore arena worlds from templates at startup if missing. */
+  public void restoreWorldsOnEnable(){
+    plugin.logInfo(plugin.msg("reset.restoring_at_start"));
+    for (Arena a : plugin.arenas().all()) {
+      String name = a.world().name();
+      Path runtime = Bukkit.getWorldContainer().toPath().resolve(name);
+      Path template = templatesPath.resolve(a.id());
+      try {
+        if (!Files.exists(runtime) && Files.exists(template)) {
+          DirUtils.copyDir(template, runtime);
+        }
+        if (Bukkit.getWorld(name) == null) {
+          Bukkit.createWorld(new org.bukkit.WorldCreator(name));
+        }
+      } catch (IOException ex) {
+        plugin.logSevere("[Reset] Failed to restore world %s: %s", name, ex.getMessage());
+      }
+    }
+  }
 
   /** Remove entities tagged with arena id across worlds. */
   public int cleanupOrphans(String arenaId){

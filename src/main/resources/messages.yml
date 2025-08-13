@@ -176,6 +176,7 @@ reset:
   preparing: "&7Préparation du reset..."
   done: "&aReset terminé. Retour en &fWAITING"
   failed: "&cÉchec du reset: &f{error}"
+  restoring_at_start: "&7Restauration des mondes d'arène au démarrage..."
 forcestart:
   countdown: "&eLa partie démarre dans &6{sec}s"
   started: "&aLa partie commence !"

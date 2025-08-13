@@ -81,6 +81,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     saveResource("rotation.yml", false);
     this.rotationManager = new RotationManager(this);
     this.resetManager = new ResetManager(this);
+    this.resetManager.restoreWorldsOnEnable();
     this.menuManager = new MenuManager(this);
     this.promptService = new PromptService(this);
     this.shopConfig = new ShopConfig(this);
