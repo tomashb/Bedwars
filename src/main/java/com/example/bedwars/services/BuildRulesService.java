@@ -1,7 +1,11 @@
 package com.example.bedwars.services;
 
 import com.example.bedwars.BedwarsPlugin;
+import com.example.bedwars.shop.ShopCategory;
+import com.example.bedwars.shop.ShopConfig;
+import com.example.bedwars.shop.ShopItem;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bukkit.Location;
@@ -13,20 +17,40 @@ import org.bukkit.Material;
 public final class BuildRulesService {
   private final BedwarsPlugin plugin;
   private final PlacedBlocksStore placed = new PlacedBlocksStore();
-  private final Set<Material> allowedPlace;
+  private final Set<Material> staticAllowed;
+  private final Set<Material> dynamicAllowed = java.util.EnumSet.noneOf(Material.class);
 
   public BuildRulesService(BedwarsPlugin plugin) {
     this.plugin = plugin;
     java.util.List<String> mats = plugin.getConfig().getStringList("build.allowed_materials");
     if (mats.isEmpty()) mats = plugin.getConfig().getStringList("rules.place-allow");
-    this.allowedPlace = mats.stream()
+    this.staticAllowed = mats.stream()
         .map(Material::matchMaterial)
-        .filter(java.util.Objects::nonNull)
+        .filter(Objects::nonNull)
         .collect(Collectors.toCollection(HashSet::new));
   }
 
+  /** Rebuild dynamic whitelist from shop config and extra materials. */
+  public void rebuildWhitelistFromShop(ShopConfig shop) {
+    dynamicAllowed.clear();
+    for (ShopCategory cat : ShopCategory.values()) {
+      for (ShopItem item : shop.items(cat)) {
+        Material m = item.mat;
+        if (m != null && m.isBlock()) dynamicAllowed.add(m);
+      }
+    }
+    plugin.getConfig().getStringList("build.extra_allowed_materials").stream()
+        .map(Material::matchMaterial)
+        .filter(Objects::nonNull)
+        .forEach(dynamicAllowed::add);
+    plugin.getLogger().info("[Build] Dynamic whitelist size=" + dynamicAllowed.size());
+  }
+
   public boolean isAllowed(Material mat) {
-    return allowedPlace.contains(mat);
+    if (plugin.getConfig().getBoolean("build.allow_all_shop_blocks", true)) {
+      return dynamicAllowed.contains(mat);
+    }
+    return staticAllowed.contains(mat);
   }
 
   public void recordPlacement(String arenaId, Location loc) {

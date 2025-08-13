@@ -266,10 +266,10 @@ public final class GameService {
 
   public void handleBedBreak(Player p, Arena a, TeamColor broken) {
     a.team(broken).setBedBlock(null);
-    messages.broadcast(a, "game.bed-destroyed", Map.of("team", broken.display, "player", p.getName()));
+    messages.broadcast(a, "game.bed_broken", Map.of("team", broken.display, "player", p.getName()));
     for (Player pl : contexts.playersInArena(a.id())) {
       if (contexts.getTeam(pl) == broken) {
-        messages.send(pl, "game.bed-destroyed-you", Map.of());
+        messages.send(pl, "game.bed_broken_you", Map.of());
       }
     }
     if (deathService != null) deathService.handleBedDestroyed(a, broken);
