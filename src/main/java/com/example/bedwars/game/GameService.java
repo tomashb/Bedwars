@@ -74,9 +74,10 @@ public final class GameService {
     if (a.lobby() != null) p.teleport(a.lobby());
     lobbyItems.giveLobbyItems(p);
     messages.send(p, "game.join", Map.of("arena", arenaId));
-    // auto assign
-    TeamColor team = teamAssignment.assign(a, p);
-    messages.send(p, "game.assign-team", Map.of("team", team.display));
+    if (plugin.getConfig().getBoolean("game.auto-assign-on-join", false)) {
+      TeamColor team = teamAssignment.assign(a, p);
+      messages.send(p, "game.assign-team", Map.of("team", team.display));
+    }
 
     int count = contexts.countPlayers(arenaId);
     int min = plugin.getConfig().getInt("game.min-players", 2);

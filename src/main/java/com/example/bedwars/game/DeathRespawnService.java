@@ -45,7 +45,8 @@ public final class DeathRespawnService {
     spectator.toSpectator(p, a);
 
     if (!hasBed) {
-      messages.send(p, "eliminated", Map.of());
+      p.sendTitle(plugin.messages().get("eliminated_title"),
+          plugin.messages().get("eliminated_sub"), 0, 60, 20);
       messages.broadcast(a, "game.eliminated", Map.of("player", p.getName()));
       game.checkVictory(a);
       return;
@@ -57,7 +58,9 @@ public final class DeathRespawnService {
       @Override public void run() {
         if (!p.isOnline() || a.state() != GameState.RUNNING) { cancelTask(); return; }
         if (sec > 0) {
-          messages.send(p, "respawn.countdown", Map.of("sec", sec));
+          p.sendTitle(
+              plugin.messages().format("respawn.countdown_title", Map.of("sec", sec)),
+              plugin.messages().get("respawn.countdown_sub"), 0, 20, 5);
           sec--; return;
         }
         // Respawn now
@@ -71,7 +74,7 @@ public final class DeathRespawnService {
         plugin.upgrades().applySharpness(arenaId, team);
         plugin.upgrades().applyProtection(arenaId, team, td.upgrades().protection());
         plugin.upgrades().applyManicMiner(arenaId, team, td.upgrades().manicMiner());
-        messages.send(p, "respawn.respawned", Map.of());
+        p.sendMessage(plugin.messages().get("respawn.respawned"));
         ctx.clearRespawnTask(p);
         cancel();
       }
@@ -89,7 +92,8 @@ public final class DeathRespawnService {
       if (task != -1) {
         org.bukkit.Bukkit.getScheduler().cancelTask(task);
         ctx.clearRespawnTask(pl);
-        messages.send(pl, "eliminated", Map.of());
+        pl.sendTitle(plugin.messages().get("eliminated_title"),
+            plugin.messages().get("eliminated_sub"), 0, 60, 20);
         messages.broadcast(a, "game.eliminated", Map.of("player", pl.getName()));
       }
     }

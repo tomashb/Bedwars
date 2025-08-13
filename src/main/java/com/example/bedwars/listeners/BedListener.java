@@ -12,6 +12,7 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -38,7 +39,7 @@ public final class BedListener implements Listener {
     }
   }
 
-  @EventHandler(ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onBreak(BlockBreakEvent e) {
     Block b = e.getBlock();
     if (!Tag.BEDS.isTagged(b.getType())) return;
