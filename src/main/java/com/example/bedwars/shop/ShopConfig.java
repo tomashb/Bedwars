@@ -76,6 +76,7 @@ public final class ShopConfig {
 
         int amount = asInt(raw.get("amount"), 1);
         boolean perm = asBool(raw.get("permanent"), false);
+        String bwItem = asString(raw.get("bw_item"), "");
 
         Map<String,Object> costMap = asMap(raw.get("cost"));
         int cost = 0;
@@ -93,7 +94,8 @@ public final class ShopConfig {
             .cost(cost)
             .teamColored(teamCol)
             .permanent(perm)
-            .mat(mat);
+            .mat(mat)
+            .bwItem(bwItem);
 
         Map<String,Object> enchMap = asMap(raw.get("enchants"));
         if (enchMap != null) {

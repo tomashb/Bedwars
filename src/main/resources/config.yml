@@ -98,7 +98,6 @@ kit:
 
 armor:
   dye_colored: true
-  lock_legs_feet: true
 
 compass:
   opens: rules   # rules | team_selector
@@ -111,6 +110,7 @@ build:
   bypass_external_protection: true
   worldguard_bypass: false
   wool_all_colors_allowed: true
+  track_placed_blocks: true
   no_build:
     npc_radius: 2.0
     gen:
@@ -124,6 +124,20 @@ shop:
 tnt:
   fuse_ticks: 40
   attribute_owner: true
+
+gameplay:
+  lock_armor: true
+  no_drop_swords: true
+  no_hunger: true
+
+fireball:
+  enabled: true
+  type: BIG        # BIG | SMALL
+  speed: 1.2
+  explosion_yield: 2.5
+  incendiary: false
+  break_only_player_blocks: true
+  cooldown_ticks: 20
 
 lobby:
   team_selector:
@@ -145,3 +159,4 @@ reset:
   runtime_prefix: "bw_"
   atomic_copy: true
   preserve_on_disable: true
+  clear_placed_blocks_on_end: true

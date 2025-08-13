@@ -79,6 +79,7 @@ categories:
       name: "&fBoule de feu"
       material: FIRE_CHARGE
       cost: { currency: IRON, amount: 40 }
+      bw_item: fireball
     - id: TNT
       name: "&fTNT"
       material: TNT

@@ -80,6 +80,11 @@ public final class ShopListener implements Listener {
         Material mat = si.teamColored ? ih.team.wool : si.mat;
         ItemStack it = new ItemStack(mat, si.amount);
         si.enchants.forEach((en,l)-> it.addEnchantment(en,l));
+        if (si.bwItem != null && !si.bwItem.isBlank()) {
+          var meta = it.getItemMeta();
+          meta.getPersistentDataContainer().set(plugin.keys().BW_ITEM(), PersistentDataType.STRING, si.bwItem);
+          it.setItemMeta(meta);
+        }
         if (mat.name().endsWith("_SWORD")) {
           for (int i = 0; i < p.getInventory().getSize(); i++) {
             ItemStack cur = p.getInventory().getItem(i);
