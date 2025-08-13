@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 /** Handles bed breaking events. */
 public final class BedListener implements Listener {
@@ -22,6 +24,18 @@ public final class BedListener implements Listener {
 
   public BedListener(BedwarsPlugin plugin, GameService game, PlayerContextService ctx) {
     this.plugin = plugin; this.game = game; this.ctx = ctx;
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  public void onBedEnter(PlayerBedEnterEvent e) {
+    e.setCancelled(true);
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  public void onInteract(PlayerInteractEvent e) {
+    if (e.getClickedBlock() != null && Tag.BEDS.isTagged(e.getClickedBlock().getType())) {
+      e.setCancelled(true);
+    }
   }
 
   @EventHandler(ignoreCancelled = true)
@@ -45,7 +59,7 @@ public final class BedListener implements Listener {
 
     TeamColor playerTeam = ctx.getTeam(p);
     if (bedTeam == playerTeam) {
-      p.sendMessage("§cC’est votre lit !");
+      p.sendMessage(plugin.messages().get("prefix") + plugin.messages().get("game.bed-own"));
       e.setCancelled(true);
       return;
     }

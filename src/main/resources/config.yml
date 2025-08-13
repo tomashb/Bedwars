@@ -78,7 +78,12 @@ rules:
   break-only-enemy-bed: true
   protect-map: true
   break-only-placed: true
-  place-allow: [WHITE_WOOL, GLASS, LADDER, TNT]
+  place-allow:
+    - WHITE_WOOL
+    - GLASS
+    - END_STONE
+    - LADDER
+    - TNT
   allow-build-states: [RUNNING]
 
 respawn:
@@ -88,3 +93,15 @@ respawn:
 kit:
   give_compass_on_spawn: false
   give_blocks_on_spawn: false
+
+tnt:
+  fuse_ticks: 40
+  attribute_owner: true
+
+lobby:
+  team_selector:
+    material: COMPASS
+    name: "&aSélecteur d'équipe"
+  leave_item:
+    material: BARRIER
+    name: "&cQuitter l'arène"

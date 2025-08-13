@@ -53,7 +53,7 @@ public final class BlockRulesListener implements Listener {
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     if (a == null || !allowedStates.contains(a.state())) { e.setCancelled(true); return; }
     Block b = e.getBlock();
-    if (Tag.BEDS.isTagged(b.getType())) { e.setCancelled(true); return; }
+    if (Tag.BEDS.isTagged(b.getType())) { return; }
     if (plugin.getConfig().getBoolean("rules.break-only-placed", true) && !buildRules.wasPlaced(arenaId, b.getLocation())) {
       e.setCancelled(true);
     } else {

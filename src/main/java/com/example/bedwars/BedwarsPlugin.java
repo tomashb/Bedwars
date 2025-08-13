@@ -19,6 +19,9 @@ import com.example.bedwars.listeners.DamageRulesListener;
 import com.example.bedwars.listeners.EntityExplodeListener;
 import com.example.bedwars.listeners.PlayerDeathListener;
 import com.example.bedwars.listeners.PlayerRespawnListener;
+import com.example.bedwars.listeners.TntListener;
+import com.example.bedwars.lobby.LobbyItemsService;
+import com.example.bedwars.lobby.LobbyListener;
 import com.example.bedwars.setup.PromptService;
 import com.example.bedwars.shop.ShopConfig;
 import com.example.bedwars.shop.UpgradeService;
@@ -52,6 +55,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private GameService gameService;
   private BuildRulesService buildRules;
   private DeathRespawnService deathService;
+  private LobbyItemsService lobbyItems;
 
   @Override
   public void onEnable() {
@@ -69,7 +73,8 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.kitService = new KitService(this);
     this.spectatorService = new SpectatorService();
     this.gameMessages = new GameMessages(this, contextService);
-    this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages);
+    this.lobbyItems = new LobbyItemsService(this);
+    this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages, lobbyItems);
     this.deathService = new DeathRespawnService(this, contextService, kitService, spectatorService, gameMessages, gameService);
     this.gameService.setDeathService(deathService);
     this.upgradeService = new UpgradeService(this, contextService);
@@ -93,6 +98,8 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new BlockRulesListener(this, contextService, buildRules), this);
     getServer().getPluginManager().registerEvents(new DamageRulesListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new EntityExplodeListener(buildRules), this);
+    getServer().getPluginManager().registerEvents(new TntListener(this, contextService, buildRules), this);
+    getServer().getPluginManager().registerEvents(new LobbyListener(this, lobbyItems, contextService), this);
 
     getLogger().info("Bedwars loaded.");
   }
