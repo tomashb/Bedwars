@@ -4,30 +4,79 @@ import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
 import com.example.bedwars.game.PlayerContextService;
+import java.io.File;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.enchantments.Enchantment;
 
 /**
- * Applies upgrades to players based on team state.
- * This implementation is intentionally simple and may be expanded later.
+ * Applies upgrades to players based on team state and handles diamond purchases.
  */
 public final class UpgradeService {
   private final BedwarsPlugin plugin;
   private final PlayerContextService ctx;
+  private final Map<UpgradeType, UpgradeDef> defs = new EnumMap<>(UpgradeType.class);
+  private final Map<TrapType, TrapDef> traps = new EnumMap<>(TrapType.class);
   private final Map<String,Integer> healTasks = new HashMap<>();
+
+  public static final class UpgradeDef {
+    public final int costDiamond;
+    public final boolean perLevel;
+    public final int max;
+    public final String name;
+    public UpgradeDef(int costDiamond, boolean perLevel, int max, String name) {
+      this.costDiamond = costDiamond; this.perLevel = perLevel; this.max = max; this.name = name;
+    }
+  }
+  public static final class TrapDef {
+    public final int costDiamond; public final String name;
+    public TrapDef(int costDiamond, String name){ this.costDiamond = costDiamond; this.name = name; }
+  }
 
   public UpgradeService(BedwarsPlugin plugin, PlayerContextService ctx) {
     this.plugin = plugin; this.ctx = ctx;
+    loadDefs();
   }
+
+  private void loadDefs() {
+    File f = new File(plugin.getDataFolder(), "upgrades.yml");
+    if (!f.exists()) plugin.saveResource("upgrades.yml", false);
+    YamlConfiguration y = YamlConfiguration.loadConfiguration(f);
+    ConfigurationSection up = y.getConfigurationSection("upgrades");
+    if (up == null) return;
+    for (String k : up.getKeys(false)) {
+      ConfigurationSection sec = up.getConfigurationSection(k);
+      if (sec == null) continue;
+      if (k.startsWith("trap_")) {
+        TrapType t;
+        try { t = TrapType.valueOf(k.substring(5).toUpperCase()); } catch (Exception ex) { continue; }
+        traps.put(t, new TrapDef(sec.getInt("cost_diamond"), sec.getString("name", k)));
+      } else {
+        UpgradeType ut;
+        try { ut = UpgradeType.valueOf(k.toUpperCase()); } catch (Exception ex) { continue; }
+        int cost = sec.getInt("cost_diamond");
+        boolean per = sec.getBoolean("per_level", false);
+        int max = sec.getInt("max", 1);
+        String name = sec.getString("name", k);
+        defs.put(ut, new UpgradeDef(cost, per, max, name));
+      }
+    }
+  }
+
+  // Accessors
+  public UpgradeDef def(UpgradeType t) { return defs.get(t); }
+  public TrapDef trapDef(TrapType t) { return traps.get(t); }
 
   private boolean matches(Player p, String arenaId, TeamColor team) {
     String ar = ctx.getArena(p);
@@ -39,10 +88,8 @@ public final class UpgradeService {
     if (is == null) return;
     Material m = is.getType();
     if (!m.name().endsWith("_SWORD")) return;
-
     ItemMeta meta = is.getItemMeta();
     if (meta == null) return;
-
     meta.addEnchant(Enchantment.SHARPNESS, 1, true);
     is.setItemMeta(meta);
   }
@@ -113,7 +160,7 @@ public final class UpgradeService {
   }
 
   public void applyForge(String arenaId, TeamColor team, int level) {
-    // placeholder - actual generator boosting is implemented later
+    // placeholder - actual generator boosting is implemented elsewhere
   }
 
   // === Diamond purchase helpers ===
@@ -121,10 +168,10 @@ public final class UpgradeService {
     return count(p.getInventory(), Material.DIAMOND);
   }
 
-  public boolean tryBuyWithDiamonds(Player p, int cost) {
+  public boolean tryBuyDiamonds(Player p, int cost) {
     int have = countDiamonds(p);
     if (have < cost) {
-      p.sendMessage("§cIl faut §b" + cost + "◆ diamants.");
+      p.sendMessage(plugin.messages().format("upgrades.need_diamond", Map.of("cost", cost)));
       return false;
     }
     remove(p.getInventory(), Material.DIAMOND, cost);

@@ -56,7 +56,8 @@ public final class ItemShopMenu {
       if (im != null) {
         String name = si.name.replace("{team}", team.display);
         im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        im.setLore(java.util.List.of(ChatColor.GRAY + PriceUtil.formatCost(si.price)));
+        String lore = ChatColor.GRAY + si.cost + "x " + si.currency.name();
+        im.setLore(java.util.List.of(lore));
         si.enchants.forEach((e,l) -> im.addEnchant(e, l, true));
         it.setItemMeta(im);
       }
@@ -74,3 +75,4 @@ public final class ItemShopMenu {
     @Override public Inventory getInventory(){ return null; }
   }
 }
+

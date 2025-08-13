@@ -55,6 +55,22 @@ public final class GeneratorManager {
     runtime.clear();
   }
 
+  public int diamondTier(String arenaId) {
+    return diamondTier.getOrDefault(arenaId, 1);
+  }
+
+  public int emeraldTier(String arenaId) {
+    return emeraldTier.getOrDefault(arenaId, 1);
+  }
+
+  public int cooldownSeconds(String arenaId, UUID genId) {
+    Map<UUID, RuntimeGen> m = runtime.get(arenaId);
+    if (m == null) return 0;
+    RuntimeGen g = m.get(genId);
+    if (g == null) return 0;
+    return Math.max(0, g.cooldown / 20);
+  }
+
   // Called at STARTING->RUNNING and on arena reload
   public void refreshArena(String arenaId) {
     plugin.arenas().get(arenaId).ifPresent(arena -> {
@@ -76,7 +92,6 @@ public final class GeneratorManager {
         rg.cap = balance.capFor(rg);
         rg.cooldown = rg.interval;
         map.put(g.id(), rg);
-        holoService.spawnOrUpdate(arenaId, rg, 0, false);
       }
       runtime.put(arenaId, map);
       diamondTier.put(arenaId, 1);
@@ -93,9 +108,9 @@ public final class GeneratorManager {
         var pdc = ent.getPersistentDataContainer();
         String a = pdc.get(keys.ARENA_ID(), PersistentDataType.STRING);
         if (!arenaId.equals(a)) return;
-        if (pdc.has(keys.GEN_HOLO(), PersistentDataType.STRING)) ent.remove();
         if (ent instanceof Item item && pdc.has(keys.GEN_ID(), PersistentDataType.STRING)) item.remove();
       });
+      holoService.removeAll(arenaId);
     });
   }
 
@@ -116,6 +131,7 @@ public final class GeneratorManager {
       if (arena.state() != GameState.RUNNING) return;
       Map<UUID, RuntimeGen> map = runtime.get(arena.id());
       if (map == null) return;
+      boolean holoEnabled = plugin.getConfig().getBoolean("holograms.enabled", true);
       for (var entry : map.entrySet()) {
         RuntimeGen g = entry.getValue();
         g.cooldown -= 20;
@@ -126,19 +142,20 @@ public final class GeneratorManager {
         }
         int count = GenUtils.countTaggedItemsAround(w, plugin.keys(), arena.id(), g.id, g.dropLoc, 2.5);
         boolean capReached = count >= g.cap;
-        if (capReached) {
-          holoService.spawnOrUpdate(arena.id(), g, count, true);
-          continue;
+        if (!capReached && g.cooldown <= 0) {
+          g.interval = balance.intervalFor(g, diamondTier.getOrDefault(arena.id(),1),
+              emeraldTier.getOrDefault(arena.id(),1), 0);
+          g.cooldown = g.interval;
+          drop(arena.id(), g);
         }
-        if (g.cooldown > 0) {
-          holoService.spawnOrUpdate(arena.id(), g, count, false);
-          continue;
+        boolean show = holoEnabled && plugin.getConfig().getBoolean("holograms.types." + g.type.name(), true)
+            && (g.type == GeneratorType.DIAMOND || g.type == GeneratorType.EMERALD);
+        if (show) {
+          int tier = g.type == GeneratorType.DIAMOND ?
+              plugin.game().diamondTier(arena.id()) : plugin.game().emeraldTier(arena.id());
+          int seconds = Math.max(0, g.cooldown / 20);
+          holoService.updateOrCreate(arena.id(), g.id, g.dropLoc, g.type, tier, seconds);
         }
-        g.interval = balance.intervalFor(g, diamondTier.getOrDefault(arena.id(),1),
-            emeraldTier.getOrDefault(arena.id(),1), 0);
-        g.cooldown = g.interval;
-        drop(arena.id(), g);
-        holoService.spawnOrUpdate(arena.id(), g, count, false);
       }
     });
   }

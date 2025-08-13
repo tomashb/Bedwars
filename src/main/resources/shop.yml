@@ -1,66 +1,89 @@
-currencies:
-  IRON: IRON_INGOT
-  GOLD: GOLD_INGOT
-  DIAMOND: DIAMOND
-  EMERALD: EMERALD
-
-items:
-  BLOCKS:
-    - id: "wool_16"
-      mat: "WOOL_TEAM"
+categories:
+  blocks:
+    - id: WOOL_TEAM
+      name: "&fLaine (&7équipe&f) ×16"
+      material: WHITE_WOOL
+      team_colored: true
+      cost: { currency: IRON, amount: 4 }
       amount: 16
-      price: { GOLD: 4 }
-      name: "&fLaine (&7{team}&f) x16"
-    - id: "glass_4"
-      mat: "WHITE_STAINED_GLASS"
+    - id: GLASS_BLAST
+      name: "&fVerre anti-explosion ×4"
+      material: GLASS
+      cost: { currency: IRON, amount: 12 }
       amount: 4
-      price: { IRON: 12 }
-      name: "&fVerre renforcé x4"
+    - id: END_STONE
+      name: "&fEndstone ×12"
+      material: END_STONE
+      cost: { currency: IRON, amount: 24 }
+      amount: 12
 
-  MELEE:
-    - id: "stone_sword"
-      mat: "STONE_SWORD"
-      enchants: { SHARPNESS: 1 }
-      price: { IRON: 10 }
+  melee:
+    - id: STONE_SWORD
       name: "&fÉpée en pierre"
+      material: STONE_SWORD
+      cost: { currency: IRON, amount: 10 }
+    - id: IRON_SWORD
+      name: "&fÉpée en fer"
+      material: IRON_SWORD
+      cost: { currency: GOLD, amount: 7 }
+    - id: DIAMOND_SWORD
+      name: "&bÉpée en diamant"
+      material: DIAMOND_SWORD
+      cost: { currency: EMERALD, amount: 4 }
 
-  ARMOR:
-    - id: "permanent_iron_armor"
-      mat: "IRON_BOOTS"
-      price: { GOLD: 12 }
-      name: "&fArmure permanente : &7maille→fer"
+  armor:
+    - id: CHAINMAIL_PERM
+      name: "&7Cotte (&operma&7)"
+      material: CHAINMAIL_BOOTS
+      permanent: true
+      cost: { currency: IRON, amount: 30 }
+    - id: IRON_ARMOR_PERM
+      name: "&fArmure fer (&operma&f)"
+      material: IRON_BOOTS
+      permanent: true
+      cost: { currency: GOLD, amount: 12 }
+    - id: DIAMOND_ARMOR_PERM
+      name: "&bArmure diamant (&operma&b)"
+      material: DIAMOND_BOOTS
+      permanent: true
+      cost: { currency: EMERALD, amount: 6 }
 
-  TOOLS:
-    - id: "shears"
-      mat: "SHEARS"
-      price: { IRON: 20 }
-      name: "&fCisailles"
+  tools:
+    - id: SHEARS_PERM
+      name: "&fCisailles (&operma&f)"
+      material: SHEARS
+      permanent: true
+      cost: { currency: IRON, amount: 20 }
+    - id: PICK_WOOD
+      name: "&fPioche I"
+      material: WOODEN_PICKAXE
+      cost: { currency: IRON, amount: 10 }
+    - id: AXE_WOOD
+      name: "&fHache I"
+      material: WOODEN_AXE
+      cost: { currency: IRON, amount: 10 }
 
-  UTILITY:
-    - id: "tnt"
-      mat: "TNT"
-      amount: 1
-      price: { GOLD: 8 }
+  ranged:
+    - id: BOW_BASIC
+      name: "&fArc"
+      material: BOW
+      cost: { currency: GOLD, amount: 12 }
+    - id: ARROW_X8
+      name: "&fFlèches ×8"
+      material: ARROW
+      amount: 8
+      cost: { currency: GOLD, amount: 2 }
+
+  utility:
+    - id: FIREBALL
+      name: "&fBoule de feu"
+      material: FIRE_CHARGE
+      cost: { currency: IRON, amount: 40 }
+    - id: TNT
       name: "&fTNT"
-
-upgrades:
-  SHARPNESS:
-    cost: { DIAMOND: 4 }
-    maxLevel: 1
-    name: "&bAffûtage (Sharpness I)"
-  PROTECTION:
-    costs: [ {DIAMOND:2}, {DIAMOND:4}, {DIAMOND:6}, {DIAMOND:8} ]
-    name: "&bProtection d'équipe {level}"
-  MANIC_MINER:
-    costs: [ {DIAMOND:2}, {DIAMOND:4} ]
-    name: "&bManic Miner {level}"
-  HEAL_POOL:
-    cost: { DIAMOND: 3 }
-    name: "&bHeal Pool"
-  FORGE:
-    costs: [ {DIAMOND:2}, {DIAMOND:4}, {DIAMOND:6}, {DIAMOND:8} ]
-    name: "&bForge {level}"
-  TRAPS:
-    alarm:
-      cost: { DIAMOND: 1 }
-      name: "&dPiège: Alarme"
+      material: TNT
+      cost: { currency: GOLD, amount: 4 }
+    - id: ENDER_PEARL
+      name: "&bPerle"
+      material: ENDER_PEARL
+      cost: { currency: EMERALD, amount: 4 }

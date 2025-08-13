@@ -54,8 +54,13 @@ drops:
   EMERALD: EMERALD
 holograms:
   enabled: true
+  types:
+    TEAM_IRON: false
+    TEAM_GOLD: false
+    DIAMOND: true
+    EMERALD: true
   line_1: "&b{type} &7T{tier}"
-  line_2: "&f{cooldown}s &7(Cap {count}/{cap})"
+  line_2: "&f{cooldown}s"
   y_offset: 1.7
 paper_tuning:
   merge_radius_item: 2.5

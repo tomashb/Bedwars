@@ -83,10 +83,9 @@ shop:
   title: "&8Boutique &7({cat})"
   upgrades-title: "&8Améliorations d'équipe"
   no-context: "&cVous devez être dans une arène et une équipe."
-  bought: "&aAchat: &f{item}"
-  not-enough: "&cRessources insuffisantes: &f{cost}"
+  need: "&cIl manque &f{amount}&7x {currency}."
+  bought: "&aAchat effectué: &f{item}."
   maxed: "&7Déjà au niveau maximal."
-  applied: "&aAmélioration appliquée: &f{name}"
   trap-added: "&aPiège ajouté. File: {count}/3"
 
 game:
@@ -114,3 +113,7 @@ gens:
   emerald_t2: "&aÉmeraude II &7→ Générateurs émeraude accélérés !"
   emerald_t3: "&aÉmeraude III &7→ Vitesse maximale émeraude !"
   cap_reached: "&7Cap atteint: &f{type} &7({count}/{cap}). Videz le pad !"
+
+upgrades:
+  need_diamond: "&cIl faut &b{cost}◆ diamants."
+  bought: "&aAmélioration achetée: &f{name}."
