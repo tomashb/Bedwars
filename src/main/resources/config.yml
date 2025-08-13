@@ -1,3 +1,37 @@
 # Configuration de base - Etape 0
 language: fr
 debug: false
+
+generators:
+  base-intervals:
+    IRON: 120
+    GOLD: 300
+    DIAMOND: 900
+    EMERALD: 1800
+  base-amounts:
+    IRON: 1
+    GOLD: 1
+    DIAMOND: 1
+    EMERALD: 1
+  spawn-offset-y: 0.5
+  base-radius: 10.0
+
+drops:
+  IRON: IRON_INGOT
+  GOLD: GOLD_INGOT
+  DIAMOND: DIAMOND
+  EMERALD: EMERALD
+
+forge:
+  multipliers:
+    0: 1.00
+    1: 1.25
+    2: 1.50
+    3: 1.75
+    4: 2.00
+
+holograms:
+  enabled: true
+  line-1: "&b{type} &7T{tier}"
+  line-2: "&f{cooldown}s"
+  y-offset: 1.7
