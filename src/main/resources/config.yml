@@ -108,6 +108,7 @@ build:
   allowed_materials: [WHITE_WOOL, GLASS, STAINED_GLASS, END_STONE, OAK_PLANKS, HARDENED_CLAY]
   require_permission: false
   bypass_external_protection: true
+  worldguard_bypass: false
 
 shop:
   armor_persistent: true

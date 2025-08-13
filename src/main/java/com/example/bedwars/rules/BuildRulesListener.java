@@ -10,6 +10,7 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -34,36 +35,51 @@ public final class BuildRulesListener implements Listener {
     if (this.allowedStates.isEmpty()) this.allowedStates.add(GameState.RUNNING);
   }
 
-  @EventHandler(ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onPlace(BlockPlaceEvent e) {
     Player p = e.getPlayer();
     String arenaId = ctx.getArena(p);
-    if (arenaId == null) { e.setCancelled(true); return; }
+    if (arenaId == null) return;
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     if (a == null || !allowedStates.contains(a.state())) {
       e.setCancelled(true);
-      p.sendMessage(plugin.messages().get("prefix") + plugin.messages().get("build.not_allowed"));
+      plugin.messages().send(p, "errors.not_running");
       return;
     }
     if (plugin.getConfig().getBoolean("build.require_permission", false)
         && !p.hasPermission("bedwars.build.place")) { e.setCancelled(true); return; }
-    if (!buildRules.isAllowed(e.getBlockPlaced().getType())) { e.setCancelled(true); return; }
+    if (!buildRules.isAllowed(e.getBlockPlaced().getType())) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.not_allowed_block");
+      return;
+    }
+    if (e.isCancelled() && plugin.getConfig().getBoolean("build.bypass_external_protection", false)) {
+      e.setCancelled(false);
+    }
     e.getBlockPlaced().setMetadata("bw_placed", new FixedMetadataValue(plugin, true));
     buildRules.recordPlacement(arenaId, e.getBlockPlaced().getLocation());
   }
 
-  @EventHandler(ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onBreak(BlockBreakEvent e) {
     Player p = e.getPlayer();
     String arenaId = ctx.getArena(p);
-    if (arenaId == null) { e.setCancelled(true); return; }
+    if (arenaId == null) return;
     Arena a = plugin.arenas().get(arenaId).orElse(null);
-    if (a == null || !allowedStates.contains(a.state())) { e.setCancelled(true); return; }
+    if (a == null || !allowedStates.contains(a.state())) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.not_running");
+      return;
+    }
     Block b = e.getBlock();
     if (Tag.BEDS.isTagged(b.getType())) { return; }
     if (plugin.getConfig().getBoolean("rules.break-only-placed", true) && !b.hasMetadata("bw_placed")) {
       e.setCancelled(true);
+      plugin.messages().send(p, "errors.map_protected");
     } else {
+      if (e.isCancelled() && plugin.getConfig().getBoolean("build.bypass_external_protection", false)) {
+        e.setCancelled(false);
+      }
       b.removeMetadata("bw_placed", plugin);
       buildRules.removePlaced(arenaId, b.getLocation());
     }

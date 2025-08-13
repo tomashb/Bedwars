@@ -38,4 +38,5 @@ Captures d'écran à insérer ici.
 - **Le TNT ne s'allume pas** : assurez-vous que l'arène n'est pas en mode `WAITING`.
 - **Le scoreboard n'apparaît pas** : vérifier `scoreboard.enabled` dans `config.yml`.
 - **Permissions** : utiliser `bedwars.admin.*` ou les sous-permissions détaillées ci-dessus.
+- **Les blocs disparaissent immédiatement** : mettre `spawn-protection=0` dans `server.properties` ou placer les arènes hors du rayon de spawn. Pour WorldGuard, créer une région autorisant build pendant la partie ou activer `build.worldguard_bypass`.
 

@@ -4,6 +4,11 @@ errors:
   no_perm: "&cTu n'as pas la permission."
   arena_unknown: "&cArène inconnue: &f{arena}"
   team_full: "&cCette équipe est pleine (&f{count}/{max}&c)."
+  not_running: "&cAction impossible hors partie."
+  not_allowed_block: "&cBloc non autorisé."
+  map_protected: "&cCarte protégée."
+  own_bed: "&cTu ne peux pas casser ton propre lit !"
+  bed_already_broken: "&eCe lit est déjà détruit."
 
 menu:
   title_admin: "&eMenu Admin"

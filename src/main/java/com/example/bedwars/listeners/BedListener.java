@@ -6,13 +6,14 @@ import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.game.GameService;
 import com.example.bedwars.game.PlayerContextService;
+import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -39,33 +40,43 @@ public final class BedListener implements Listener {
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onBreak(BlockBreakEvent e) {
     Block b = e.getBlock();
-    if (!Tag.BEDS.isTagged(b.getType())) return;
+    if (!(b.getBlockData() instanceof Bed bed)) return;
     Player p = e.getPlayer();
     String arenaId = ctx.getArena(p);
-    if (arenaId == null) { e.setCancelled(true); return; }
+    if (arenaId == null) return;
     Arena a = plugin.arenas().get(arenaId).orElse(null);
-    if (a == null || a.state() != GameState.RUNNING) { e.setCancelled(true); return; }
+    if (a == null || a.state() != GameState.RUNNING) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.not_running");
+      return;
+    }
 
-    Bed bed = (Bed) b.getBlockData();
-    Block head = bed.getPart() == Bed.Part.HEAD ? b : b.getRelative(bed.getFacing());
+    Block foot = bed.getPart() == Bed.Part.FOOT ? b : b.getRelative(bed.getFacing().getOppositeFace());
     TeamColor bedTeam = null;
     for (TeamColor tc : a.enabledTeams()) {
       var loc = a.team(tc).bedBlock();
-      if (loc != null && loc.getBlock().equals(head)) { bedTeam = tc; break; }
+      if (loc != null && loc.getBlock().equals(foot)) { bedTeam = tc; break; }
     }
-    if (bedTeam == null) { e.setCancelled(true); return; }
-
-    TeamColor playerTeam = ctx.getTeam(p);
-    if (bedTeam == playerTeam) {
-      p.sendMessage(plugin.messages().get("prefix") + plugin.messages().get("game.bed-own"));
+    if (bedTeam == null) {
       e.setCancelled(true);
       return;
     }
 
+    TeamColor playerTeam = ctx.getTeam(p);
+    if (bedTeam == playerTeam) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.own_bed");
+      return;
+    }
+
+    e.setCancelled(true);
+    e.setDropItems(false);
+    Block head = foot.getRelative(((Bed) foot.getBlockData()).getFacing());
+    foot.setType(Material.AIR, false);
+    head.setType(Material.AIR, false);
     game.handleBedBreak(p, a, bedTeam);
-    e.setCancelled(false);
   }
 }
