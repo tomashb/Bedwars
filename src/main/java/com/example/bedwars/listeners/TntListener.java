@@ -13,6 +13,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.GameMode;
 
 /** Auto-primes TNT placed by players. */
 public final class TntListener implements Listener {
@@ -32,6 +35,12 @@ public final class TntListener implements Listener {
     if (arenaId == null) { e.setCancelled(true); return; }
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     if (a == null || a.state() != GameState.RUNNING) { e.setCancelled(true); return; }
+    ItemStack hand = e.getHand() == EquipmentSlot.HAND
+        ? p.getInventory().getItemInMainHand()
+        : p.getInventory().getItemInOffHand();
+    if (p.getGameMode() != GameMode.CREATIVE) {
+      hand.setAmount(hand.getAmount() - 1);
+    }
     Location loc = e.getBlockPlaced().getLocation().add(0.5, 0, 0.5);
     e.setCancelled(true);
     e.getBlockPlaced().setType(Material.AIR);

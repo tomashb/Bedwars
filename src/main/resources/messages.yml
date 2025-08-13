@@ -120,8 +120,10 @@ upgrades:
   bought: "&aAmélioration achetée: &f{name}."
 
 respawn:
-  countdown: "&7Réapparition dans &e{sec}s"
+  countdown_title: "&eRéapparition dans &6{sec}s"
+  countdown_sub: "&7Ne quittez pas l'arène"
   respawned: "&aVous avez réapparu !"
-eliminated: "&cVous êtes éliminé(e)."
+eliminated_title: "&cÉliminé"
+eliminated_sub: "&7Votre lit est détruit"
 build:
   not_allowed: "&cVous ne pouvez pas construire ici."

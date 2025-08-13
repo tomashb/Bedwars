@@ -1,4 +1,4 @@
-package com.example.bedwars.listeners;
+package com.example.bedwars.rules;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
@@ -14,14 +14,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-/** Handles build protections: only allow breaking placed blocks and whitelisted placements. */
-public final class BlockRulesListener implements Listener {
+/**
+ * Handles build protections: only allow breaking player placed blocks and
+ * whitelisted placements depending on the arena state.
+ */
+public final class BuildRulesListener implements Listener {
   private final BedwarsPlugin plugin;
   private final PlayerContextService ctx;
   private final BuildRulesService buildRules;
   private final Set<GameState> allowedStates;
 
-  public BlockRulesListener(BedwarsPlugin plugin, PlayerContextService ctx, BuildRulesService br) {
+  public BuildRulesListener(BedwarsPlugin plugin, PlayerContextService ctx, BuildRulesService br) {
     this.plugin = plugin; this.ctx = ctx; this.buildRules = br;
     this.allowedStates = plugin.getConfig().getStringList("rules.allow-build-states")
         .stream().map(s -> {
