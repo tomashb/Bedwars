@@ -36,6 +36,18 @@ public final class GameService {
     this.messages = msgs;
   }
 
+  public int diamondTier(String arenaId) {
+    return plugin.generators().diamondTier(arenaId);
+  }
+
+  public int emeraldTier(String arenaId) {
+    return plugin.generators().emeraldTier(arenaId);
+  }
+
+  public int nextDropSeconds(String arenaId, java.util.UUID genId) {
+    return plugin.generators().cooldownSeconds(arenaId, genId);
+  }
+
   public void join(Player p, String arenaId) {
     if (contexts.getArena(p) != null) {
       messages.send(p, "game.already-in", Map.of());

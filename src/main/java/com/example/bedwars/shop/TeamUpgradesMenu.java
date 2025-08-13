@@ -3,7 +3,6 @@ package com.example.bedwars.shop;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
-import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,6 +11,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import com.example.bedwars.shop.TeamUpgradesState;
+import com.example.bedwars.shop.UpgradeType;
+import com.example.bedwars.shop.TrapType;
 
 /**
  * GUI for team upgrades purchased with diamonds.
@@ -45,17 +48,16 @@ public final class TeamUpgradesMenu {
   }
 
   private ItemStack icon(Material mat, UpgradeType type, int level, Player p) {
-    ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(type);
+    UpgradeService.UpgradeDef def = plugin.upgrades().def(type);
     ItemStack it = new ItemStack(mat);
     ItemMeta im = it.getItemMeta();
     if (im != null && def != null) {
-      im.setDisplayName(ChatColor.AQUA + type.name() + " " + level + "/" + def.maxLevel);
-      if (level < def.maxLevel) {
-        Map<Material,Integer> costMap = def.costs.get(Math.min(level, def.costs.size()-1));
-        int cost = costMap.getOrDefault(Material.DIAMOND, 0);
+      im.setDisplayName(ChatColor.AQUA + type.name() + " " + level + "/" + def.max);
+      if (level < def.max) {
+        int cost = def.perLevel ? def.costDiamond * (level + 1) : def.costDiamond;
         int have = plugin.upgrades().countDiamonds(p);
         ChatColor col = have >= cost ? ChatColor.GRAY : ChatColor.RED;
-        im.setLore(java.util.List.of(col + "Coût : ♦ " + cost + " Diamant(s)"));
+        im.setLore(java.util.List.of(col + "Coût : " + cost + "◆"));
       } else {
         im.setLore(java.util.List.of(ChatColor.GRAY + plugin.messages().get("shop.maxed")));
       }
@@ -65,15 +67,15 @@ public final class TeamUpgradesMenu {
   }
 
   private ItemStack trapIcon(TeamUpgradesState st, Player p) {
-    ShopConfig.TrapDef def = plugin.shopConfig().trap(TrapType.ALARM);
+    UpgradeService.TrapDef def = plugin.upgrades().trapDef(TrapType.ALARM);
     ItemStack it = new ItemStack(Material.TRIPWIRE_HOOK);
     ItemMeta im = it.getItemMeta();
     if (im != null && def != null) {
       im.setDisplayName(ChatColor.LIGHT_PURPLE + "Traps " + st.trapQueue().size() + "/3");
-      int cost = def.cost.getOrDefault(Material.DIAMOND, 0);
+      int cost = def.costDiamond;
       int have = plugin.upgrades().countDiamonds(p);
       ChatColor col = have >= cost ? ChatColor.GRAY : ChatColor.RED;
-      im.setLore(java.util.List.of(col + "Coût : ♦ " + cost + " Diamant(s)"));
+      im.setLore(java.util.List.of(col + "Coût : " + cost + "◆"));
       it.setItemMeta(im);
     }
     return it;

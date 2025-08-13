@@ -1,0 +1,6 @@
+upgrades:
+  sharpness:   { cost_diamond: 4, max: 1, name: "&bAffûtage" }
+  protection:  { cost_diamond: 2, per_level: true, max: 4, name: "&bProtection {level}" }
+  manic_miner: { cost_diamond: 2, per_level: true, max: 2, name: "&bHâte {level}" }
+  forge:       { cost_diamond: 2, per_level: true, max: 4, name: "&bForge {level}" }
+  trap_alarm:  { cost_diamond: 1, name: "&dPiège: Alarme" }

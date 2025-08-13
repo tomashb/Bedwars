@@ -17,6 +17,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import com.example.bedwars.shop.UpgradeService.UpgradeDef;
+import com.example.bedwars.shop.UpgradeService.TrapDef;
+import com.example.bedwars.shop.TeamUpgradesState;
+import com.example.bedwars.shop.UpgradeType;
+import com.example.bedwars.shop.TrapType;
+import com.example.bedwars.shop.PurchaseService;
+
 /**
  * Handles opening shop menus and processing clicks.
  */
@@ -69,7 +76,7 @@ public final class ShopListener implements Listener {
       java.util.List<ShopItem> list = plugin.shopConfig().items(ih.cat);
       if (index < 0 || index >= list.size()) return;
       ShopItem si = list.get(index);
-      if (PriceUtil.hasAndRemove(p, si.price)) {
+      if (PurchaseService.tryBuy(p, si.currency, si.cost)) {
         Material mat = si.teamColored ? ih.team.wool : si.mat;
         ItemStack it = new ItemStack(mat, si.amount);
         si.enchants.forEach((en,l)-> it.addEnchantment(en,l));
@@ -77,7 +84,8 @@ public final class ShopListener implements Listener {
         String name = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', si.name.replace("{team}", ih.team.display)));
         p.sendMessage(plugin.messages().format("shop.bought", Map.of("item", name)));
       } else {
-        p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", PriceUtil.formatCost(si.price))));
+        String cur = si.currency.name();
+        p.sendMessage(plugin.messages().format("shop.need", Map.of("amount", si.cost, "currency", cur)));
       }
       return;
     }
@@ -90,89 +98,61 @@ public final class ShopListener implements Listener {
       TeamUpgradesState st = td.upgrades();
       int slot = e.getRawSlot();
       if (slot == TeamUpgradesMenu.SLOT_SHARP) {
-        ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.SHARPNESS);
+        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.SHARPNESS);
         if (st.sharpness()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        Map<Material,Integer> cost = def.costs.get(0);
-        int d = cost.getOrDefault(Material.DIAMOND,0);
-        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
+        int d = def.costDiamond;
+        if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setSharpness(true);
           plugin.upgrades().applySharpness(uh.arenaId, uh.team);
-          p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", def.name)));
+          p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
-        } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_PROT) {
-        ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.PROTECTION);
+        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.PROTECTION);
         int lvl = st.protection();
-        if (lvl >= def.maxLevel) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        Map<Material,Integer> cost = def.costs.get(lvl);
-        int d = cost.getOrDefault(Material.DIAMOND,0);
-        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
+        if (lvl >= def.max) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.perLevel ? def.costDiamond * (lvl + 1) : def.costDiamond;
+        if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setProtection(lvl+1);
           plugin.upgrades().applyProtection(uh.arenaId, uh.team, st.protection());
           String name = def.name.replace("{level}", String.valueOf(st.protection()));
-          p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", name)));
+          p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
-        } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_HASTE) {
-        ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.MANIC_MINER);
+        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.MANIC_MINER);
         int lvl = st.manicMiner();
-        if (lvl >= def.maxLevel) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        Map<Material,Integer> cost = def.costs.get(lvl);
-        int d = cost.getOrDefault(Material.DIAMOND,0);
-        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
+        if (lvl >= def.max) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.perLevel ? def.costDiamond * (lvl + 1) : def.costDiamond;
+        if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setManicMiner(lvl+1);
           plugin.upgrades().applyManicMiner(uh.arenaId, uh.team, st.manicMiner());
           String name = def.name.replace("{level}", String.valueOf(st.manicMiner()));
-          p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", name)));
+          p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
-        } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
-        }
-      } else if (slot == TeamUpgradesMenu.SLOT_HEAL) {
-        ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.HEAL_POOL);
-        if (st.healPool()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        Map<Material,Integer> cost = def.costs.get(0);
-        int d = cost.getOrDefault(Material.DIAMOND,0);
-        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
-          st.setHealPool(true);
-          plugin.upgrades().applyHealPool(uh.arenaId, uh.team, true);
-          p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", def.name)));
-          upgradesMenu.open(p, uh.arenaId, uh.team);
-        } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_FORGE) {
-        ShopConfig.UpgradeDef def = plugin.shopConfig().upgrade(UpgradeType.FORGE);
+        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.FORGE);
         int lvl = st.forge();
-        if (lvl >= def.maxLevel) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        Map<Material,Integer> cost = def.costs.get(lvl);
-        int d = cost.getOrDefault(Material.DIAMOND,0);
-        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
+        if (lvl >= def.max) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.perLevel ? def.costDiamond * (lvl + 1) : def.costDiamond;
+        if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setForge(lvl+1);
           plugin.upgrades().applyForge(uh.arenaId, uh.team, st.forge());
           String name = def.name.replace("{level}", String.valueOf(st.forge()));
-          p.sendMessage(plugin.messages().format("shop.applied", Map.of("name", name)));
+          p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
-        } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       } else if (slot == TeamUpgradesMenu.SLOT_TRAP) {
-        ShopConfig.TrapDef def = plugin.shopConfig().trap(TrapType.ALARM);
+        UpgradeService.TrapDef def = plugin.upgrades().trapDef(TrapType.ALARM);
         if (st.trapQueue().size() >= 3) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.cost.getOrDefault(Material.DIAMOND,0);
-        if (plugin.upgrades().tryBuyWithDiamonds(p, d)) {
+        int d = def.costDiamond;
+        if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.trapQueue().add(TrapType.ALARM);
-          p.sendMessage(plugin.messages().format("shop.trap-added", Map.of("count", st.trapQueue().size())));
+          p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
-        } else {
-          p.sendMessage(plugin.messages().format("shop.not-enough", Map.of("cost", d + " diamants")));
         }
       }
     }
   }
 }
-
