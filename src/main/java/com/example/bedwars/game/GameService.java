@@ -4,13 +4,14 @@ import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
-import com.example.bedwars.util.Io;
 import com.example.bedwars.arena.TeamData;
 import com.example.bedwars.game.ArenaStateChangeEvent;
 import com.example.bedwars.game.DeathRespawnService;
 import com.example.bedwars.game.ArenaResetStrategy;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -175,7 +176,7 @@ public final class GameService {
       plugin.upgrades().applyManicMiner(a.id(), team, td.upgrades().manicMiner());
       contexts.markAlive(p);
     }
-    messages.broadcast(a, "game.started", Map.of());
+    messages.broadcast(a, "game.started");
 
     // start game timer for global tier announcements
     int timerTask = new BukkitRunnable() {
@@ -200,7 +201,7 @@ public final class GameService {
     Integer timer = timerTasks.remove(arenaId);
     if (timer != null) Bukkit.getScheduler().cancelTask(timer);
     endGame(a, null);
-    messages.broadcast(a, "game.stopped", Map.of());
+    messages.broadcast(a, "game.stopped");
   }
 
   public void forceWin(String arenaId, TeamColor team) {
@@ -229,27 +230,36 @@ public final class GameService {
     if (timer != null) Bukkit.getScheduler().cancelTask(timer);
     gameTime.remove(a.id());
 
-    plugin.messages().broadcast(a, "rotation.picking", Map.of());
+    plugin.messages().broadcast(a, "rotation.picking");
     var next = plugin.rotation().pickNext();
     Arena target = next.flatMap(id -> plugin.arenas().get(id)).orElse(a);
     next.ifPresent(id -> plugin.messages().broadcast(a, "rotation.picked", Map.of("arena", id)));
 
     ArenaResetStrategy strat = plugin.reset().strategyFor(target);
-    plugin.messages().broadcast(a, "reset.preparing", Map.of());
-    strat.prepare(a);
-    Io.async(() -> {
+    plugin.messages().broadcast(a, "reset.preparing");
+
+    try {
+      strat.prepare(a);
+    } catch (Exception ex) {
+      plugin.getLogger().severe("Reset prepare failed: " + ex.getMessage());
+      plugin.messages().broadcast(a, "reset.failed", Map.of("error", ex.getMessage()));
+      target.setState(GameState.WAITING);
+      return;
+    }
+
+    CompletableFuture.runAsync(() -> {
       try {
         strat.reset(target);
-        return null;
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
+      } catch (Exception e) {
+        throw new CompletionException(e);
       }
-    }).whenComplete((v, ex) -> org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
-      if (ex != null) {
-        plugin.logSevere("Reset failed: %s", ex.getCause().getMessage());
-        plugin.messages().broadcast(target, "reset.failed", Map.of("error", ex.getCause().getMessage()));
+    }).whenComplete((v, err) -> Bukkit.getScheduler().runTask(plugin, () -> {
+      if (err != null) {
+        plugin.getLogger().severe("Reset failed: " + err.getCause().getMessage());
+        plugin.messages().broadcast(a, "reset.failed", Map.of("error", err.getCause().getMessage()));
       } else {
-        plugin.messages().broadcast(target, "reset.done", Map.of());
+        target.setState(GameState.WAITING);
+        plugin.messages().broadcast(a, "reset.done");
       }
     }));
   }
