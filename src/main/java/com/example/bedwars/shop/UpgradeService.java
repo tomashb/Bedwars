@@ -84,14 +84,23 @@ public final class UpgradeService {
   }
 
   private void applySharpness(Player p) {
-    ItemStack is = p.getInventory().getItemInMainHand();
-    if (is == null) return;
-    Material m = is.getType();
-    if (!m.name().endsWith("_SWORD")) return;
-    ItemMeta meta = is.getItemMeta();
-    if (meta == null) return;
-    meta.addEnchant(Enchantment.SHARPNESS, 1, true);
-    is.setItemMeta(meta);
+    for (ItemStack is : p.getInventory().getContents()) {
+      if (is == null) continue;
+      Material m = is.getType();
+      if (!m.name().endsWith("_SWORD")) continue;
+      ItemMeta meta = is.getItemMeta();
+      if (meta == null) continue;
+      meta.addEnchant(Enchantment.SHARPNESS, 1, true);
+      is.setItemMeta(meta);
+    }
+    ItemStack off = p.getInventory().getItemInOffHand();
+    if (off != null && off.getType().name().endsWith("_SWORD")) {
+      ItemMeta meta = off.getItemMeta();
+      if (meta != null) {
+        meta.addEnchant(Enchantment.SHARPNESS, 1, true);
+        off.setItemMeta(meta);
+      }
+    }
   }
 
   private void applyProtection(Player p, int level) {
