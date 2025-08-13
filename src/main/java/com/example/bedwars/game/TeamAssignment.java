@@ -19,14 +19,14 @@ public final class TeamAssignment {
   /** Assign or balance team for player. */
   public TeamColor assign(Arena a, org.bukkit.entity.Player p) {
     TeamColor chosen = ctx.getTeam(p);
-    if (chosen != null) {
+    if (chosen != null && a.activeTeams().contains(chosen)) {
       int count = ctx.countPlayers(a.id(), chosen);
-      TeamData td = a.team(chosen);
-      if (td != null && count < td.maxPlayers()) return chosen;
+      if (count < a.maxTeamSize()) return chosen;
     }
-    Optional<TeamColor> best = a.enabledTeams().stream()
+    Optional<TeamColor> best = a.activeTeams().stream()
+        .filter(t -> ctx.countPlayers(a.id(), t) < a.maxTeamSize())
         .min(Comparator.comparingInt(t -> ctx.countPlayers(a.id(), t)));
-    TeamColor team = best.orElse(TeamColor.RED);
+    TeamColor team = best.orElse(a.activeTeams().iterator().next());
     ctx.setTeam(p, team);
     return team;
   }

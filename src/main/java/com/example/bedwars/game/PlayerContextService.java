@@ -51,6 +51,10 @@ public final class PlayerContextService {
     return c == null ? null : c.arenaId;
   }
 
+  public boolean isInArena(Player p) {
+    return contexts.containsKey(p.getUniqueId());
+  }
+
   public TeamColor getTeam(Player p) {
     Context c = contexts.get(p.getUniqueId());
     return c == null ? null : c.team();

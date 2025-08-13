@@ -27,34 +27,26 @@ public final class TeamSelectMenu implements Listener {
     this.ctx = ctx;
   }
 
-  /** Opens the team selection menu for a player. */
-  public void open(Player p) {
-    String arenaId = ctx.getArena(p);
-    if (arenaId == null) return;
-    Arena a = plugin.arenas().get(arenaId).orElse(null);
+  /** Opens the team selection menu for a player and arena. */
+  public void open(Player p, Arena a) {
     if (a == null) return;
     Inventory inv = Bukkit.createInventory(null, 9, plugin.messages().get("game.choose-team-title"));
     int i = 0;
-    for (TeamColor tc : TeamColor.values()) {
+    for (TeamColor tc : a.activeTeams()) {
+      int count = ctx.countPlayers(a.id(), tc);
       ItemStack icon;
-      if (!a.enabledTeams().contains(tc)) {
+      if (count >= a.maxTeamSize()) {
         icon = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
       } else {
-        TeamData td = a.team(tc);
-        int count = ctx.countPlayers(arenaId, tc);
-        if (count >= td.maxPlayers()) {
-          icon = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        } else {
-          icon = new ItemStack(tc.wool);
-        }
-        ItemMeta meta = icon.getItemMeta();
-        if (meta != null) {
-          meta.setDisplayName(tc.color + tc.display);
-          List<String> lore = new ArrayList<>();
-          lore.add("§7" + count + "/" + td.maxPlayers() + " joueurs");
-          meta.setLore(lore);
-          icon.setItemMeta(meta);
-        }
+        icon = new ItemStack(tc.wool);
+      }
+      ItemMeta meta = icon.getItemMeta();
+      if (meta != null) {
+        meta.setDisplayName(tc.color + tc.display);
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Joueurs: " + count + "/" + a.maxTeamSize());
+        meta.setLore(lore);
+        icon.setItemMeta(meta);
       }
       inv.setItem(i++, icon);
     }
@@ -72,14 +64,16 @@ public final class TeamSelectMenu implements Listener {
     if (arenaId == null) return;
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     if (a == null) return;
-    for (TeamColor tc : TeamColor.values()) {
+    for (TeamColor tc : a.activeTeams()) {
       if (clicked.getType() == tc.wool) {
-        TeamData td = a.team(tc);
         int count = ctx.countPlayers(arenaId, tc);
-        if (count >= td.maxPlayers()) return; // full
+        if (count >= a.maxTeamSize()) {
+          p.sendMessage(plugin.messages().format("team.full", java.util.Map.of("count", count, "max", a.maxTeamSize())));
+          return;
+        }
         ctx.setTeam(p, tc);
         p.sendMessage(plugin.messages().get("prefix") +
-            plugin.messages().format("game.assign-team", java.util.Map.of("team", tc.display)));
+            plugin.messages().format("team.chosen", java.util.Map.of("team", tc.display)));
         p.closeInventory();
         return;
       }

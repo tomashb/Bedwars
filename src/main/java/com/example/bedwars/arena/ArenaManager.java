@@ -6,6 +6,7 @@ import com.example.bedwars.gen.Generator;
 import com.example.bedwars.gen.GeneratorType;
 import com.example.bedwars.shop.NpcData;
 import com.example.bedwars.shop.NpcType;
+import com.example.bedwars.arena.ArenaMode;
 import com.example.bedwars.util.YamlIO;
 import com.example.bedwars.util.YamlLocation;
 import org.bukkit.Bukkit;
@@ -46,7 +47,6 @@ public final class ArenaManager implements ArenaApi {
   public Arena create(String id, WorldRef world) {
     if (arenas.containsKey(id)) throw new IllegalArgumentException("Arena already exists: " + id);
     Arena a = new Arena(id, world);
-    a.enableTeam(TeamColor.RED).enableTeam(TeamColor.BLUE);
     arenas.put(id, a);
     save(id);
     return a;
@@ -91,12 +91,26 @@ public final class ArenaManager implements ArenaApi {
       a.setLobby(YamlLocation.fromMap(a.world(), y.getConfigurationSection("lobby")));
     }
 
-    for (String t : y.getStringList("enabled-teams")) {
-      try {
-        a.enableTeam(TeamColor.valueOf(t));
-      } catch (IllegalArgumentException ex) {
-        plugin.getLogger().warning("Unknown team " + t + " in arena " + id);
+    String modeName = y.getString("mode", ArenaMode.EIGHT_X1.name());
+    try {
+      a.setMode(ArenaMode.valueOf(modeName));
+    } catch (IllegalArgumentException ex) {
+      a.setMode(ArenaMode.EIGHT_X1);
+    }
+    a.setMaxTeamSize(y.getInt("max-team-size", a.mode().teamSize));
+
+    List<String> active = y.getStringList("active-teams");
+    if (active.isEmpty()) {
+      a.setActiveTeams(new HashSet<>(a.mode().palette));
+    } else {
+      Set<TeamColor> set = new HashSet<>();
+      for (String t : active) {
+        try { set.add(TeamColor.valueOf(t)); }
+        catch (IllegalArgumentException ex) {
+          plugin.getLogger().warning("Unknown team " + t + " in arena " + id);
+        }
       }
+      a.setActiveTeams(set);
     }
 
     ConfigurationSection teams = y.getConfigurationSection("teams");
@@ -175,8 +189,10 @@ public final class ArenaManager implements ArenaApi {
       y.createSection("lobby", YamlLocation.toMap(a.lobby()));
     }
 
-    List<String> enabled = a.enabledTeams().stream().map(Enum::name).toList();
-    y.set("enabled-teams", enabled);
+    y.set("mode", a.mode().name());
+    List<String> active = a.activeTeams().stream().map(Enum::name).toList();
+    y.set("active-teams", active);
+    y.set("max-team-size", a.maxTeamSize());
 
     ConfigurationSection teams = y.createSection("teams");
     for (var entry : a.teams().entrySet()) {

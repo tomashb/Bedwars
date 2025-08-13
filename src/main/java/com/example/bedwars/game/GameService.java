@@ -69,15 +69,17 @@ public final class GameService {
       messages.send(p, "game.no-arena", Map.of());
       return;
     }
+    int capacity = a.activeTeams().size() * a.maxTeamSize();
+    int current = contexts.countPlayers(arenaId);
+    if (current >= capacity) {
+      messages.send(p, "team.full", Map.of("count", current, "max", capacity));
+      return;
+    }
     contexts.join(p, arenaId);
     p.getInventory().clear();
     if (a.lobby() != null) p.teleport(a.lobby());
     lobbyItems.giveLobbyItems(p);
     messages.send(p, "game.join", Map.of("arena", arenaId));
-    if (plugin.getConfig().getBoolean("game.auto-assign-on-join", false)) {
-      TeamColor team = teamAssignment.assign(a, p);
-      messages.send(p, "game.assign-team", Map.of("team", team.display));
-    }
 
     int count = contexts.countPlayers(arenaId);
     int min = plugin.getConfig().getInt("game.min-players", 2);
