@@ -109,6 +109,10 @@ public final class ShopConfig {
       }
       items.put(cat, list);
     }
+
+    if (plugin.buildRules() != null) {
+      plugin.buildRules().rebuildWhitelistFromShop(this);
+    }
   }
 
   public List<ShopItem> items(ShopCategory cat) {

@@ -3,11 +3,14 @@ package com.example.bedwars.rules;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.GameState;
+import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.game.PlayerContextService;
 import com.example.bedwars.services.BuildRulesService;
 import java.util.Set;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Bed;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -50,7 +53,7 @@ public final class BuildRulesListener implements Listener {
         && !p.hasPermission("bedwars.build.place")) { e.setCancelled(true); return; }
     if (!buildRules.isAllowed(e.getBlockPlaced().getType())) {
       e.setCancelled(true);
-      plugin.messages().send(p, "errors.not_allowed_block");
+      plugin.messages().send(p, "errors.map_protected");
       return;
     }
     if (e.isCancelled() && plugin.getConfig().getBoolean("build.bypass_external_protection", false)) {
@@ -72,8 +75,40 @@ public final class BuildRulesListener implements Listener {
       return;
     }
     Block b = e.getBlock();
-    if (Tag.BEDS.isTagged(b.getType())) { return; }
-    if (plugin.getConfig().getBoolean("rules.break-only-placed", true) && !b.hasMetadata("bw_placed")) {
+    BlockData data = b.getBlockData();
+    if (data instanceof Bed bed) {
+      Block foot = (bed.getPart() == Bed.Part.FOOT) ? b : b.getRelative(bed.getFacing().getOppositeFace());
+      TeamColor bedTeam = null;
+      for (TeamColor tc : a.enabledTeams()) {
+        var loc = a.team(tc).bedBlock();
+        if (loc != null && loc.getBlock().equals(foot)) { bedTeam = tc; break; }
+      }
+      if (bedTeam == null) {
+        e.setCancelled(true);
+        plugin.messages().send(p, "errors.map_protected");
+        return;
+      }
+      TeamColor playerTeam = ctx.getTeam(p);
+      if (bedTeam == playerTeam) {
+        e.setCancelled(true);
+        plugin.messages().send(p, "errors.own_bed");
+        return;
+      }
+      if (a.team(bedTeam).bedBlock() == null) {
+        e.setCancelled(true);
+        plugin.messages().send(p, "errors.bed_already_broken");
+        return;
+      }
+      e.setCancelled(true);
+      e.setDropItems(false);
+      Block head = foot.getRelative(((Bed) foot.getBlockData()).getFacing());
+      foot.setType(Material.AIR, false);
+      head.setType(Material.AIR, false);
+      plugin.game().handleBedBreak(p, a, bedTeam);
+      return;
+    }
+
+    if (plugin.getConfig().getBoolean("rules.break-only-placed", true) && !buildRules.wasPlaced(arenaId, b.getLocation())) {
       e.setCancelled(true);
       plugin.messages().send(p, "errors.map_protected");
     } else {

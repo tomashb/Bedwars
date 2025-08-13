@@ -96,6 +96,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.gameService.setDeathService(deathService);
     this.upgradeService = new UpgradeService(this, contextService);
     this.buildRules = new BuildRulesService(this);
+    this.buildRules.rebuildWhitelistFromShop(shopConfig);
     this.generatorManager = new GeneratorManager(this);
     this.generatorManager.start();
     this.tasksService = new TasksService(this);
