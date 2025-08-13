@@ -78,3 +78,13 @@ editor:
   deleted: "&aArène supprimée."
   confirm-delete: "&cTapez &eCONFIRM &cpour supprimer l'arène &e{arena}&c (30s)."
   timeout: "&cPrompt expiré."
+
+shop:
+  title: "&8Boutique &7({cat})"
+  upgrades-title: "&8Améliorations d'équipe"
+  no-context: "&cVous devez être dans une arène et une équipe."
+  bought: "&aAchat: &f{item}"
+  not-enough: "&cRessources insuffisantes: &f{cost}"
+  maxed: "&7Déjà au niveau maximal."
+  applied: "&aAmélioration appliquée: &f{name}"
+  trap-added: "&aPiège ajouté. File: {count}/3"

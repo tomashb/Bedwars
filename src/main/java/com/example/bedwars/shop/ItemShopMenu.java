@@ -1,0 +1,76 @@
+package com.example.bedwars.shop;
+
+import com.example.bedwars.BedwarsPlugin;
+import com.example.bedwars.arena.TeamColor;
+import java.util.EnumMap;
+import java.util.Map;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+/**
+ * GUI for buying consumable/equipment items.
+ */
+public final class ItemShopMenu {
+  private final BedwarsPlugin plugin;
+  private static final Map<ShopCategory, Material> ICONS = new EnumMap<>(ShopCategory.class);
+  static {
+    ICONS.put(ShopCategory.QUICK_BUY, Material.NETHER_STAR);
+    ICONS.put(ShopCategory.BLOCKS, Material.CLAY);
+    ICONS.put(ShopCategory.MELEE, Material.IRON_SWORD);
+    ICONS.put(ShopCategory.ARMOR, Material.IRON_CHESTPLATE);
+    ICONS.put(ShopCategory.TOOLS, Material.STONE_PICKAXE);
+    ICONS.put(ShopCategory.RANGED, Material.BOW);
+    ICONS.put(ShopCategory.POTIONS, Material.BREWING_STAND);
+    ICONS.put(ShopCategory.UTILITY, Material.TNT);
+  }
+
+  public ItemShopMenu(BedwarsPlugin plugin) { this.plugin = plugin; }
+
+  public void open(Player p, String arenaId, TeamColor team, ShopCategory cat) {
+    String title = plugin.messages().format("shop.title", Map.of("cat", cat.name()));
+    Inventory inv = Bukkit.createInventory(new Holder(arenaId, team, cat), 54, title);
+
+    // categories bar
+    int i = 0;
+    for (ShopCategory c : ShopCategory.values()) {
+      ItemStack it = new ItemStack(ICONS.getOrDefault(c, Material.BARRIER));
+      ItemMeta im = it.getItemMeta();
+      if (im != null) {
+        im.setDisplayName(ChatColor.YELLOW + c.name());
+        it.setItemMeta(im);
+      }
+      inv.setItem(i++, it);
+    }
+
+    int slot = 9;
+    for (ShopItem si : plugin.shopConfig().items(cat)) {
+      Material mat = si.teamColored ? team.wool : si.mat;
+      ItemStack it = new ItemStack(mat, si.amount);
+      ItemMeta im = it.getItemMeta();
+      if (im != null) {
+        String name = si.name.replace("{team}", team.display);
+        im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+        im.setLore(java.util.List.of(ChatColor.GRAY + PriceUtil.formatCost(si.price)));
+        si.enchants.forEach((e,l) -> im.addEnchant(e, l, true));
+        it.setItemMeta(im);
+      }
+      inv.setItem(slot++, it);
+    }
+
+    p.openInventory(inv);
+  }
+
+  static final class Holder implements InventoryHolder {
+    final String arenaId;
+    final TeamColor team;
+    final ShopCategory cat;
+    Holder(String arenaId, TeamColor team, ShopCategory cat){ this.arenaId = arenaId; this.team = team; this.cat = cat; }
+    @Override public Inventory getInventory(){ return null; }
+  }
+}
