@@ -3,8 +3,7 @@ package com.example.bedwars.shop;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
-import com.example.bedwars.service.PlayerContextService;
-import com.example.bedwars.service.PlayerContextService.Context;
+import com.example.bedwars.game.PlayerContextService;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Material;
@@ -29,7 +28,8 @@ public final class UpgradeService {
   }
 
   private boolean matches(Player p, String arenaId, TeamColor team) {
-    return ctx.get(p).map(c -> c.arenaId.equals(arenaId) && c.team == team).orElse(false);
+    String ar = ctx.getArena(p);
+    return ar != null && ar.equals(arenaId) && ctx.getTeam(p) == team;
   }
 
   private void applySharpness(Player p) {

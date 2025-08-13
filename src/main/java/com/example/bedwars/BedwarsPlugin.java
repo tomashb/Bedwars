@@ -12,11 +12,21 @@ import com.example.bedwars.listeners.MenuListener;
 import com.example.bedwars.listeners.EditorListener;
 import com.example.bedwars.listeners.UpgradeApplyListener;
 import com.example.bedwars.listeners.GameStateListener;
+import com.example.bedwars.listeners.JoinLeaveListener;
+import com.example.bedwars.listeners.BedListener;
+import com.example.bedwars.listeners.DeathRespawnListener;
+import com.example.bedwars.listeners.BlockRulesListener;
+import com.example.bedwars.listeners.DamageRulesListener;
 import com.example.bedwars.setup.PromptService;
 import com.example.bedwars.shop.ShopConfig;
 import com.example.bedwars.shop.UpgradeService;
 import com.example.bedwars.shop.ShopListener;
-import com.example.bedwars.service.PlayerContextService;
+import com.example.bedwars.game.PlayerContextService;
+import com.example.bedwars.game.TeamAssignment;
+import com.example.bedwars.game.KitService;
+import com.example.bedwars.game.SpectatorService;
+import com.example.bedwars.game.GameMessages;
+import com.example.bedwars.game.GameService;
 import com.example.bedwars.gen.GeneratorManager;
 
 public final class BedwarsPlugin extends JavaPlugin {
@@ -31,6 +41,11 @@ public final class BedwarsPlugin extends JavaPlugin {
   private PlayerContextService contextService;
   private UpgradeService upgradeService;
   private GeneratorManager generatorManager;
+  private TeamAssignment teamAssignment;
+  private KitService kitService;
+  private SpectatorService spectatorService;
+  private GameMessages gameMessages;
+  private GameService gameService;
 
   @Override
   public void onEnable() {
@@ -44,6 +59,11 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.promptService = new PromptService(this);
     this.shopConfig = new ShopConfig(this);
     this.contextService = new PlayerContextService();
+    this.teamAssignment = new TeamAssignment(contextService);
+    this.kitService = new KitService(this);
+    this.spectatorService = new SpectatorService();
+    this.gameMessages = new GameMessages(this, contextService);
+    this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages);
     this.upgradeService = new UpgradeService(this, contextService);
     this.generatorManager = new GeneratorManager(this);
     this.generatorManager.start();
@@ -57,6 +77,11 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new ShopListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new UpgradeApplyListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new GameStateListener(this), this);
+    getServer().getPluginManager().registerEvents(new JoinLeaveListener(gameService), this);
+    getServer().getPluginManager().registerEvents(new BedListener(this, gameService, contextService), this);
+    getServer().getPluginManager().registerEvents(new DeathRespawnListener(this, gameService, contextService), this);
+    getServer().getPluginManager().registerEvents(new BlockRulesListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new DamageRulesListener(this, contextService), this);
 
     getLogger().info("Bedwars loaded.");
   }
@@ -96,4 +121,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public PlayerContextService contexts() { return contextService; }
   public UpgradeService upgrades() { return upgradeService; }
   public GeneratorManager generators() { return generatorManager; }
+  public GameService game() { return gameService; }
 }
