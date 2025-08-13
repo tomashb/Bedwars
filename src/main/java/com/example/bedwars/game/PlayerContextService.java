@@ -79,6 +79,12 @@ public final class PlayerContextService {
     if (c != null) c.alive(true);
   }
 
+  /** Returns whether the player is marked as alive in their context. */
+  public boolean isAlive(Player p) {
+    Context c = contexts.get(p.getUniqueId());
+    return c != null && c.alive();
+  }
+
   public boolean isSpectating(Player p) {
     Context c = contexts.get(p.getUniqueId());
     return c != null && c.spectating();
@@ -128,6 +134,14 @@ public final class PlayerContextService {
   public int countPlayers(String arenaId, TeamColor team) {
     return (int) Bukkit.getOnlinePlayers().stream()
         .filter(p -> arenaId.equals(getArena(p)) && team == getTeam(p))
+        .count();
+  }
+
+  /** Counts alive players for a given team in an arena. */
+  public int aliveCount(String arenaId, TeamColor team) {
+    return (int) Bukkit.getOnlinePlayers().stream()
+        .filter(p -> arenaId.equals(getArena(p)) && team == getTeam(p))
+        .filter(this::isAlive)
         .count();
   }
 
