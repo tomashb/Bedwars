@@ -106,7 +106,7 @@ public final class GenUtils {
         .replace("{type}", rg.type.name())
         .replace("{tier}", String.valueOf(rg.tier)));
     String l2 = color(plugin.getConfig().getString("holograms.line-2", "&f{cooldown}s")
-        .replace("{cooldown}", String.valueOf(Math.max(0, rg.current / 20))));
+        .replace("{cooldown}", String.valueOf(Math.max(0, rg.cooldown / 20))));
     td.setText(l1 + "\n" + l2);
   }
 
