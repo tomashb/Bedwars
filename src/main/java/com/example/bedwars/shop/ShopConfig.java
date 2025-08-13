@@ -62,20 +62,33 @@ public final class ShopConfig {
         for (Map<?,?> map : itemsSec.getMapList(catKey)) {
           String id = String.valueOf(map.get("id"));
           String matStr = String.valueOf(map.get("mat"));
-          boolean team = "WOOL_TEAM".equalsIgnoreCase(matStr);
-          Material mat = team ? Material.WHITE_WOOL : Material.matchMaterial(matStr);
-          int amount = map.containsKey("amount") ? ((Number)map.get("amount")).intValue() : 1;
+
+          ShopItem.Builder b = ShopItem.builder()
+              .id(id)
+              .amount(map.containsKey("amount") ? ((Number) map.get("amount")).intValue() : 1)
+              .name(map.containsKey("name") ? String.valueOf(map.get("name")) : "");
+
+          if ("WOOL_TEAM".equalsIgnoreCase(matStr)) {
+            b.mat(Material.WHITE_WOOL).teamColored(true);
+          } else {
+            Material mat = Material.matchMaterial(matStr);
+            if (mat != null) b.mat(mat);
+          }
+
           Map<Material,Integer> price = parseCost(castMap(map.get("price")));
-          Map<Enchantment,Integer> ench = new HashMap<>();
+          for (var e : price.entrySet()) {
+            b.price(e.getKey(), e.getValue());
+          }
+
           Object enSec = map.get("enchants");
           if (enSec instanceof Map<?,?> m2) {
             for (var e : m2.entrySet()) {
               Enchantment en = Enchantment.getByName(String.valueOf(e.getKey()));
-              if (en != null) ench.put(en, ((Number)e.getValue()).intValue());
+              if (en != null) b.enchant(en, ((Number) e.getValue()).intValue());
             }
           }
-          String name = String.valueOf(map.get("name"));
-          list.add(new ShopItem(id, mat, amount, price, ench, name, team));
+
+          list.add(b.build());
         }
         items.put(cat, list);
       }
