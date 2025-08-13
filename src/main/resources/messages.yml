@@ -49,6 +49,8 @@ admin:
     diagnostics-lore: "&7État, compteurs, cleanup"
     info: "&fRetour / Infos"
     info-lore: "&7Aide & raccourcis commandes"
+  arena_unknown: "&cArène inconnue: &f{arena}"
+  no_perm: "&cTu n'as pas la permission."
 
   placeholders:
     wip: "&7Cette vue sera complétée à l'étape suivante."
@@ -162,3 +164,17 @@ reset:
 forcestart:
   countdown: "&eLa partie démarre dans &6{sec}s"
   started: "&aLa partie commence !"
+
+debug:
+  header: "&6[DEBUG] &e{arena} &7(STATE={state})"
+  players: "&7 - Players: &f{total} &7total (&a{alive}&7 alive, &8{spect}&7 spect)"
+  team_line: "&7    {color} &7bed:{bed} &7alive:&f{alive}"
+  gens_base: "&7 - Gens Base: &fIron cap={ironCap} @{ironRate}s  &fGold cap={goldCap} @{goldRate}s"
+  diamond: "&7 - Diamond &7Tier=&f{tier} &7nextDrop=&f{drop}s &7nextTier=&f{tierUp}s"
+  emerald: "&7 - Emerald &7Tier=&f{tier} &7nextDrop=&f{drop}s &7nextTier=&f{tierUp}s"
+  events: "&7 - Events: &fBedDestruction in {bedTime} &7| &fGameTime {gameTime}"
+  tasks: "&7 - Tasks: &fscoreboard={sb} actionbar={ab} gens={gens} others={others}"
+
+maintenance:
+  start: "&7[MAINT] cleanup &e{arena}&7..."
+  done: "&a[CLEANUP] &f{arena}&a: removed=&f{count} &7{breakdown}"

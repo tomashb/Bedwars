@@ -39,6 +39,7 @@ import com.example.bedwars.game.GameService;
 import com.example.bedwars.game.DeathRespawnService;
 import com.example.bedwars.gen.GeneratorManager;
 import com.example.bedwars.services.BuildRulesService;
+import com.example.bedwars.services.TasksService;
 import com.example.bedwars.game.RotationManager;
 import com.example.bedwars.game.ResetManager;
 
@@ -67,6 +68,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private com.example.bedwars.hud.ActionBarBus actionBarBus;
   private RotationManager rotationManager;
   private ResetManager resetManager;
+  private TasksService tasksService;
 
   @Override
   public void onEnable() {
@@ -96,6 +98,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.buildRules = new BuildRulesService(this);
     this.generatorManager = new GeneratorManager(this);
     this.generatorManager.start();
+    this.tasksService = new TasksService(this);
 
     this.actionBarBus = new com.example.bedwars.hud.ActionBarBus();
     if (getConfig().getBoolean("actionbar.enabled", true)) {
@@ -174,4 +177,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public com.example.bedwars.hud.ActionBarBus actionBar() { return actionBarBus; }
   public RotationManager rotation() { return rotationManager; }
   public ResetManager reset() { return resetManager; }
+  public TasksService tasks() { return tasksService; }
 }

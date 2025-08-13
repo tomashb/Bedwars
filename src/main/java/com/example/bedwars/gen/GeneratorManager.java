@@ -91,6 +91,42 @@ public final class GeneratorManager {
         .min().orElse(0);
   }
 
+  /** Summary of base (team) generators configuration for debug command. */
+  public Map<String, Object> baseSummary(String arenaId) {
+    return Map.of(
+        "ironCap", balance.teamIronCap(),
+        "ironRate", balance.teamIronInterval() / 20.0,
+        "goldCap", balance.teamGoldCap(),
+        "goldRate", balance.teamGoldInterval() / 20.0);
+  }
+
+  private int nextTierSeconds(String type, int currentTier, int gameSec) {
+    List<Integer> times = plugin.getConfig().getIntegerList("global_tiers." + type + ".announce_times_sec");
+    if (currentTier >= 3 || times.size() < currentTier) return -1;
+    int target = times.get(currentTier - 1);
+    return Math.max(0, target - gameSec);
+  }
+
+  public Map<String, Object> diamondSummary(String arenaId) {
+    int tier = diamondTier(arenaId);
+    int drop = nextDiamondDropSeconds(arenaId);
+    int nextTier = nextTierSeconds("diamond", tier, plugin.game().gameTimeSeconds(arenaId));
+    return Map.of("tier", tier, "drop", drop, "tierUp", nextTier);
+  }
+
+  public Map<String, Object> emeraldSummary(String arenaId) {
+    int tier = emeraldTier(arenaId);
+    int drop = nextEmeraldDropSeconds(arenaId);
+    int nextTier = nextTierSeconds("emerald", tier, plugin.game().gameTimeSeconds(arenaId));
+    return Map.of("tier", tier, "drop", drop, "tierUp", nextTier);
+  }
+
+  /** Number of runtime generators currently active for an arena. */
+  public int runtimeCount(String arenaId) {
+    Map<UUID, RuntimeGen> m = runtime.get(arenaId);
+    return m == null ? 0 : m.size();
+  }
+
   // Called at STARTING->RUNNING and on arena reload
   public void refreshArena(String arenaId) {
     plugin.arenas().get(arenaId).ifPresent(arena -> {

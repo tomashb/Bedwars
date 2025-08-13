@@ -29,6 +29,7 @@ public final class GameService {
   private DeathRespawnService deathService;
   private final Map<String, Integer> countdownTasks = new HashMap<>();
   private final Map<String, Integer> timerTasks = new HashMap<>();
+  private final Map<String, Integer> gameTime = new HashMap<>();
 
   public GameService(BedwarsPlugin plugin, PlayerContextService ctx, TeamAssignment ta,
                      KitService kit, SpectatorService spec, GameMessages msgs,
@@ -59,6 +60,27 @@ public final class GameService {
 
   public int nextDropSeconds(String arenaId, java.util.UUID genId) {
     return plugin.generators().cooldownSeconds(arenaId, genId);
+  }
+
+  /** Returns elapsed game time in seconds for an arena. */
+  public int gameTimeSeconds(String arenaId) {
+    return gameTime.getOrDefault(arenaId, 0);
+  }
+
+  /** Summary of timeline for debug command. */
+  public Map<String, Object> timelineSummary(String arenaId) {
+    int elapsed = gameTimeSeconds(arenaId);
+    int bedTime = plugin.getConfig().getInt("game.bed-destruction-seconds", 0);
+    String bedStr = bedTime > 0 ? formatTime(Math.max(0, bedTime - elapsed)) : "N/A";
+    return Map.of(
+        "bedTime", bedStr,
+        "gameTime", formatTime(elapsed));
+  }
+
+  private static String formatTime(int sec) {
+    int m = sec / 60;
+    int s = sec % 60;
+    return String.format("%02d:%02d", m, s);
   }
 
   public void join(Player p, String arenaId) {
@@ -160,6 +182,7 @@ public final class GameService {
       @Override public void run() {
         if (a.state() != GameState.RUNNING) { cancel(); return; }
         sec++;
+        gameTime.put(a.id(), sec);
         plugin.generators().onGlobalTime(a.id(), sec);
       }
     }.runTaskTimer(plugin, 20L, 20L).getTaskId();
@@ -203,6 +226,7 @@ public final class GameService {
     plugin.generators().cleanupArena(a.id());
     Integer timer = timerTasks.remove(a.id());
     if (timer != null) Bukkit.getScheduler().cancelTask(timer);
+    gameTime.remove(a.id());
 
     plugin.messages().broadcast(a, "rotation.picking", Map.of());
     var next = plugin.rotation().pickNext();

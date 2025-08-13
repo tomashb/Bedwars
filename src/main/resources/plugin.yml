@@ -15,6 +15,12 @@ permissions:
   bedwars.admin:
     description: Accès aux commandes admin BedWars
     default: op
+  bedwars.admin.debug:
+    description: Debug d'une arène (status)
+    default: op
+  bedwars.admin.maintenance:
+    description: Maintenance (cleanup entités taguées)
+    default: op
   bedwars.menu.rules:
     description: Ouvrir le menu Règles via la boussole
     default: true
