@@ -1,0 +1,66 @@
+currencies:
+  IRON: IRON_INGOT
+  GOLD: GOLD_INGOT
+  DIAMOND: DIAMOND
+  EMERALD: EMERALD
+
+items:
+  BLOCKS:
+    - id: "wool_16"
+      mat: "WOOL_TEAM"
+      amount: 16
+      price: { GOLD: 4 }
+      name: "&fLaine (&7{team}&f) x16"
+    - id: "glass_4"
+      mat: "WHITE_STAINED_GLASS"
+      amount: 4
+      price: { IRON: 12 }
+      name: "&fVerre renforcé x4"
+
+  MELEE:
+    - id: "stone_sword"
+      mat: "STONE_SWORD"
+      enchants: { DAMAGE_ALL: 1 }
+      price: { IRON: 10 }
+      name: "&fÉpée en pierre"
+
+  ARMOR:
+    - id: "permanent_iron_armor"
+      mat: "IRON_BOOTS"
+      price: { GOLD: 12 }
+      name: "&fArmure permanente : &7maille→fer"
+
+  TOOLS:
+    - id: "shears"
+      mat: "SHEARS"
+      price: { IRON: 20 }
+      name: "&fCisailles"
+
+  UTILITY:
+    - id: "tnt"
+      mat: "TNT"
+      amount: 1
+      price: { GOLD: 8 }
+      name: "&fTNT"
+
+upgrades:
+  SHARPNESS:
+    cost: { DIAMOND: 4 }
+    maxLevel: 1
+    name: "&bAffûtage (Sharpness I)"
+  PROTECTION:
+    costs: [ {DIAMOND:2}, {DIAMOND:4}, {DIAMOND:6}, {DIAMOND:8} ]
+    name: "&bProtection d'équipe {level}"
+  MANIC_MINER:
+    costs: [ {DIAMOND:2}, {DIAMOND:4} ]
+    name: "&bManic Miner {level}"
+  HEAL_POOL:
+    cost: { DIAMOND: 3 }
+    name: "&bHeal Pool"
+  FORGE:
+    costs: [ {DIAMOND:2}, {DIAMOND:4}, {DIAMOND:6}, {DIAMOND:8} ]
+    name: "&bForge {level}"
+  TRAPS:
+    alarm:
+      cost: { DIAMOND: 1 }
+      name: "&dPiège: Alarme"
