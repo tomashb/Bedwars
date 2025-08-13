@@ -64,8 +64,7 @@ public final class ArmorLockListener implements Listener {
     if (ctx.getArena(p) == null) return;
     if (e.getRawSlots().stream().anyMatch(s -> s >= 36 && s <= 39)) {
       e.setCancelled(true);
-      if (e.getWhoClicked() instanceof Player p)
-        plugin.messages().send(p, "errors.cannot_remove_armor");
+      plugin.messages().send(p, "errors.cannot_remove_armor");
     }
   }
 }
