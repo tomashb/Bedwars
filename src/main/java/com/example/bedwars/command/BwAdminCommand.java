@@ -28,8 +28,8 @@ public final class BwAdminCommand implements CommandExecutor {
 
   @Override
   public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-    if (!sender.hasPermission("bedwars.admin")) {
-      sender.sendMessage(plugin.messages().get("errors.no-perm"));
+    if (!sender.hasPermission("bedwars.admin.*")) {
+      sender.sendMessage(plugin.messages().get("errors.no_perm"));
       return true;
     }
     if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
@@ -39,11 +39,19 @@ public final class BwAdminCommand implements CommandExecutor {
     }
 
     if (args[0].equalsIgnoreCase("arena")) {
+      if (!sender.hasPermission("bedwars.admin.arena")) {
+        sender.sendMessage(plugin.messages().get("errors.no_perm"));
+        return true;
+      }
       handleArena(sender, args);
       return true;
     }
 
     if (args[0].equalsIgnoreCase("game")) {
+      if (!sender.hasPermission("bedwars.admin.game")) {
+        sender.sendMessage(plugin.messages().get("errors.no_perm"));
+        return true;
+      }
       handleGame(sender, args);
       return true;
     }
@@ -162,7 +170,7 @@ public final class BwAdminCommand implements CommandExecutor {
 
   private void handleDebug(CommandSender sender, String[] args) {
     if (!sender.hasPermission("bedwars.admin.debug")) {
-      sender.sendMessage(plugin.messages().get("admin.no_perm"));
+      sender.sendMessage(plugin.messages().get("errors.no_perm"));
       return;
     }
     if (args.length < 3 || !args[1].equalsIgnoreCase("status")) {
@@ -174,7 +182,7 @@ public final class BwAdminCommand implements CommandExecutor {
 
   private void handleMaintenance(CommandSender sender, String[] args) {
     if (!sender.hasPermission("bedwars.admin.maintenance")) {
-      sender.sendMessage(plugin.messages().get("admin.no_perm"));
+      sender.sendMessage(plugin.messages().get("errors.no_perm"));
       return;
     }
     if (args.length < 3 || !args[1].equalsIgnoreCase("cleanup")) {
@@ -191,7 +199,7 @@ public final class BwAdminCommand implements CommandExecutor {
   private boolean onDebugStatus(CommandSender s, String id) {
     var opt = plugin.arenas().get(id);
     if (opt.isEmpty()) {
-      msg(s, "admin.arena_unknown", Map.of("arena", id));
+      msg(s, "errors.arena_unknown", Map.of("arena", id));
       return true;
     }
     Arena a = opt.get();
@@ -216,7 +224,7 @@ public final class BwAdminCommand implements CommandExecutor {
   private boolean onMaintenanceCleanup(CommandSender s, String id) {
     var opt = plugin.arenas().get(id);
     if (opt.isEmpty()) {
-      msg(s, "admin.arena_unknown", Map.of("arena", id));
+      msg(s, "errors.arena_unknown", Map.of("arena", id));
       return true;
     }
     msg(s, "maintenance.start", Map.of("arena", id));

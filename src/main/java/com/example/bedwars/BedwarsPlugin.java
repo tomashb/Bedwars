@@ -151,6 +151,13 @@ public final class BedwarsPlugin extends JavaPlugin {
     return messages;
   }
 
+  public String msg(String key){ return messages.msg(key); }
+  public String msg(String key, java.util.Map<String, ?> tokens){ return messages.msg(key, tokens); }
+
+  public void logInfo(String fmt, Object... args){ getLogger().info(String.format(fmt, args)); }
+  public void logWarning(String fmt, Object... args){ getLogger().warning(String.format(fmt, args)); }
+  public void logSevere(String fmt, Object... args){ getLogger().severe(String.format(fmt, args)); }
+
   public ArenaManager arenas() {
     return arenaManager;
   }

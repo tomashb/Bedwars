@@ -68,7 +68,7 @@ public final class TeamSelectMenu implements Listener {
       if (clicked.getType() == tc.wool) {
         int count = ctx.countPlayers(arenaId, tc);
         if (count >= a.maxTeamSize()) {
-          p.sendMessage(plugin.messages().format("team.full", java.util.Map.of("count", count, "max", a.maxTeamSize())));
+          p.sendMessage(plugin.messages().format("errors.team_full", java.util.Map.of("count", count, "max", a.maxTeamSize())));
           return;
         }
         ctx.setTeam(p, tc);

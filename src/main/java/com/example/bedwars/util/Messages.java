@@ -34,6 +34,14 @@ public final class Messages {
     return ChatColor.translateAlternateColorCodes('&', raw);
   }
 
+  public String msg(String key) {
+    return get(key);
+  }
+
+  public String msg(String key, Map<String, ?> tokens) {
+    return format(key, tokens);
+  }
+
   /** Formats a message with the given placeholders and color codes. */
   public String format(String path, Map<String, ?> placeholders) {
     String msg = cfg.getString(path, path);

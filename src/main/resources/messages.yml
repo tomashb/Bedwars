@@ -1,5 +1,35 @@
 prefix: "&6[BedWars]&r "
 
+errors:
+  no_perm: "&cTu n'as pas la permission."
+  arena_unknown: "&cArène inconnue: &f{arena}"
+  team_full: "&cCette équipe est pleine (&f{count}/{max}&c)."
+
+menu:
+  title_admin: "&eMenu Admin"
+  team_mode_title: "&eMode d'équipes"
+  running_locked: "&cAction impossible pendant une partie."
+
+player:
+  joined_arena: "&aTu as rejoint &f{arena}&a."
+  left_arena: "&eTu as quitté &f{arena}&e."
+
+scoreboard:
+  title: "&e&lBEDWARS"
+  bed_ok: "✔"
+  bed_broken: "✖"
+  diamond_line: "&bDiamant: &fTier {tier} &7t-{sec}s"
+  emerald_line: "&aÉmeraude: &fTier {tier} &7t-{sec}s"
+
+actionbar:
+  starting_in: "&eDépart dans &6{sec}s"
+  trap_triggered: "&cPiège déclenché !"
+  bed_broken: "&eLit de &f{team}&e détruit !"
+  tier_up: "&b{res} Tier {tier} atteint"
+
+brand:
+  line: "play: exemple.fr"
+
 help.player:
   - "&eCommandes joueur:"
   - "&7/bw help &f- aide"
@@ -15,7 +45,6 @@ help.admin:
   - "&7/bwadmin arena reload <id> &f- recharge une arene"
   - "&7/bwadmin arena delete <id> &f- supprime une arene"
 
-errors.no-perm: "&cVous n'avez pas la permission."
 generic.reloaded: "&aConfiguration rechargée."
 arena.created: "&aArène %s créée."
 arena.deleted: "&aArène %s supprimée."
@@ -28,7 +57,6 @@ arena.world-required: "&cMonde requis."
 
 admin:
   menu-title: "&8Gestion BedWars"
-  no-perm: "&cVous n'avez pas la permission &7(bedwars.admin)."
 
   root:
     arenas: "&eArènes"
@@ -49,9 +77,6 @@ admin:
     diagnostics-lore: "&7État, compteurs, cleanup"
     info: "&fRetour / Infos"
     info-lore: "&7Aide & raccourcis commandes"
-  arena_unknown: "&cArène inconnue: &f{arena}"
-  no_perm: "&cTu n'as pas la permission."
-
   placeholders:
     wip: "&7Cette vue sera complétée à l'étape suivante."
 
@@ -92,9 +117,7 @@ shop:
   trap-added: "&aPiège ajouté. File: {count}/3"
 
 game:
-  join: "&aVous avez rejoint &e{arena}&a."
   already-in: "&7Vous êtes déjà dans une arène."
-  left: "&eVous avez quitté l'arène."
   starting-in: "&aLa partie démarre dans &e{sec}s&a…"
   started: "&aLa partie commence !"
   not-enough: "&cJoueurs insuffisants (&e{count}/{min}&c)."
@@ -141,18 +164,6 @@ eliminated_title: "&cÉliminé"
 eliminated_sub: "&7Votre lit est détruit"
 build:
   not_allowed: "&cVous ne pouvez pas construire ici."
-sb:
-  title: "&e&lBEDWARS"
-  bed_ok: "✔"
-  bed_broken: "✖"
-  diamond_line: "&bDiamant: &fTier {tier} &7t-{sec}s"
-  emerald_line: "&aÉmeraude: &fTier {tier} &7t-{sec}s"
-ab:
-  starting_in: "&eDépart dans &6{sec}s"
-  trap_triggered: "&cPiège déclenché !"
-  bed_broken: "&eLit de &f{team}&e détruit !"
-  tier_up: "&b{res} Tier {tier} atteint"
-
 rotation:
   picking: "&7Sélection de la prochaine arène..."
   picked: "&aArène suivante: &f{arena}"
