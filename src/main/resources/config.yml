@@ -106,11 +106,17 @@ compass:
 
 build:
   allow_all_shop_blocks: true
-  allowed_materials: [WHITE_WOOL, GLASS, STAINED_GLASS, END_STONE, OAK_PLANKS, HARDENED_CLAY]
   extra_allowed_materials: []
   require_permission: false
   bypass_external_protection: true
   worldguard_bypass: false
+  wool_all_colors_allowed: true
+  no_build:
+    npc_radius: 2.0
+    gen:
+      base_radius: 1.5
+      diamond_radius: 1.5
+      emerald_radius: 1.5
 
 shop:
   armor_persistent: true

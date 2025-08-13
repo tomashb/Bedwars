@@ -5,12 +5,16 @@ import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.game.PlayerContextService;
+import com.example.bedwars.gen.Generator;
+import com.example.bedwars.gen.GeneratorType;
 import com.example.bedwars.services.BuildRulesService;
+import com.example.bedwars.shop.NpcData;
 import java.util.Set;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -51,7 +55,27 @@ public final class BuildRulesListener implements Listener {
     }
     if (plugin.getConfig().getBoolean("build.require_permission", false)
         && !p.hasPermission("bedwars.build.place")) { e.setCancelled(true); return; }
-    if (!buildRules.isAllowed(e.getBlockPlaced().getType())) {
+
+    Material type = e.getBlockPlaced().getType();
+    if (type.name().endsWith("_BED")) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.map_protected");
+      return;
+    }
+
+    Location loc = e.getBlockPlaced().getLocation().add(0.5, 0.0, 0.5);
+    if (nearNPC(a, loc)) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.no_build_npc");
+      return;
+    }
+    if (nearGenerator(a, loc)) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.no_build_generator");
+      return;
+    }
+
+    if (!buildRules.isAllowed(type)) {
       e.setCancelled(true);
       plugin.messages().send(p, "errors.map_protected");
       return;
@@ -122,5 +146,35 @@ public final class BuildRulesListener implements Listener {
       b.removeMetadata("bw_placed", plugin);
       buildRules.removePlaced(arenaId, b.getLocation());
     }
+  }
+
+  private boolean nearNPC(Arena a, Location loc) {
+    double r = plugin.getConfig().getDouble("build.no_build.npc_radius", 2.0);
+    double r2 = r * r;
+    for (NpcData n : a.npcs()) {
+      Location nl = n.location().clone().add(0.5, 0.0, 0.5);
+      if (nl.getWorld() != loc.getWorld()) continue;
+      if (nl.distanceSquared(loc) <= r2) return true;
+    }
+    return false;
+  }
+
+  private boolean nearGenerator(Arena a, Location loc) {
+    double rb = plugin.getConfig().getDouble("build.no_build.gen.base_radius", 1.5);
+    double rd = plugin.getConfig().getDouble("build.no_build.gen.diamond_radius", 1.5);
+    double re = plugin.getConfig().getDouble("build.no_build.gen.emerald_radius", 1.5);
+    for (Generator g : a.generators()) {
+      Location gl = g.location().clone().add(0.5, 0.0, 0.5);
+      if (gl.getWorld() != loc.getWorld()) continue;
+      double r2;
+      GeneratorType type = g.type();
+      switch (type) {
+        case DIAMOND -> r2 = rd * rd;
+        case EMERALD -> r2 = re * re;
+        default -> r2 = rb * rb;
+      }
+      if (gl.distanceSquared(loc) <= r2) return true;
+    }
+    return false;
   }
 }
