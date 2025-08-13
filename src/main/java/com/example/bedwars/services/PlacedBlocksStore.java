@@ -4,6 +4,7 @@ import com.example.bedwars.arena.Arena;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -61,7 +62,7 @@ public final class PlacedBlocksStore {
   public void clearAll(JavaPlugin plugin, Arena a) {
     LongOpenHashSet set = byArena.get(a.id());
     if (set == null || set.isEmpty()) return;
-    World w = a.world();
+    World w = Bukkit.getWorld(a.world().name());
     for (long k : set) {
       int x = (int) (k >> 38);
       int y = (int) ((k >> 26) & 0xFFF);
