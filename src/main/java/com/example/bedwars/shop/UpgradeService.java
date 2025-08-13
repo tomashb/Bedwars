@@ -7,14 +7,13 @@ import com.example.bedwars.service.PlayerContextService;
 import com.example.bedwars.service.PlayerContextService.Context;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import com.example.bedwars.util.Compat;
+import org.bukkit.enchantments.Enchantment;
 
 /**
  * Applies upgrades to players based on team state.
@@ -42,7 +41,7 @@ public final class UpgradeService {
     ItemMeta meta = is.getItemMeta();
     if (meta == null) return;
 
-    meta.addEnchant(Compat.sharpness(), 1, true);
+    meta.addEnchant(Enchantment.SHARPNESS, 1, true);
     is.setItemMeta(meta);
   }
 
@@ -52,13 +51,13 @@ public final class UpgradeService {
       if (armor == null) continue;
       ItemMeta meta = armor.getItemMeta();
       if (meta == null) continue;
-      meta.addEnchant(Compat.protection(), level, true);
+      meta.addEnchant(Enchantment.PROTECTION, level, true);
       armor.setItemMeta(meta);
     }
   }
 
   private void applyManicMiner(Player p, int level) {
-    PotionEffectType type = Compat.haste();
+    PotionEffectType type = PotionEffectType.HASTE;
     if (level <= 0) {
       p.removePotionEffect(type);
       return;
