@@ -70,6 +70,7 @@ debug: false
 game:
   min-players: 2
   countdown: 20
+  bed-destruction-seconds: 1200
   void-kill-y: -5
   keep-inventory: false
   auto-assign-on-join: false

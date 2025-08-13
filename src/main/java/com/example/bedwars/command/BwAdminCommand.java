@@ -5,6 +5,15 @@ import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.WorldRef;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,7 +28,7 @@ public final class BwAdminCommand implements CommandExecutor {
 
   @Override
   public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-    if (!sender.hasPermission("bedwars.admin.*")) {
+    if (!sender.hasPermission("bedwars.admin")) {
       sender.sendMessage(plugin.messages().get("errors.no-perm"));
       return true;
     }
@@ -36,6 +45,16 @@ public final class BwAdminCommand implements CommandExecutor {
 
     if (args[0].equalsIgnoreCase("game")) {
       handleGame(sender, args);
+      return true;
+    }
+
+    if (args[0].equalsIgnoreCase("debug")) {
+      handleDebug(sender, args);
+      return true;
+    }
+
+    if (args[0].equalsIgnoreCase("maintenance")) {
+      handleMaintenance(sender, args);
       return true;
     }
 
@@ -139,5 +158,87 @@ public final class BwAdminCommand implements CommandExecutor {
       }
       default -> sender.sendMessage(prefix + "Usage: /bwadmin arena <create|list|save|reload|delete>");
     }
+  }
+
+  private void handleDebug(CommandSender sender, String[] args) {
+    if (!sender.hasPermission("bedwars.admin.debug")) {
+      sender.sendMessage(plugin.messages().get("admin.no_perm"));
+      return;
+    }
+    if (args.length < 3 || !args[1].equalsIgnoreCase("status")) {
+      sender.sendMessage(plugin.messages().get("prefix") + "Usage: /bwadmin debug status <arena>");
+      return;
+    }
+    onDebugStatus(sender, args[2]);
+  }
+
+  private void handleMaintenance(CommandSender sender, String[] args) {
+    if (!sender.hasPermission("bedwars.admin.maintenance")) {
+      sender.sendMessage(plugin.messages().get("admin.no_perm"));
+      return;
+    }
+    if (args.length < 3 || !args[1].equalsIgnoreCase("cleanup")) {
+      sender.sendMessage(plugin.messages().get("prefix") + "Usage: /bwadmin maintenance cleanup <arena>");
+      return;
+    }
+    onMaintenanceCleanup(sender, args[2]);
+  }
+
+  private void msg(CommandSender s, String key, Map<String, ?> tokens) {
+    s.sendMessage(plugin.messages().format(key, tokens));
+  }
+
+  private boolean onDebugStatus(CommandSender s, String id) {
+    var opt = plugin.arenas().get(id);
+    if (opt.isEmpty()) {
+      msg(s, "admin.arena_unknown", Map.of("arena", id));
+      return true;
+    }
+    Arena a = opt.get();
+    msg(s, "debug.header", Map.of("arena", id, "state", a.state()));
+    int total = plugin.contexts().countPlayers(id);
+    int alive = (int) plugin.contexts().playersInArena(id).stream().filter(plugin.contexts()::isAlive).count();
+    int spect = total - alive;
+    msg(s, "debug.players", Map.of("total", total, "alive", alive, "spect", spect));
+    for (TeamColor c : a.activeTeams()) {
+      String bed = a.team(c).bedBlock() != null ? "✔" : "✖";
+      int aliveTeam = plugin.contexts().aliveCount(id, c);
+      msg(s, "debug.team_line", Map.of("color", c.color + c.display, "bed", bed, "alive", aliveTeam));
+    }
+    msg(s, "debug.gens_base", plugin.generators().baseSummary(id));
+    msg(s, "debug.diamond", plugin.generators().diamondSummary(id));
+    msg(s, "debug.emerald", plugin.generators().emeraldSummary(id));
+    msg(s, "debug.events", plugin.game().timelineSummary(id));
+    msg(s, "debug.tasks", plugin.tasks().summary(id));
+    return true;
+  }
+
+  private boolean onMaintenanceCleanup(CommandSender s, String id) {
+    var opt = plugin.arenas().get(id);
+    if (opt.isEmpty()) {
+      msg(s, "admin.arena_unknown", Map.of("arena", id));
+      return true;
+    }
+    msg(s, "maintenance.start", Map.of("arena", id));
+    Arena a = opt.get();
+    int total = 0;
+    Map<String, Integer> byType = new LinkedHashMap<>();
+    NamespacedKey key = plugin.keys().ARENA_ID();
+    World w = Bukkit.getWorld(a.world().name());
+    if (w != null) {
+      for (Entity e : new ArrayList<>(w.getEntities())) if (!(e instanceof Player)) {
+        String tag = e.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+        if (id.equals(tag)) {
+          e.remove();
+          total++;
+          byType.merge(e.getType().name(), 1, Integer::sum);
+        }
+      }
+    }
+    String breakdown = byType.entrySet().stream()
+        .map(en -> en.getKey() + "=" + en.getValue())
+        .collect(Collectors.joining(", "));
+    msg(s, "maintenance.done", Map.of("arena", id, "count", total, "breakdown", breakdown));
+    return true;
   }
 }

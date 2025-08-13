@@ -118,6 +118,18 @@ public final class GenBalance {
     };
   }
 
+  /** Returns the base interval (in ticks) for team iron generators. */
+  public int teamIronInterval() { return teamIronInterval; }
+
+  /** Returns the base interval (in ticks) for team gold generators. */
+  public int teamGoldInterval() { return teamGoldInterval; }
+
+  /** Returns the cap for team iron generators. */
+  public int teamIronCap() { return teamIronCap; }
+
+  /** Returns the cap for team gold generators. */
+  public int teamGoldCap() { return teamGoldCap; }
+
   public double forgeGoldMul(int level) {
     return forgeGoldMul.getOrDefault(level, 1.0);
   }
