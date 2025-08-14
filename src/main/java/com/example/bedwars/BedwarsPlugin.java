@@ -47,6 +47,10 @@ import com.example.bedwars.services.BuildRulesService;
 import com.example.bedwars.services.TasksService;
 import com.example.bedwars.game.RotationManager;
 import com.example.bedwars.game.ResetManager;
+import com.example.bedwars.border.BorderService;
+import com.example.bedwars.border.BorderMoveListener;
+import com.example.bedwars.border.BorderBuildListener;
+import com.example.bedwars.border.BorderStateListener;
 
 public final class BedwarsPlugin extends JavaPlugin {
 
@@ -76,6 +80,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private RotationManager rotationManager;
   private ResetManager resetManager;
   private TasksService tasksService;
+  private BorderService borderService;
 
   @Override
   public void onEnable() {
@@ -100,9 +105,11 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.lobbyItems = new LobbyItemsService(this);
     this.teamSelectMenu = new TeamSelectMenu(this, contextService);
     this.lightingService = new LightingService(this);
+    this.borderService = new BorderService(this);
     for (Arena a : this.arenaManager.all()) {
       this.lightingService.applyDayClear(a);
       this.lightingService.relightArena(a);
+      this.borderService.apply(a);
     }
     this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages, lobbyItems);
     this.deathService = new DeathRespawnService(this, contextService, kitService, spectatorService, gameMessages, gameService);
@@ -151,6 +158,9 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new ArmorLockListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new GameplayListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new FireballListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new BorderMoveListener(this, contextService, borderService), this);
+    getServer().getPluginManager().registerEvents(new BorderBuildListener(this, contextService, borderService), this);
+    getServer().getPluginManager().registerEvents(new BorderStateListener(borderService), this);
 
     getLogger().info("Bedwars loaded.");
   }
@@ -210,4 +220,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public RotationManager rotation() { return rotationManager; }
   public ResetManager reset() { return resetManager; }
   public TasksService tasks() { return tasksService; }
+  public BorderService border() { return borderService; }
 }
