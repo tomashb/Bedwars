@@ -36,9 +36,10 @@ public final class ItemShopMenu {
   public void open(Player p, String arenaId, TeamColor team, ShopCategory cat) {
     String title = plugin.messages().format("shop.title", Map.of("cat", cat.name()));
     Inventory inv = Bukkit.createInventory(new Holder(arenaId, team, cat), 54, title);
+    com.example.bedwars.gui.GuiFactory.fillBorder(inv, Material.GRAY_STAINED_GLASS_PANE);
 
-    // categories bar
-    int i = 0;
+    // categories bar starts at slot 1 leaving border panes at 0 and 8
+    int i = 1;
     for (ShopCategory c : ShopCategory.values()) {
       ItemStack it = new ItemStack(ICONS.getOrDefault(c, Material.BARRIER));
       ItemMeta im = it.getItemMeta();

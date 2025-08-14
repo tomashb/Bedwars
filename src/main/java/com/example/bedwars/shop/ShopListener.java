@@ -80,9 +80,11 @@ public final class ShopListener implements Listener {
       if (!(e.getWhoClicked() instanceof Player p)) return;
       int slot = e.getRawSlot();
       if (slot < 9) {
+        if (slot == 0 || slot == 8) return; // border panes
         ShopCategory[] cats = ShopCategory.values();
-        if (slot >= cats.length) return;
-        itemMenu.open(p, ih.arenaId, ih.team, cats[slot]);
+        int idx = slot - 1;
+        if (idx < 0 || idx >= cats.length) return;
+        itemMenu.open(p, ih.arenaId, ih.team, cats[idx]);
         return;
       }
       int index = slot - 9;
