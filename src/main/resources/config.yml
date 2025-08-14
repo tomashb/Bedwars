@@ -152,6 +152,23 @@ scoreboard:
 actionbar:
   enabled: true
 
+border:
+  enabled: true
+  center: { x: 0.5, z: 0.5 }
+  radius: 160
+  warning: 6
+  damage:
+    enabled: false
+    amount: 0.2
+    buffer: 2.0
+  clamp_y:
+    enabled: true
+    min: 1
+    max: 128
+  actions:
+    on_cross: "PUSH_BACK"
+    push_back_strength: 0.8
+
 reset:
   lobby_world: "world"
   lobby_spawn: { x: 0, y: 100, z: 0, yaw: 0, pitch: 0 }

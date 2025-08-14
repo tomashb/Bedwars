@@ -158,6 +158,10 @@ gens:
   diamond_t3: "&bDiamant III &7→ Vitesse maximale diamant !"
   emerald_t2: "&aÉmeraude II &7→ Générateurs émeraude accélérés !"
   emerald_t3: "&aÉmeraude III &7→ Vitesse maximale émeraude !"
+
+border:
+  build_block_outside_message: "&cHors limites de l'arène."
+  move_outside_message: "&cRetourne dans la zone de jeu !"
   cap_reached: "&7Cap atteint: &f{type} &7({count}/{cap}). Videz le pad !"
 
 upgrades:

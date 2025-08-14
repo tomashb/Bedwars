@@ -266,6 +266,7 @@ public final class GameService {
         target.setState(GameState.WAITING);
         plugin.lighting().applyDayClear(target);
         plugin.lighting().relightArena(target);
+        plugin.border().apply(target);
         plugin.messages().broadcast(a, "reset.done");
         plugin.npcs().ensureSpawned(target);
       }
