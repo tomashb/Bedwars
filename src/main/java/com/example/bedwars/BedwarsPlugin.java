@@ -31,7 +31,7 @@ import com.example.bedwars.lobby.LobbyListener;
 import com.example.bedwars.gui.TeamSelectMenu;
 import com.example.bedwars.setup.PromptService;
 import com.example.bedwars.shop.ShopConfig;
-import com.example.bedwars.shop.UpgradeService;
+import com.example.bedwars.shop.UpgradesService;
 import com.example.bedwars.shop.ShopListener;
 import com.example.bedwars.game.PlayerContextService;
 import com.example.bedwars.game.TeamAssignment;
@@ -65,7 +65,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private PromptService promptService;
   private ShopConfig shopConfig;
   private PlayerContextService contextService;
-  private UpgradeService upgradeService;
+  private UpgradesService upgradeService;
   private GeneratorManager generatorManager;
   private GeneratorProfileService generatorProfiles;
   private NpcManager npcManager;
@@ -130,7 +130,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages, lobbyItems, snapshotService);
     this.deathService = new DeathRespawnService(this, contextService, kitService, spectatorService, gameMessages, gameService);
     this.gameService.setDeathService(deathService);
-    this.upgradeService = new UpgradeService(this, contextService);
+    this.upgradeService = new UpgradesService(this, contextService);
     this.buildRules = new BuildRulesService(this);
     this.buildRules.rebuildWhitelistFromShop(shopConfig);
     this.generatorProfiles = new GeneratorProfileService(this);
@@ -236,7 +236,7 @@ public final class BedwarsPlugin extends JavaPlugin {
 
   public ShopConfig shopConfig() { return shopConfig; }
   public PlayerContextService contexts() { return contextService; }
-  public UpgradeService upgrades() { return upgradeService; }
+  public UpgradesService upgrades() { return upgradeService; }
   public GeneratorManager generators() { return generatorManager; }
   public GeneratorProfileService profiles() { return generatorProfiles; }
   public NpcManager npcs() { return npcManager; }

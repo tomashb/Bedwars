@@ -71,6 +71,19 @@ help.admin:
   - "&7/bwadmin backup now &f- backup immédiat (WIP)"
 
 generic.reloaded: "&aConfiguration rechargée."
+generic.back: "&cRetour"
+
+upgrades:
+  title: "&bAméliorations & Pièges"
+  cannot_afford: "&cCoût: &f{cost} &b✦ &7(Diamants) &8• &cManquants: &f{missing}"
+  bought: "&aAchat: &f{name}"
+  max: "MAX"
+  cost: "Coût: {cost}"
+  queue: "&7File: &f{count}/3 &8• &7Prochain: &f{next_cost} &b✦"
+
+traps:
+  triggered_mf: "&cPiège &fMining Fatigue&c déclenché par &f{player}&c !"
+  triggered_bs: "&cPiège &fBlind+Slow&c déclenché par &f{player}&c !"
 arena.created: "&aArène %s créée."
 arena.deleted: "&aArène %s supprimée."
 arena.saved: "&aArène %s sauvegardée."
@@ -203,10 +216,6 @@ bounds:
 void:
   title: "&cVous êtes mort !"
   subtitle_respawn: "&7Respawn dans &e{sec}s"
-
-upgrades:
-  need_diamond: "&cIl faut &b{cost}◆ diamants."
-  bought: "&aAmélioration achetée: &f{name}."
 
 respawn:
   countdown_title: "&eRéapparition dans &6{sec}s"

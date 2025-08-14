@@ -18,8 +18,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import com.example.bedwars.shop.UpgradeService.UpgradeDef;
-import com.example.bedwars.shop.UpgradeService.TrapDef;
+import com.example.bedwars.shop.UpgradesService.UpgradeDef;
+import com.example.bedwars.shop.UpgradesService.TrapDef;
 import com.example.bedwars.shop.TeamUpgradesState;
 import com.example.bedwars.shop.UpgradeType;
 import com.example.bedwars.shop.TrapType;
@@ -32,15 +32,13 @@ public final class ShopListener implements Listener {
   private final BedwarsPlugin plugin;
   private final PlayerContextService ctx;
   private final ItemShopMenu itemMenu;
-  private final TeamUpgradesMenu upgradesMenu;
-  private final TrapsCatalogueMenu trapsMenu;
+  private final UpgradesGui upgradesMenu;
 
   public ShopListener(BedwarsPlugin plugin, PlayerContextService ctx) {
     this.plugin = plugin;
     this.ctx = ctx;
     this.itemMenu = new ItemShopMenu(plugin);
-    this.upgradesMenu = new TeamUpgradesMenu(plugin);
-    this.trapsMenu = new TrapsCatalogueMenu(plugin);
+    this.upgradesMenu = new UpgradesGui(plugin);
   }
 
   @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
@@ -154,15 +152,16 @@ public final class ShopListener implements Listener {
       return;
     }
 
-    if (top.getHolder() instanceof TeamUpgradesMenu.Holder uh) {
+    if (top.getHolder() instanceof UpgradesGui.Holder uh) {
       e.setCancelled(true);
       if (!(e.getWhoClicked() instanceof Player p)) return;
       TeamData td = plugin.arenas().get(uh.arenaId).map(a->a.team(uh.team)).orElse(null);
       if (td == null) return;
       TeamUpgradesState st = td.upgrades();
       int slot = e.getRawSlot();
-      if (slot == TeamUpgradesMenu.SLOT_SHARP) {
-        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.SHARPNESS);
+
+      if (slot == UpgradesGui.SLOT_SHARP) {
+        UpgradeDef def = plugin.upgrades().def(UpgradeType.SHARPNESS);
         if (def == null) return;
         if (st.sharpness()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         int d = def.costForLevel(td.maxPlayers(), 1);
@@ -172,47 +171,47 @@ public final class ShopListener implements Listener {
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_PROT) {
-        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.PROTECTION);
+      } else if (slot == UpgradesGui.SLOT_PROT) {
+        UpgradeDef def = plugin.upgrades().def(UpgradeType.PROTECTION);
         if (def == null) return;
         int lvl = st.protection();
         if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         int d = def.costForLevel(td.maxPlayers(), lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
-          st.setProtection(lvl+1);
+          st.setProtection(lvl + 1);
           plugin.upgrades().applyProtection(uh.arenaId, uh.team, st.protection());
           String name = def.name.replace("{level}", String.valueOf(st.protection()));
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_HASTE) {
-        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.MANIC_MINER);
+      } else if (slot == UpgradesGui.SLOT_HASTE) {
+        UpgradeDef def = plugin.upgrades().def(UpgradeType.MANIC_MINER);
         if (def == null) return;
         int lvl = st.manicMiner();
         if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         int d = def.costForLevel(td.maxPlayers(), lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
-          st.setManicMiner(lvl+1);
+          st.setManicMiner(lvl + 1);
           plugin.upgrades().applyManicMiner(uh.arenaId, uh.team, st.manicMiner());
           String name = def.name.replace("{level}", String.valueOf(st.manicMiner()));
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_FORGE) {
-        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.FORGE);
+      } else if (slot == UpgradesGui.SLOT_FORGE) {
+        UpgradeDef def = plugin.upgrades().def(UpgradeType.FORGE);
         if (def == null) return;
         int lvl = st.forge();
         if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         int d = def.costForLevel(td.maxPlayers(), lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
-          st.setForge(lvl+1);
+          st.setForge(lvl + 1);
           plugin.upgrades().applyForge(uh.arenaId, uh.team, st.forge());
           String name = def.name.replace("{level}", String.valueOf(st.forge()));
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_HEAL) {
-        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.HEAL_POOL);
+      } else if (slot == UpgradesGui.SLOT_HEAL) {
+        UpgradeDef def = plugin.upgrades().def(UpgradeType.HEAL_POOL);
         if (def == null) return;
         if (st.healPool()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
         int d = def.costForLevel(td.maxPlayers(), 1);
@@ -222,59 +221,40 @@ public final class ShopListener implements Listener {
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_BOOTS) {
-        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.CUSHIONED_BOOTS);
-        if (def == null) return;
-        int lvl = st.cushionedBoots();
-        if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costForLevel(td.maxPlayers(), lvl + 1);
-        if (plugin.upgrades().tryBuyDiamonds(p, d)) {
-          st.setCushionedBoots(lvl + 1);
-          plugin.upgrades().applyCushionedBoots(uh.arenaId, uh.team, st.cushionedBoots());
-          String name = def.name.replace("{level}", String.valueOf(st.cushionedBoots()));
-          p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
-          upgradesMenu.open(p, uh.arenaId, uh.team);
+      } else if (slot == UpgradesGui.SLOT_TRAP_MF) {
+        TrapDef def = plugin.upgrades().trapDef(TrapType.MINING_FATIGUE);
+        if (def != null && st.trapQueue().size() < 3) {
+          int cost = plugin.upgrades().trapCost(st.trapQueue().size());
+          if (plugin.upgrades().tryBuyDiamonds(p, cost)) {
+            st.trapQueue().add(TrapType.MINING_FATIGUE);
+            p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
+            upgradesMenu.open(p, uh.arenaId, uh.team);
+          }
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_TRAP_SHORTCUT || slot == TeamUpgradesMenu.SLOT_TRAP_OPEN) {
-        trapsMenu.open(p, uh.arenaId, uh.team);
-      } else if (slot == TeamUpgradesMenu.SLOT_TRAP1 || slot == TeamUpgradesMenu.SLOT_TRAP2 || slot == TeamUpgradesMenu.SLOT_TRAP3) {
+      } else if (slot == UpgradesGui.SLOT_TRAP_BS) {
+        TrapDef def = plugin.upgrades().trapDef(TrapType.BLIND_SLOW);
+        if (def != null && st.trapQueue().size() < 3) {
+          int cost = plugin.upgrades().trapCost(st.trapQueue().size());
+          if (plugin.upgrades().tryBuyDiamonds(p, cost)) {
+            st.trapQueue().add(TrapType.BLIND_SLOW);
+            p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
+            upgradesMenu.open(p, uh.arenaId, uh.team);
+          }
+        }
+      } else if (slot == UpgradesGui.SLOT_TRAP1 || slot == UpgradesGui.SLOT_TRAP2 || slot == UpgradesGui.SLOT_TRAP3) {
         if (e.isRightClick()) {
-          int idx = (slot == TeamUpgradesMenu.SLOT_TRAP1) ? 0 : (slot == TeamUpgradesMenu.SLOT_TRAP2 ? 1 : 2);
+          int idx = (slot == UpgradesGui.SLOT_TRAP1) ? 0 : (slot == UpgradesGui.SLOT_TRAP2 ? 1 : 2);
           if (st.trapQueue().size() > idx) {
             java.util.Iterator<TrapType> it = st.trapQueue().iterator();
-            for (int i=0;i<=idx && it.hasNext();i++) {
+            for (int i = 0; i <= idx && it.hasNext(); i++) {
               TrapType t = it.next();
-              if (i==idx) { it.remove(); break; }
+              if (i == idx) { it.remove(); break; }
             }
             upgradesMenu.open(p, uh.arenaId, uh.team);
           }
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_CLOSE) {
+      } else if (slot == UpgradesGui.SLOT_BACK) {
         p.closeInventory();
-      }
-    } else if (top.getHolder() instanceof TrapsCatalogueMenu.Holder th) {
-      e.setCancelled(true);
-      if (!(e.getWhoClicked() instanceof Player p)) return;
-      TeamData td = plugin.arenas().get(th.arenaId).map(a->a.team(th.team)).orElse(null);
-      if (td == null) return;
-      TeamUpgradesState st = td.upgrades();
-      int slot = e.getRawSlot();
-      TrapType[] types = TrapType.values();
-      int idx = (slot - 10) / 2;
-      if (idx >=0 && idx < types.length) {
-        TrapType t = types[idx];
-        UpgradeService.TrapDef def = plugin.upgrades().trapDef(t);
-        if (def != null && st.trapQueue().size() < plugin.upgrades().trapSlots()) {
-          int cost = plugin.upgrades().trapCost(st.trapQueue().size());
-          if (plugin.upgrades().tryBuyDiamonds(p, cost)) {
-            st.trapQueue().add(t);
-            p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
-            upgradesMenu.open(p, th.arenaId, th.team);
-          }
-        }
-      }
-      if (slot == TrapsCatalogueMenu.SLOT_CLOSE) {
-        upgradesMenu.open((Player) e.getWhoClicked(), th.arenaId, th.team);
       }
     }
   }

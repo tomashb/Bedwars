@@ -1,0 +1,27 @@
+version: 1
+currency: DIAMOND
+upgrades:
+  SHARP:
+    name: "&bSharpness I"
+    max: 1
+    cost: 4
+    affects: [SWORDS, AXES]
+  PROT:
+    name: "&bProtection"
+    levels: [2,4,8,16]
+  HASTE:
+    name: "&bManiac Miner"
+    levels: [2,4]
+  FORGE:
+    name: "&bForge"
+    levels: [2,4,6,8]
+    emerald_on_max: true
+  HEAL_POOL:
+    name: "&bHeal Pool"
+    cost: 1
+traps:
+  queue_costs: [1,2,4]
+  radius: 8
+  entries:
+    MF: { icon: IRON_PICKAXE,  name: "&fMining Fatigue",  effect: MINING_FATIGUE, level: 2, duration: 200 }
+    BS: { icon: FERMENTED_SPIDER_EYE, name: "&fBlindness & Slowness", effect: BLIND_SLOW, duration: 100 }
