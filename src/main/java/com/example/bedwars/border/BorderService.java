@@ -23,7 +23,7 @@ public final class BorderService {
   /** Border settings for an arena. */
   public static final class Settings {
     boolean enabled = true;
-    double radius = 160;
+    double radius = 120;
     Double centerX; // null means auto
     Double centerZ;
     int warning = 6;

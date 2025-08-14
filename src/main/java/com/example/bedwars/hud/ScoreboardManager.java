@@ -93,11 +93,18 @@ public final class ScoreboardManager {
     }
     set(sb, i++, "  ");
     int dTier = plugin.generators().diamondTier(a.id());
-    int dSec = plugin.generators().nextDiamondDropSeconds(a.id());
     int eTier = plugin.generators().emeraldTier(a.id());
-    int eSec = plugin.generators().nextEmeraldDropSeconds(a.id());
-    set(sb, i++, color(msg("scoreboard.diamond_line").replace("{tier}", roman(dTier)).replace("{sec}", String.valueOf(dSec))));
-    set(sb, i++, color(msg("scoreboard.emerald_line").replace("{tier}", roman(eTier)).replace("{sec}", String.valueOf(eSec))));
+    boolean showDrop = plugin.getConfig().getBoolean("scoreboard.show_next_drop", false);
+    boolean tiersOnly = plugin.getConfig().getBoolean("scoreboard.show_tiers_only", false);
+    if (showDrop && !tiersOnly) {
+      int dSec = plugin.generators().nextDiamondDropSeconds(a.id());
+      int eSec = plugin.generators().nextEmeraldDropSeconds(a.id());
+      set(sb, i++, color(msg("scoreboard.diamond_drop_line").replace("{tier}", roman(dTier)).replace("{sec}", String.valueOf(dSec))));
+      set(sb, i++, color(msg("scoreboard.emerald_drop_line").replace("{tier}", roman(eTier)).replace("{sec}", String.valueOf(eSec))));
+    } else {
+      set(sb, i++, color(msg("scoreboard.diamond_line").replace("{tier}", roman(dTier))));
+      set(sb, i++, color(msg("scoreboard.emerald_line").replace("{tier}", roman(eTier))));
+    }
     set(sb, i++, "   ");
     set(sb, i++, color("&7" + plugin.messages().get("brand.line")));
     while (i < KEYS.length) set(sb, i++, "");

@@ -29,6 +29,7 @@ public final class GameService {
   private final GameMessages messages;
   private final com.example.bedwars.lobby.LobbyItemsService lobbyItems;
   private DeathRespawnService deathService;
+  private final CountdownAnnouncer countdownAnnouncer;
   private final Map<String, Integer> countdownTasks = new HashMap<>();
   private final Map<String, Integer> timerTasks = new HashMap<>();
   private final Map<String, Integer> gameTime = new HashMap<>();
@@ -43,6 +44,7 @@ public final class GameService {
     this.spectator = spec;
     this.messages = msgs;
     this.lobbyItems = lobbyItems;
+    this.countdownAnnouncer = new CountdownAnnouncer(plugin);
   }
 
   public void setDeathService(DeathRespawnService drs) { this.deathService = drs; }
@@ -151,11 +153,7 @@ public final class GameService {
       @Override public void run() {
         if (a.state() != GameState.STARTING) { cancel(); return; }
         if (sec <= 0) { cancel(); beginRunning(a); return; }
-        messages.broadcast(a, "game.starting-in", Map.of("sec", sec));
-        String ab = plugin.messages().format("actionbar.starting_in", Map.of("sec", sec));
-        for (Player p : contexts.playersInArena(a.id())) {
-          plugin.actionBar().push(p, ab, 1);
-        }
+        countdownAnnouncer.tick(a, sec);
         sec--;
       }
     }.runTaskTimer(plugin, 0L, 20L).getTaskId();

@@ -3,7 +3,7 @@ prefix: "&6[BedWars]&r "
 errors:
   no_perm: "&cTu n'as pas la permission."
   arena_unknown: "&cArène inconnue: &f{arena}"
-  team_full: "&cCette équipe est pleine (&f{count}/{max}&c)."
+  team_full: "&cCette équipe est pleine."
   not_running: "&cAction impossible hors partie."
   not_allowed_block: "&cBloc non autorisé."
   map_protected: "&cCarte protégée."
@@ -14,24 +14,33 @@ errors:
   cannot_remove_armor: "&cTu ne peux pas enlever ton armure."
   cannot_drop_sword: "&cTu ne peux pas jeter ton épée."
 
+countdown:
+  chat: "&eLa partie démarre dans &6{sec}s"
+
 menu:
   title_admin: "&eMenu Admin"
   team_mode_title: "&eMode d'équipes"
   running_locked: "&cAction impossible pendant une partie."
+  team_selector_title: "&bChoisis ton équipe"
+  team_disabled: "&8[hors service]"
+  team_joined: "&aTu as rejoint &f{team}"
 
 player:
   joined_arena: "&aTu as rejoint &f{arena}&a."
-  left_arena: "&eTu as quitté &f{arena}&e."
+  left_arena: "&eTu as quitté l’arène."
 
 scoreboard:
   title: "&e&lBEDWARS"
   bed_ok: "✔"
   bed_broken: "✖"
-  diamond_line: "&bDiamant: &fTier {tier} &7t-{sec}s"
-  emerald_line: "&aÉmeraude: &fTier {tier} &7t-{sec}s"
+  diamond_line: "&bDiamant: &fTier {tier}"
+  emerald_line: "&aÉmeraude: &fTier {tier}"
+  diamond_drop_line: "&bDiamant: &fTier {tier} &7t-{sec}s"
+  emerald_drop_line: "&aÉmeraude: &fTier {tier} &7t-{sec}s"
 
 actionbar:
   starting_in: "&eDépart dans &6{sec}s"
+  countdown: "&7Départ dans &f{sec}s"
   trap_triggered: "&cPiège déclenché !"
   bed_broken: "&eLit de &f{team}&e détruit !"
   tier_up: "&b{res} Tier {tier} atteint"
