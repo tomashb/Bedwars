@@ -89,6 +89,14 @@ public final class ShopListener implements Listener {
       }
       int index = slot - 9;
       java.util.List<ShopItem> list = plugin.shopConfig().items(ih.cat);
+      if (ih.cat == ShopCategory.TOOLS) {
+        if (index == 0) {
+          plugin.tools().buyNextPick(p);
+          itemMenu.open(p, ih.arenaId, ih.team, ih.cat);
+          return;
+        }
+        index--;
+      }
       if (index < 0 || index >= list.size()) return;
       ShopItem si = list.get(index);
       if (PurchaseService.tryBuy(p, si.currency, si.cost)) {

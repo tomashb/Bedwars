@@ -51,6 +51,9 @@ public final class ItemShopMenu {
     }
 
     int slot = 9;
+    if (cat == ShopCategory.TOOLS) {
+      inv.setItem(slot++, plugin.tools().createPickaxeIcon(p));
+    }
     for (ShopItem si : plugin.shopConfig().items(cat)) {
       Material mat = si.teamColored ? team.wool : si.mat;
       ItemStack it = new ItemStack(mat, si.amount);

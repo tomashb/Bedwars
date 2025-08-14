@@ -97,30 +97,6 @@ TOOLS:
     meta: { unbreakable: true }
     grant_permanent_tool: SHEARS
 
-  - id: PICK_T1
-    icon: WOODEN_PICKAXE
-    name: "&fPioche en bois"
-    price: { IRON: 10 }
-    grant_pick_tier: 1
-  - id: PICK_T2
-    icon: STONE_PICKAXE
-    name: "&7Pioche en pierre"
-    price: { IRON: 20 }
-    requires_prev: PICK_T1
-    grant_pick_tier: 2
-  - id: PICK_T3
-    icon: IRON_PICKAXE
-    name: "&fPioche en fer"
-    price: { GOLD: 6 }
-    requires_prev: PICK_T2
-    grant_pick_tier: 3
-  - id: PICK_T4
-    icon: DIAMOND_PICKAXE
-    name: "&bPioche en diamant"
-    price: { GOLD: 12 }
-    requires_prev: PICK_T3
-    grant_pick_tier: 4
-
   - id: AXE_T1
     icon: WOODEN_AXE
     name: "&fHache en bois"
