@@ -1,4 +1,26 @@
 generators:
+  profile: auto
+  profiles:
+    solo_doubles:
+      base:
+        iron:  { interval_ticks: 20,  cap: 48 }
+        gold:  { interval_ticks: 100, cap: 16 }
+      forge_multipliers:
+        0: { iron: 1.0,  gold: 1.0 }
+        1: { iron: 1.25, gold: 1.10 }
+        2: { iron: 1.50, gold: 1.25 }
+        3: { iron: 1.75, gold: 1.40 }
+        4: { iron: 2.00, gold: 1.60 }
+    trios_quads:
+      base:
+        iron:  { interval_ticks: 16,  cap: 64 }
+        gold:  { interval_ticks: 80,  cap: 24 }
+      forge_multipliers:
+        0: { iron: 1.0,  gold: 1.0 }
+        1: { iron: 1.25, gold: 1.10 }
+        2: { iron: 1.50, gold: 1.25 }
+        3: { iron: 1.75, gold: 1.40 }
+        4: { iron: 2.00, gold: 1.60 }
   team:
     iron:
       interval_ticks: 8

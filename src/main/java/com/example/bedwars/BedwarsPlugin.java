@@ -42,6 +42,7 @@ import com.example.bedwars.game.GameService;
 import com.example.bedwars.game.DeathRespawnService;
 import com.example.bedwars.game.LightingService;
 import com.example.bedwars.gen.GeneratorManager;
+import com.example.bedwars.gen.GeneratorProfileService;
 import com.example.bedwars.shop.NpcManager;
 import com.example.bedwars.services.BuildRulesService;
 import com.example.bedwars.services.TasksService;
@@ -64,6 +65,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private PlayerContextService contextService;
   private UpgradeService upgradeService;
   private GeneratorManager generatorManager;
+  private GeneratorProfileService generatorProfiles;
   private NpcManager npcManager;
   private TeamAssignment teamAssignment;
   private KitService kitService;
@@ -118,6 +120,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.upgradeService = new UpgradeService(this, contextService);
     this.buildRules = new BuildRulesService(this);
     this.buildRules.rebuildWhitelistFromShop(shopConfig);
+    this.generatorProfiles = new GeneratorProfileService(this);
     this.generatorManager = new GeneratorManager(this);
     this.generatorManager.start();
     this.npcManager = new NpcManager(this);
@@ -214,6 +217,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   public PlayerContextService contexts() { return contextService; }
   public UpgradeService upgrades() { return upgradeService; }
   public GeneratorManager generators() { return generatorManager; }
+  public GeneratorProfileService profiles() { return generatorProfiles; }
   public NpcManager npcs() { return npcManager; }
   public GameService game() { return gameService; }
   public LightingService lighting() { return lightingService; }

@@ -211,7 +211,7 @@ public final class UpgradeService {
   }
 
   public void applyForge(String arenaId, TeamColor team, int level) {
-    // placeholder - actual generator boosting is implemented elsewhere
+    plugin.generators().recomputeForge(arenaId);
   }
 
   // === Diamond purchase helpers ===

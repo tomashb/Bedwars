@@ -3,6 +3,7 @@ package com.example.bedwars.gen;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.GameState;
+import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.ops.Keys;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -28,6 +29,8 @@ public final class GeneratorManager {
   private final AutoCollectService autoCollect;
   private final GenHologramService holoService;
   private final GenTelemetry telemetry = new GenTelemetry();
+  private final GeneratorProfileService profiles;
+  private final Map<String, GeneratorProfileService.GenProfile> arenaProfiles = new ConcurrentHashMap<>();
 
   private int taskId = -1;
 
@@ -37,6 +40,7 @@ public final class GeneratorManager {
     this.splitService = new GenSplitService(plugin);
     this.autoCollect = new AutoCollectService(plugin);
     this.holoService = new GenHologramService(plugin);
+    this.profiles = plugin.profiles();
   }
 
   public void start() {
@@ -93,11 +97,12 @@ public final class GeneratorManager {
 
   /** Summary of base (team) generators configuration for debug command. */
   public Map<String, Object> baseSummary(String arenaId) {
+    GeneratorProfileService.GenProfile p = arenaProfiles.getOrDefault(arenaId, GeneratorProfileService.GenProfile.SOLO_DOUBLES);
     return Map.of(
-        "ironCap", balance.teamIronCap(),
-        "ironRate", balance.teamIronInterval() / 20.0,
-        "goldCap", balance.teamGoldCap(),
-        "goldRate", balance.teamGoldInterval() / 20.0);
+        "ironCap", profiles.cap(p, GeneratorType.TEAM_IRON),
+        "ironRate", profiles.baseInterval(p, GeneratorType.TEAM_IRON) / 20.0,
+        "goldCap", profiles.cap(p, GeneratorType.TEAM_GOLD),
+        "goldRate", profiles.baseInterval(p, GeneratorType.TEAM_GOLD) / 20.0);
   }
 
   private int nextTierSeconds(String type, int currentTier, int gameSec) {
@@ -136,6 +141,10 @@ public final class GeneratorManager {
       World w = Bukkit.getWorld(arena.world().name());
       if (w == null) return;
 
+      GeneratorProfileService.GenProfile prof = profiles.resolve(arena);
+      profiles.setActive(arenaId, prof);
+      arenaProfiles.put(arenaId, prof);
+
       double yOff = plugin.getConfig().getDouble("generators.spawn_offset_y", 0.5);
       for (var g : arena.generators()) {
         var loc = g.location().clone();
@@ -145,16 +154,46 @@ public final class GeneratorManager {
         RuntimeGen rg = new RuntimeGen(g.id(), g.type(), loc, base);
         rg.tier = g.tier();
         rg.baseInterval = balance.baseInterval(rg);
+        if (g.type().name().startsWith("TEAM")) {
+          rg.baseInterval = profiles.baseInterval(prof, g.type());
+          rg.cap = profiles.cap(prof, g.type());
+        } else {
+          rg.cap = balance.capFor(rg);
+        }
         rg.interval = rg.baseInterval;
         rg.amount = balance.amount(rg);
-        rg.cap = balance.capFor(rg);
         rg.cooldown = rg.interval;
         map.put(g.id(), rg);
       }
       runtime.put(arenaId, map);
       diamondTier.put(arenaId, 1);
       emeraldTier.put(arenaId, 1);
+      recomputeForge(arenaId);
     });
+  }
+
+  // Recompute forge multipliers for team generators in an arena
+  public void recomputeForge(String arenaId) {
+    var optArena = plugin.arenas().get(arenaId);
+    if (optArena.isEmpty()) return;
+    Arena arena = optArena.get();
+    int level = 0;
+    for (TeamColor c : arena.enabledTeams()) {
+      level = Math.max(level, arena.team(c).upgrades().forge());
+    }
+    GeneratorProfileService.GenProfile p = arenaProfiles.getOrDefault(arenaId, profiles.resolve(arena));
+    Map<UUID, RuntimeGen> map = runtime.get(arenaId);
+    if (map == null) return;
+    for (RuntimeGen g : map.values()) {
+      if (g.type == GeneratorType.TEAM_IRON || g.type == GeneratorType.TEAM_GOLD) {
+        int base = profiles.baseInterval(p, g.type);
+        double mul = profiles.forgeMultiplier(p, level, g.type);
+        g.baseInterval = base;
+        g.interval = Math.max(1, (int) Math.round(base / mul));
+        g.cap = profiles.cap(p, g.type);
+        g.cooldown = Math.min(g.cooldown, g.interval);
+      }
+    }
   }
 
   public void cleanupArena(String arenaId) {
@@ -201,8 +240,10 @@ public final class GeneratorManager {
         int count = GenUtils.countTaggedItemsAround(w, plugin.keys(), arena.id(), g.id, g.dropLoc, 2.5);
         boolean capReached = count >= g.cap;
         if (!capReached && g.cooldown <= 0) {
-          g.interval = balance.intervalFor(g, diamondTier.getOrDefault(arena.id(),1),
-              emeraldTier.getOrDefault(arena.id(),1), 0);
+          if (g.type == GeneratorType.DIAMOND || g.type == GeneratorType.EMERALD) {
+            g.interval = balance.intervalFor(g, diamondTier.getOrDefault(arena.id(),1),
+                emeraldTier.getOrDefault(arena.id(),1), 0);
+          }
           g.cooldown = g.interval;
           drop(arena.id(), g);
         }
