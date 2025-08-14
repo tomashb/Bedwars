@@ -47,6 +47,20 @@ public final class BwAdminCommand implements CommandExecutor {
       return true;
     }
 
+    if (args[0].equalsIgnoreCase("lobby")) {
+      if (!sender.hasPermission("bedwars.admin.lobby")) {
+        sender.sendMessage(plugin.messages().get("errors.no_perm"));
+        return true;
+      }
+      if (args.length >= 2 && args[1].equalsIgnoreCase("set") && sender instanceof Player p) {
+        plugin.lobby().location().setFrom(p);
+        sender.sendMessage(plugin.messages().get("lobby.set_ok"));
+      } else {
+        sender.sendMessage(plugin.messages().get("lobby.missing"));
+      }
+      return true;
+    }
+
     if (args[0].equalsIgnoreCase("game")) {
       if (!sender.hasPermission("bedwars.admin.game")) {
         sender.sendMessage(plugin.messages().get("errors.no_perm"));

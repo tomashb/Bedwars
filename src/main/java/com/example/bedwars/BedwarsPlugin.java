@@ -78,6 +78,9 @@ public final class BedwarsPlugin extends JavaPlugin {
   private DeathRespawnService deathService;
   private LobbyItemsService lobbyItems;
   private TeamSelectMenu teamSelectMenu;
+  private com.example.bedwars.lobby.LobbyLocationService lobbyLocation;
+  private com.example.bedwars.game.PreJoinSnapshotService snapshotService;
+  private com.example.bedwars.lobby.LobbyService lobbyService;
   private com.example.bedwars.hud.ScoreboardManager scoreboardManager;
   private com.example.bedwars.hud.ActionBarBus actionBarBus;
   private RotationManager rotationManager;
@@ -109,6 +112,9 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.gameMessages = new GameMessages(this, contextService);
     this.lobbyItems = new LobbyItemsService(this);
     this.teamSelectMenu = new TeamSelectMenu(this, contextService);
+    this.lobbyLocation = new com.example.bedwars.lobby.LobbyLocationService(this);
+    this.snapshotService = new com.example.bedwars.game.PreJoinSnapshotService();
+    this.lobbyService = new com.example.bedwars.lobby.LobbyService(this, contextService, lobbyLocation, snapshotService);
     this.lightingService = new LightingService(this);
     this.borderService = new BorderService(this);
     for (Arena a : this.arenaManager.all()) {
@@ -119,7 +125,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.boundaryPolicy = new com.example.bedwars.game.ArenaBoundaryPolicy(
         getConfig().getInt("bounds.min_y", -64),
         getConfig().getInt("bounds.void_kill_y", -60));
-    this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages, lobbyItems);
+    this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages, lobbyItems, snapshotService);
     this.deathService = new DeathRespawnService(this, contextService, kitService, spectatorService, gameMessages, gameService);
     this.gameService.setDeathService(deathService);
     this.upgradeService = new UpgradeService(this, contextService);
@@ -153,7 +159,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new ShopListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new UpgradeApplyListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new GameStateListener(this), this);
-    getServer().getPluginManager().registerEvents(new JoinLeaveListener(gameService), this);
+    getServer().getPluginManager().registerEvents(new JoinLeaveListener(lobbyService), this);
     getServer().getPluginManager().registerEvents(new BedListener(this, gameService, contextService), this);
     getServer().getPluginManager().registerEvents(new DeathListener(this, deathService, contextService), this);
     getServer().getPluginManager().registerEvents(new VoidFailSafeListener(this, contextService), this);
@@ -163,7 +169,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new EntityExplodeListener(this, buildRules), this);
     getServer().getPluginManager().registerEvents(new TntListener(this, contextService, buildRules), this);
     getServer().getPluginManager().registerEvents(teamSelectMenu, this);
-    getServer().getPluginManager().registerEvents(new LobbyListener(this, lobbyItems, teamSelectMenu, contextService, gameService), this);
+    getServer().getPluginManager().registerEvents(new LobbyListener(this, lobbyItems, teamSelectMenu, contextService, gameService, lobbyService), this);
     getServer().getPluginManager().registerEvents(new CompassListener(this, contextService, teamSelectMenu), this);
     getServer().getPluginManager().registerEvents(new ArmorLockListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new GameplayListener(this, contextService, lobbyItems), this);
@@ -242,4 +248,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public BorderService border() { return borderService; }
   public com.example.bedwars.services.ToolsService tools() { return toolsService; }
   public com.example.bedwars.game.ArenaBoundaryPolicy bounds() { return boundaryPolicy; }
+  public com.example.bedwars.lobby.LobbyService lobby() { return lobbyService; }
 }

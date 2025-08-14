@@ -198,15 +198,26 @@ fireball:
   break_only_player_blocks: true
   cooldown_ticks: 20
 
+lobby:
+  world: world
+  x: 0.5
+  y: 80.0
+  z: 0.5
+  yaw: 0.0
+  pitch: 0.0
+
 items:
   team_selector:
     material: NETHER_STAR
     name: "&bSélecteur d’équipe"
     slot: 0
-  leave_arena:
-    material: OAK_DOOR
-    name: "&cQuitter l’arène"
+  leave:
+    material: DARK_OAK_DOOR
+    name: "&cQuitter l'arène"
+    lore:
+      - "&7Clique pour retourner au lobby"
     slot: 8
+    lock: true
 
 scoreboard:
   enabled: true

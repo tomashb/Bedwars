@@ -23,14 +23,17 @@ public final class LobbyListener implements Listener {
   private final TeamSelectMenu teamSelectMenu;
   private final PlayerContextService contexts;
   private final GameService gameService;
+  private final LobbyService lobbyService;
 
   public LobbyListener(BedwarsPlugin plugin, LobbyItemsService items, TeamSelectMenu menu,
-                       PlayerContextService contexts, GameService gameService) {
+                       PlayerContextService contexts, GameService gameService,
+                       LobbyService lobbyService) {
     this.plugin = plugin;
     this.items = items;
     this.teamSelectMenu = menu;
     this.contexts = contexts;
     this.gameService = gameService;
+    this.lobbyService = lobbyService;
   }
 
   @EventHandler(ignoreCancelled = true)
@@ -58,7 +61,7 @@ public final class LobbyListener implements Listener {
     if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
     Player p = e.getPlayer();
     if (contexts.getArena(p) == null) return;
-    gameService.leave(p, true);
+    lobbyService.sendToLobby(p, LobbyService.Reason.ITEM);
     e.setCancelled(true);
   }
 
@@ -70,7 +73,7 @@ public final class LobbyListener implements Listener {
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     if (a == null || (a.state() != GameState.WAITING && a.state() != GameState.STARTING)) return;
     ItemStack it = e.getItemDrop().getItemStack();
-    if (items.isTeamSelector(it) || items.isLeaveItem(it)) e.setCancelled(true);
+    if (items.isTeamSelector(it) || (items.leaveLocked() && items.isLeaveItem(it))) e.setCancelled(true);
   }
 
   @EventHandler(ignoreCancelled = true)
@@ -81,6 +84,6 @@ public final class LobbyListener implements Listener {
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     if (a == null || (a.state() != GameState.WAITING && a.state() != GameState.STARTING)) return;
     ItemStack it = e.getCurrentItem();
-    if (items.isTeamSelector(it) || items.isLeaveItem(it)) e.setCancelled(true);
+    if (items.isTeamSelector(it) || (items.leaveLocked() && items.isLeaveItem(it))) e.setCancelled(true);
   }
 }
