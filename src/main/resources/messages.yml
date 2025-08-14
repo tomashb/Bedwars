@@ -15,6 +15,8 @@ errors:
   cannot_drop_sword: "&cTu ne peux pas jeter ton épée."
   pickaxe:
     seq: "&cTu dois acheter le niveau précédent d'abord."
+  axe:
+    seq: "&cTu dois acheter le niveau précédent d'abord."
 
 countdown:
   chat: "&eLa partie démarre dans &6{sec}s"
@@ -137,7 +139,7 @@ shop:
   need: "&cIl manque &f{amount}&7x {currency}."
   bought: "&aAchat effectué: &f{item}."
   maxed: "&7Déjà au niveau maximal."
-  trap-added: "&aPiège ajouté. File: {count}/3"
+  trap-added: "&aPiège ajouté. File: {count}/{max}"
   tools:
     pickaxe:
       title: "&bPioche"
@@ -146,6 +148,16 @@ shop:
       max: "&aAu niveau maximum"
       permanent: "&7Permanent • Réappliqué au respawn"
       bought: "&aPioche améliorée vers &f{mat}&a (Efficacité {eff})"
+    axe:
+      title: "&bHache"
+      current: "&7Actuel: &f{mat}&7 (Efficacité {eff})"
+      next: "&eProchain: &f{mat}&7 (Efficacité {eff}) &8• &6{price}"
+      max: "&aAu niveau maximum"
+      permanent: "&7Permanent • Réappliqué au respawn"
+      bought: "&aHache améliorée vers &f{mat}&a (Efficacité {eff})"
+
+traps:
+  next_cost: "&7Coût du prochain piège: &f{cost}◆"
 
 game:
   already-in: "&7Vous êtes déjà dans une arène."

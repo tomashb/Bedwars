@@ -154,6 +154,17 @@ tools:
       3: { material: IRON_PICKAXE,    efficiency: 3, price: { GOLD: 6  }, requires: 2 }
       4: { material: DIAMOND_PICKAXE, efficiency: 4, price: { GOLD: 12 }, requires: 3 }
 
+  axe:
+    require_sequential: true
+    downgrade_on_death: false
+    unbreakable: true
+    no_drop: true
+    tiers:
+      1: { material: WOODEN_AXE,  efficiency: 1, price: { IRON: 10 } }
+      2: { material: STONE_AXE,   efficiency: 2, price: { IRON: 20 }, requires: 1 }
+      3: { material: IRON_AXE,    efficiency: 3, price: { GOLD: 6  }, requires: 2 }
+      4: { material: DIAMOND_AXE, efficiency: 4, price: { GOLD: 12 }, requires: 3 }
+
 fireball:
   enabled: true
   type: BIG        # BIG | SMALL

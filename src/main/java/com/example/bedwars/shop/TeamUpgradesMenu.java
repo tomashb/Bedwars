@@ -89,7 +89,12 @@ public final class TeamUpgradesMenu {
     ItemMeta im = it.getItemMeta();
     if (im != null) {
       im.setDisplayName(ChatColor.LIGHT_PURPLE + plugin.messages().get("menu.traps_title"));
-      im.setLore(java.util.List.of(ChatColor.GRAY + plugin.messages().get("shop.trap-added").replace("{count}", String.valueOf(st.trapQueue().size()))));
+      int cost = plugin.upgrades().trapCost(st.trapQueue().size());
+      String line1 = ChatColor.GRAY + plugin.messages().get("shop.trap-added")
+          .replace("{count}", String.valueOf(st.trapQueue().size()))
+          .replace("{max}", String.valueOf(plugin.upgrades().trapSlots()));
+      String line2 = ChatColor.DARK_GRAY + plugin.messages().format("traps.next_cost", java.util.Map.of("cost", cost));
+      im.setLore(java.util.List.of(line1, line2));
       it.setItemMeta(im);
     }
     return it;

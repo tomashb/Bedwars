@@ -40,7 +40,8 @@ public final class TrapsCatalogueMenu {
       ItemMeta im = it.getItemMeta();
       if (im != null) {
         im.setDisplayName(ChatColor.translateAlternateColorCodes('&', def.name));
-        im.setLore(java.util.List.of(ChatColor.GRAY + "Coût : " + def.cost + "◆"));
+        int cost = plugin.upgrades().trapCost(st.trapQueue().size());
+        im.setLore(java.util.List.of(ChatColor.GRAY + "Coût : " + cost + "◆"));
         it.setItemMeta(im);
       }
       inv.setItem(slot, it);

@@ -97,30 +97,6 @@ TOOLS:
     meta: { unbreakable: true }
     grant_permanent_tool: SHEARS
 
-  - id: AXE_T1
-    icon: WOODEN_AXE
-    name: "&fHache en bois"
-    price: { IRON: 10 }
-    grant_axe_tier: 1
-  - id: AXE_T2
-    icon: STONE_AXE
-    name: "&7Hache en pierre"
-    price: { IRON: 20 }
-    requires_prev: AXE_T1
-    grant_axe_tier: 2
-  - id: AXE_T3
-    icon: IRON_AXE
-    name: "&fHache en fer"
-    price: { GOLD: 6 }
-    requires_prev: AXE_T2
-    grant_axe_tier: 3
-  - id: AXE_T4
-    icon: DIAMOND_AXE
-    name: "&bHache en diamant"
-    price: { GOLD: 12 }
-    requires_prev: AXE_T3
-    grant_axe_tier: 4
-
 RANGED:
   - id: BOW
     icon: BOW

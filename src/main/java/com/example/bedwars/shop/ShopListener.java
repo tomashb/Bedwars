@@ -89,15 +89,32 @@ public final class ShopListener implements Listener {
         itemMenu.open(p, ih.arenaId, ih.team, cats[idx]);
         return;
       }
-      int index = slot - 9;
+      int index = -1;
+      int rel = slot - 19;
+      if (rel >= 0) {
+        int r = rel / 9;
+        int c = rel % 9;
+        if (c < 7 && r >=0 && r <4) index = r * 7 + c;
+      }
+      if (index < 0) return;
       java.util.List<ShopItem> list = plugin.shopConfig().items(ih.cat);
       if (ih.cat == ShopCategory.TOOLS) {
         if (index == 0) {
           plugin.tools().buyNextPick(p);
           itemMenu.open(p, ih.arenaId, ih.team, ih.cat);
           return;
+        } else if (index == 1) {
+          plugin.tools().buyNextAxe(p);
+          // apply sharpness if team has upgrade
+          plugin.arenas().get(ih.arenaId).ifPresent(arena -> {
+            if (arena.team(ih.team).upgrades().sharpness()) {
+              plugin.upgrades().applySharpness(ih.arenaId, ih.team);
+            }
+          });
+          itemMenu.open(p, ih.arenaId, ih.team, ih.cat);
+          return;
         }
-        index--;
+        index -= 2;
       }
       if (index < 0 || index >= list.size()) return;
       ShopItem si = list.get(index);
@@ -234,8 +251,9 @@ public final class ShopListener implements Listener {
       if (idx >=0 && idx < types.length) {
         TrapType t = types[idx];
         UpgradeService.TrapDef def = plugin.upgrades().trapDef(t);
-        if (def != null && st.trapQueue().size() < 3) {
-          if (plugin.upgrades().tryBuyDiamonds(p, def.cost)) {
+        if (def != null && st.trapQueue().size() < plugin.upgrades().trapSlots()) {
+          int cost = plugin.upgrades().trapCost(st.trapQueue().size());
+          if (plugin.upgrades().tryBuyDiamonds(p, cost)) {
             st.trapQueue().add(t);
             p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
             upgradesMenu.open(p, th.arenaId, th.team);
