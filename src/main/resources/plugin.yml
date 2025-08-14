@@ -33,3 +33,9 @@ permissions:
   bedwars.build.place:
     description: Poser des blocs whitelistes en arène
     default: true
+  bedwars.menu.shop:
+    description: Ouvrir la boutique d'objets
+    default: true
+  bedwars.menu.upgrades:
+    description: Ouvrir le menu des améliorations
+    default: true

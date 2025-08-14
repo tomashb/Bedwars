@@ -22,7 +22,6 @@ public final class ItemShopMenu {
   private final BedwarsPlugin plugin;
   private static final Map<ShopCategory, Material> ICONS = new EnumMap<>(ShopCategory.class);
   static {
-    ICONS.put(ShopCategory.QUICK_BUY, Material.NETHER_STAR);
     ICONS.put(ShopCategory.BLOCKS, Material.CLAY);
     ICONS.put(ShopCategory.MELEE, Material.IRON_SWORD);
     ICONS.put(ShopCategory.ARMOR, Material.IRON_CHESTPLATE);

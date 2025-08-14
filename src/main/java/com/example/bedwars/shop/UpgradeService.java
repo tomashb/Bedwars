@@ -29,19 +29,22 @@ public final class UpgradeService {
   private final Map<UpgradeType, UpgradeDef> defs = new EnumMap<>(UpgradeType.class);
   private final Map<TrapType, TrapDef> traps = new EnumMap<>(TrapType.class);
   private final Map<String,Integer> healTasks = new HashMap<>();
-
   public static final class UpgradeDef {
-    public final int costDiamond;
-    public final boolean perLevel;
-    public final int max;
     public final String name;
-    public UpgradeDef(int costDiamond, boolean perLevel, int max, String name) {
-      this.costDiamond = costDiamond; this.perLevel = perLevel; this.max = max; this.name = name;
-    }
+    private final int[] costs;
+    public UpgradeDef(String name, int[] costs) { this.name = name; this.costs = costs; }
+    public int maxLevel() { return costs.length; }
+    public int costForLevel(int level) { return (level >=1 && level <= costs.length) ? costs[level-1] : Integer.MAX_VALUE; }
   }
   public static final class TrapDef {
-    public final int costDiamond; public final String name;
-    public TrapDef(int costDiamond, String name){ this.costDiamond = costDiamond; this.name = name; }
+    public final int cost; public final String name;
+    public TrapDef(int cost, String name){ this.cost = cost; this.name = name; }
+  }
+
+  private static int asInt(Object o, int def) {
+    if (o instanceof Number n) return n.intValue();
+    if (o instanceof String s) { try { return Integer.parseInt(s.trim()); } catch (Exception ignore) {} }
+    return def;
   }
 
   public UpgradeService(BedwarsPlugin plugin, PlayerContextService ctx) {
@@ -55,21 +58,43 @@ public final class UpgradeService {
     YamlConfiguration y = YamlConfiguration.loadConfiguration(f);
     ConfigurationSection up = y.getConfigurationSection("upgrades");
     if (up == null) return;
+
+    // parse main upgrades
     for (String k : up.getKeys(false)) {
+      if (k.equalsIgnoreCase("TRAPS")) continue;
       ConfigurationSection sec = up.getConfigurationSection(k);
       if (sec == null) continue;
-      if (k.startsWith("trap_")) {
-        TrapType t;
-        try { t = TrapType.valueOf(k.substring(5).toUpperCase()); } catch (Exception ex) { continue; }
-        traps.put(t, new TrapDef(sec.getInt("cost_diamond"), sec.getString("name", k)));
+      UpgradeType ut;
+      try { ut = UpgradeType.valueOf(k.toUpperCase()); } catch (Exception ex) { continue; }
+      String name = sec.getString("name", k);
+      java.util.List<Map<?,?>> lvlList = sec.getMapList("levels");
+      int[] costs;
+      if (lvlList != null && !lvlList.isEmpty()) {
+        costs = new int[lvlList.size()];
+        for (Map<?,?> mAny : lvlList) {
+          @SuppressWarnings("unchecked") Map<String,Object> m = (Map<String,Object>) mAny;
+          int lvl = asInt(m.get("level"), 1);
+          int cost = asInt(m.get("cost"), 1);
+          if (lvl >= 1 && lvl <= costs.length) costs[lvl-1] = cost;
+        }
       } else {
-        UpgradeType ut;
-        try { ut = UpgradeType.valueOf(k.toUpperCase()); } catch (Exception ex) { continue; }
-        int cost = sec.getInt("cost_diamond");
-        boolean per = sec.getBoolean("per_level", false);
-        int max = sec.getInt("max", 1);
-        String name = sec.getString("name", k);
-        defs.put(ut, new UpgradeDef(cost, per, max, name));
+        costs = new int[] { asInt(sec.get("cost"), 1) };
+      }
+      defs.put(ut, new UpgradeDef(name, costs));
+    }
+
+    // parse traps
+    ConfigurationSection trapsSec = up.getConfigurationSection("TRAPS");
+    if (trapsSec != null) {
+      java.util.List<Map<?,?>> cat = trapsSec.getMapList("catalogue");
+      for (Map<?,?> rawAny : cat) {
+        @SuppressWarnings("unchecked") Map<String,Object> raw = (Map<String,Object>) rawAny;
+        String id = String.valueOf(raw.get("id"));
+        TrapType t;
+        try { t = TrapType.valueOf(id.toUpperCase()); } catch (Exception ex) { continue; }
+        int cost = asInt(raw.get("cost"), 1);
+        String name = String.valueOf(raw.getOrDefault("name", id));
+        traps.put(t, new TrapDef(cost, name));
       }
     }
   }

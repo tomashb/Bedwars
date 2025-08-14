@@ -1,39 +1,47 @@
 version: 1
 layout:
-  tabs: [QUICK, BLOCKS, MELEE, ARMOR, TOOLS, RANGED, UTILITY, POTIONS, SPECIAL]
+  tabs: [BLOCKS, MELEE, ARMOR, TOOLS, RANGED, POTIONS, UTILITY]
 
-currency: # mapping simple
+currency:
   IRON: IRON_INGOT
   GOLD: GOLD_INGOT
   EMERALD: EMERALD
-
-QUICK: [] # laissé vide; rempli par joueur (persist playerdata/<uuid>.json)
 
 BLOCKS:
   - id: WOOL_16
     icon: WHITE_WOOL
     name: "&fLaine x16"
     price: { IRON: 4 }
-    give: { material_by_team_color: "*_WOOL", amount: 16 } # laine auto-colorée
-  - id: END_STONE_12
-    icon: END_STONE
-    name: "&eEndstone x12"
-    price: { IRON: 24 }
-    give: { material: END_STONE, amount: 12 }
+    give: { material_by_team_color: "*_WOOL", amount: 16 }
+  - id: CLAY_16
+    icon: TERRACOTTA
+    name: "&6Clay x16"
+    price: { IRON: 12 }
+    give: { material: TERRACOTTA, amount: 16 }
   - id: GLASS_4
     icon: GLASS
-    name: "&bVerre anti-explosion x4"
+    name: "&bGlass (anti-explosion) x4"
     price: { IRON: 12 }
     meta: { blast_proof: true }
     give: { material: GLASS, amount: 4 }
+  - id: END_STONE_12
+    icon: END_STONE
+    name: "&eEnd Stone x12"
+    price: { IRON: 24 }
+    give: { material: END_STONE, amount: 12 }
+  - id: LADDER_16
+    icon: LADDER
+    name: "&7Ladder x16"
+    price: { IRON: 4 }
+    give: { material: LADDER, amount: 16 }
   - id: WOOD_16
     icon: OAK_PLANKS
-    name: "&6Planches x16"
+    name: "&6Wood x16"
     price: { GOLD: 4 }
     give: { material: OAK_PLANKS, amount: 16 }
   - id: OBSIDIAN_4
     icon: OBSIDIAN
-    name: "&5Obsidienne x4"
+    name: "&5Obsidian x4"
     price: { EMERALD: 4 }
     give: { material: OBSIDIAN, amount: 4 }
 
@@ -43,7 +51,7 @@ MELEE:
     name: "&7Épée en pierre"
     price: { IRON: 10 }
     meta: { unbreakable: true, no_drop: true }
-    replace: { slot: MAIN_HAND, if_type_ends_with: "_SWORD" } # remplace l'épée actuelle
+    replace: { slot: MAIN_HAND, if_type_ends_with: "_SWORD" }
   - id: IRON_SWORD
     icon: IRON_SWORD
     name: "&fÉpée en fer"
@@ -56,18 +64,18 @@ MELEE:
     price: { EMERALD: 4 }
     meta: { unbreakable: true, no_drop: true }
     replace: { slot: MAIN_HAND, if_type_ends_with: "_SWORD" }
-  - id: KNOCKBACK_STICK
+  - id: KB_STICK
     icon: STICK
-    name: "&eBâton KB I"
+    name: "&eStick Knockback I"
     price: { GOLD: 5 }
     meta: { enchant: { KNOCKBACK: 1 }, unbreakable: true }
 
-ARMOR: # armure permanente (leggings + boots upgradés)
+ARMOR:
   - id: CHAINMAIL_SET
     icon: CHAINMAIL_BOOTS
-    name: "&7Armure en cotte (perm)"
+    name: "&7Armure en maille (perm)"
     price: { IRON: 30 }
-    grant_permanent_armor: CHAINMAIL # équipe leggings/boots chainmail
+    grant_permanent_armor: CHAINMAIL
   - id: IRON_SET
     icon: IRON_BOOTS
     name: "&fArmure en fer (perm)"
@@ -76,38 +84,66 @@ ARMOR: # armure permanente (leggings + boots upgradés)
     grant_permanent_armor: IRON
   - id: DIAMOND_SET
     icon: DIAMOND_BOOTS
-    name: "&bArmure en diamant (perm)"
+    name: "&bArmure en diamants (perm)"
     price: { EMERALD: 6 }
     requires_no_better: true
     grant_permanent_armor: DIAMOND
 
-TOOLS: # cisailles permanentes + outils évolutifs
+TOOLS:
   - id: SHEARS
     icon: SHEARS
     name: "&fCisailles (perm)"
     price: { IRON: 20 }
     meta: { unbreakable: true }
     grant_permanent_tool: SHEARS
+
   - id: PICK_T1
     icon: WOODEN_PICKAXE
-    name: "&fPioche I (Efficacité I)"
+    name: "&fPioche en bois"
     price: { IRON: 10 }
     grant_pick_tier: 1
   - id: PICK_T2
-    icon: IRON_PICKAXE
-    name: "&fPioche II (Efficacité II)"
+    icon: STONE_PICKAXE
+    name: "&7Pioche en pierre"
     price: { IRON: 20 }
+    requires_prev: PICK_T1
     grant_pick_tier: 2
   - id: PICK_T3
-    icon: GOLDEN_PICKAXE
-    name: "&fPioche III (Efficacité III)"
+    icon: IRON_PICKAXE
+    name: "&fPioche en fer"
     price: { GOLD: 6 }
+    requires_prev: PICK_T2
     grant_pick_tier: 3
   - id: PICK_T4
     icon: DIAMOND_PICKAXE
-    name: "&bPioche IV (Efficacité IV)"
+    name: "&bPioche en diamant"
     price: { GOLD: 12 }
+    requires_prev: PICK_T3
     grant_pick_tier: 4
+
+  - id: AXE_T1
+    icon: WOODEN_AXE
+    name: "&fHache en bois"
+    price: { IRON: 10 }
+    grant_axe_tier: 1
+  - id: AXE_T2
+    icon: STONE_AXE
+    name: "&7Hache en pierre"
+    price: { IRON: 20 }
+    requires_prev: AXE_T1
+    grant_axe_tier: 2
+  - id: AXE_T3
+    icon: IRON_AXE
+    name: "&fHache en fer"
+    price: { GOLD: 6 }
+    requires_prev: AXE_T2
+    grant_axe_tier: 3
+  - id: AXE_T4
+    icon: DIAMOND_AXE
+    name: "&bHache en diamant"
+    price: { GOLD: 12 }
+    requires_prev: AXE_T3
+    grant_axe_tier: 4
 
 RANGED:
   - id: BOW
@@ -124,14 +160,26 @@ RANGED:
     name: "&bArc P1 / Recul I"
     price: { EMERALD: 6 }
     meta: { enchant: { POWER: 1, PUNCH: 1 } }
-  - id: ARROW_8
-    icon: ARROW
-    name: "&fFlèches x8"
-    price: { GOLD: 2 }
-    give: { material: ARROW, amount: 8 }
+
+POTIONS:
+  - id: SPEED2
+    icon: SUGAR
+    name: "&bSpeed II (45s)"
+    price: { EMERALD: 1 }
+    meta: { potion: { SPEED: { duration: 900, amplifier: 1 } } }
+  - id: JUMP5
+    icon: RABBIT_FOOT
+    name: "&aJump V (45s)"
+    price: { EMERALD: 1 }
+    meta: { potion: { JUMP: { duration: 900, amplifier: 4 } } }
+  - id: INVIS
+    icon: FERMENTED_SPIDER_EYE
+    name: "&7Invisibilité (30s)"
+    price: { EMERALD: 2 }
+    meta: { potion: { INVISIBILITY: { duration: 600, amplifier: 0 } }, hide_particles: true }
 
 UTILITY:
-  - id: GAP
+  - id: GOLDEN_APPLE
     icon: GOLDEN_APPLE
     name: "&6Pomme d'or"
     price: { GOLD: 3 }
@@ -140,63 +188,19 @@ UTILITY:
     icon: TNT
     name: "&cTNT (amorçage auto)"
     price: { GOLD: 4 }
-    meta: { tnt_primed: true } # utilise ton système TNT du shop
+    meta: { tnt_primed: true }
   - id: FIREBALL
     icon: FIRE_CHARGE
     name: "&6Boule de feu"
     price: { IRON: 40 }
     meta: { projectile: FIREBALL }
-  - id: BRIDGE_EGG
-    icon: EGG
-    name: "&aBridge Egg"
-    price: { EMERALD: 1 }
-    meta: { bridge_egg: true }
-  - id: WATER
+  - id: ENDER_PEARL
+    icon: ENDER_PEARL
+    name: "&5Ender Pearl"
+    price: { EMERALD: 4 }
+    give: { material: ENDER_PEARL, amount: 1 }
+  - id: WATER_BUCKET
     icon: WATER_BUCKET
     name: "&bSeau d'eau"
     price: { GOLD: 3 }
-  - id: SPONGE_4
-    icon: SPONGE
-    name: "&eÉponge x4"
-    price: { GOLD: 3 }
-    give: { material: SPONGE, amount: 4 }
-  - id: BEDBUG
-    icon: SILVERFISH_SPAWN_EGG
-    name: "&7Bedbug"
-    price: { IRON: 30 }
-    meta: { spawn: SILVERFISH, lifetime_ticks: 600 }
-  - id: GOLEM
-    icon: IRON_BLOCK
-    name: "&fGolem de fer"
-    price: { IRON: 120 }
-    meta: { spawn: IRON_GOLEM, lifetime_ticks: 1200, team_owner: true }
-  - id: MILK
-    icon: MILK_BUCKET
-    name: "&fMagic Milk"
-    price: { GOLD: 4 }
-    meta: { trap_immune_ticks: 600 }
-
-POTIONS:
-  - id: JUMP
-    icon: RABBIT_FOOT
-    name: "&aSaut V (45s)"
-    price: { EMERALD: 1 }
-    meta: { potion: { JUMP: { duration: 900, amplifier: 4 } } }
-  - id: SPEED
-    icon: SUGAR
-    name: "&bVitesse II (45s)"
-    price: { EMERALD: 1 }
-    meta: { potion: { SPEED: { duration: 900, amplifier: 1 } } }
-  - id: INVIS
-    icon: FERMENTED_SPIDER_EYE
-    name: "&7Invisibilité (30s)"
-    price: { EMERALD: 2 }
-    meta: { potion: { INVISIBILITY: { duration: 600, amplifier: 0 } }, hide_particles: true }
-
-SPECIAL:
-  - id: POPUP_TOWER
-    icon: OAK_DOOR
-    name: "&6Pop-Up Tower"
-    price: { IRON: 24 }
-    meta: { structure: POPUP_TOWER }
-
+    give: { material: WATER_BUCKET, amount: 1 }

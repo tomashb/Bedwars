@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -40,23 +41,35 @@ public final class ShopListener implements Listener {
     this.upgradesMenu = new TeamUpgradesMenu(plugin);
   }
 
-  @EventHandler
+  @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
   public void onNpc(PlayerInteractEntityEvent e) {
-    if (!(e.getRightClicked() instanceof LivingEntity le)) return;
+    if (handleNpcClick(e.getPlayer(), e.getRightClicked())) e.setCancelled(true);
+  }
+
+  @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onNpc(PlayerInteractAtEntityEvent e) {
+    if (handleNpcClick(e.getPlayer(), e.getRightClicked())) e.setCancelled(true);
+  }
+
+  private boolean handleNpcClick(Player p, org.bukkit.entity.Entity clicked) {
+    if (!(clicked instanceof LivingEntity le)) return false;
     String arenaId = le.getPersistentDataContainer().get(plugin.keys().ARENA_ID(), PersistentDataType.STRING);
     String kind = le.getPersistentDataContainer().get(plugin.keys().NPC_KIND(), PersistentDataType.STRING);
-    if (arenaId == null || kind == null) return;
+    if (arenaId == null || kind == null) return false;
 
-    Player p = e.getPlayer();
     String ar = ctx.getArena(p);
     TeamColor tm = ctx.getTeam(p);
-    if (ar == null || tm == null || !ar.equals(arenaId)) { p.sendMessage(plugin.messages().get("shop.no-context")); return; }
+    if (ar == null || tm == null || !ar.equals(arenaId)) { p.sendMessage(plugin.messages().get("shop.no-context")); return true; }
     if (kind.equalsIgnoreCase("item")) {
+      if (!p.hasPermission("bedwars.menu.shop")) return true;
       itemMenu.open(p, arenaId, tm, ShopCategory.BLOCKS);
     } else if (kind.equalsIgnoreCase("upgrade")) {
+      if (!p.hasPermission("bedwars.menu.upgrades")) return true;
       upgradesMenu.open(p, arenaId, tm);
+    } else {
+      return false;
     }
-    e.setCancelled(true);
+    return true;
   }
 
   @EventHandler
@@ -121,8 +134,9 @@ public final class ShopListener implements Listener {
       int slot = e.getRawSlot();
       if (slot == TeamUpgradesMenu.SLOT_SHARP) {
         UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.SHARPNESS);
+        if (def == null) return;
         if (st.sharpness()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costDiamond;
+        int d = def.costForLevel(1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setSharpness(true);
           plugin.upgrades().applySharpness(uh.arenaId, uh.team);
@@ -131,9 +145,10 @@ public final class ShopListener implements Listener {
         }
       } else if (slot == TeamUpgradesMenu.SLOT_PROT) {
         UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.PROTECTION);
+        if (def == null) return;
         int lvl = st.protection();
-        if (lvl >= def.max) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.perLevel ? def.costDiamond * (lvl + 1) : def.costDiamond;
+        if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.costForLevel(lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setProtection(lvl+1);
           plugin.upgrades().applyProtection(uh.arenaId, uh.team, st.protection());
@@ -143,9 +158,10 @@ public final class ShopListener implements Listener {
         }
       } else if (slot == TeamUpgradesMenu.SLOT_HASTE) {
         UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.MANIC_MINER);
+        if (def == null) return;
         int lvl = st.manicMiner();
-        if (lvl >= def.max) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.perLevel ? def.costDiamond * (lvl + 1) : def.costDiamond;
+        if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.costForLevel(lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setManicMiner(lvl+1);
           plugin.upgrades().applyManicMiner(uh.arenaId, uh.team, st.manicMiner());
@@ -155,9 +171,10 @@ public final class ShopListener implements Listener {
         }
       } else if (slot == TeamUpgradesMenu.SLOT_FORGE) {
         UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.FORGE);
+        if (def == null) return;
         int lvl = st.forge();
-        if (lvl >= def.max) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.perLevel ? def.costDiamond * (lvl + 1) : def.costDiamond;
+        if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.costForLevel(lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setForge(lvl+1);
           plugin.upgrades().applyForge(uh.arenaId, uh.team, st.forge());
@@ -167,8 +184,9 @@ public final class ShopListener implements Listener {
         }
       } else if (slot == TeamUpgradesMenu.SLOT_TRAP) {
         UpgradeService.TrapDef def = plugin.upgrades().trapDef(TrapType.ALARM);
+        if (def == null) return;
         if (st.trapQueue().size() >= 3) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costDiamond;
+        int d = def.cost;
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.trapQueue().add(TrapType.ALARM);
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
