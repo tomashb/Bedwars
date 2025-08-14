@@ -25,10 +25,15 @@ import java.util.Map;
  */
 public final class UpgradesGui {
   private final BedwarsPlugin plugin;
-  private static final Enchantment GLOW_ENCH =
-      Enchantment.getByKey(NamespacedKey.minecraft("power")) != null
-          ? Enchantment.getByKey(NamespacedKey.minecraft("power"))
-          : Enchantment.DURABILITY;
+
+  private static Enchantment resolveGlow() {
+    Enchantment e = Enchantment.getByKey(NamespacedKey.minecraft("unbreaking"));
+    if (e == null) e = Enchantment.getByKey(NamespacedKey.minecraft("mending"));
+    if (e == null) e = Enchantment.getByKey(NamespacedKey.minecraft("protection"));
+    return e; // may remain null; callers should check
+  }
+
+  private static final Enchantment GLOW_ENCH = resolveGlow();
 
   // layout slots according to spec
   public static final int SLOT_DIAMOND_COUNTER = 8;
@@ -93,7 +98,7 @@ public final class UpgradesGui {
         String lore = (have >= cost ? ChatColor.GRAY : ChatColor.RED) + plugin.messages().format("upgrades.cost", Map.of("cost", cost));
         im.setLore(java.util.List.of(lore));
       } else {
-        im.addEnchant(GLOW_ENCH, 1, true);
+        if (GLOW_ENCH != null) im.addEnchant(GLOW_ENCH, 1, true);
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         im.setLore(java.util.List.of(ChatColor.GREEN + plugin.messages().get("upgrades.max")));
       }
