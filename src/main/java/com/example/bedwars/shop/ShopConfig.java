@@ -49,41 +49,43 @@ public final class ShopConfig {
     if (!f.exists()) plugin.saveResource("shop.yml", false);
     YamlConfiguration y = YamlConfiguration.loadConfiguration(f);
 
-    ConfigurationSection cats = y.getConfigurationSection("categories");
-    if (cats == null) return;
-
-    for (String cKey : cats.getKeys(false)) {
-      ShopCategory cat;
-      try { cat = ShopCategory.valueOf(cKey.toUpperCase(Locale.ROOT)); }
-      catch (IllegalArgumentException ex) { continue; }
-
+    for (ShopCategory cat : ShopCategory.values()) {
+      java.util.List<Map<?,?>> rawList = y.getMapList(cat.name());
+      if (rawList == null) continue;
       List<ShopItem> list = new ArrayList<>();
-      java.util.List<Map<?,?>> rawList = cats.getMapList(cKey);
       for (Map<?,?> rawAny : rawList) {
         @SuppressWarnings("unchecked")
         Map<String,Object> raw = (Map<String,Object>) rawAny;
 
-        String id      = asString(raw.get("id"), "");
-        String name    = asString(raw.get("name"), id);
-        String matName = asString(raw.get("material"), "STONE");
-        Material mat = Material.matchMaterial(matName);
-        boolean teamCol = asBool(raw.get("team_colored"), false);
-        if ("WOOL_TEAM".equalsIgnoreCase(matName)) {
-          mat = Material.WHITE_WOOL;
-          teamCol = true;
+        String id   = asString(raw.get("id"), "");
+        String name = asString(raw.get("name"), id);
+        String icon = asString(raw.get("icon"), "STONE");
+        Material mat = Material.matchMaterial(icon);
+        boolean teamCol = false;
+        int amount = 1;
+
+        Map<String,Object> give = asMap(raw.get("give"));
+        if (give != null) {
+          amount = asInt(give.get("amount"), 1);
+          String matName = asString(give.get("material"), "");
+          String teamMat = asString(give.get("material_by_team_color"), "");
+          if (!teamMat.isEmpty()) {
+            mat = Material.WHITE_WOOL;
+            teamCol = true;
+          } else if (!matName.isEmpty()) {
+            Material m2 = Material.matchMaterial(matName);
+            if (m2 != null) mat = m2;
+          }
         }
         if (mat == null) mat = Material.STONE;
 
-        int amount = asInt(raw.get("amount"), 1);
-        boolean perm = asBool(raw.get("permanent"), false);
-        String bwItem = asString(raw.get("bw_item"), "");
-
-        Map<String,Object> costMap = asMap(raw.get("cost"));
-        int cost = 0;
+        Map<String,Object> priceMap = asMap(raw.get("price"));
         Currency currency = Currency.IRON;
-        if (costMap != null) {
-          currency = asCurrency(costMap.get("currency"), Currency.IRON);
-          cost = asInt(costMap.get("amount"), 1);
+        int cost = 0;
+        if (priceMap != null && !priceMap.isEmpty()) {
+          var entry = priceMap.entrySet().iterator().next();
+          currency = asCurrency(entry.getKey(), Currency.IRON);
+          cost = asInt(entry.getValue(), 1);
         }
 
         ShopItem.Builder b = ShopItem.builder()
@@ -93,11 +95,10 @@ public final class ShopConfig {
             .currency(currency)
             .cost(cost)
             .teamColored(teamCol)
-            .permanent(perm)
-            .mat(mat)
-            .bwItem(bwItem);
+            .mat(mat);
 
-        Map<String,Object> enchMap = asMap(raw.get("enchants"));
+        Map<String,Object> meta = asMap(raw.get("meta"));
+        Map<String,Object> enchMap = (meta != null) ? asMap(meta.get("enchant")) : null;
         if (enchMap != null) {
           for (var e : enchMap.entrySet()) {
             Enchantment en = Enchantment.getByName(e.getKey());

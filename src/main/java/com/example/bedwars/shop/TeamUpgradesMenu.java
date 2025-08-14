@@ -52,9 +52,9 @@ public final class TeamUpgradesMenu {
     ItemStack it = new ItemStack(mat);
     ItemMeta im = it.getItemMeta();
     if (im != null && def != null) {
-      im.setDisplayName(ChatColor.AQUA + type.name() + " " + level + "/" + def.max);
-      if (level < def.max) {
-        int cost = def.perLevel ? def.costDiamond * (level + 1) : def.costDiamond;
+      im.setDisplayName(ChatColor.AQUA + type.name() + " " + level + "/" + def.maxLevel());
+      if (level < def.maxLevel()) {
+        int cost = def.costForLevel(level + 1);
         int have = plugin.upgrades().countDiamonds(p);
         ChatColor col = have >= cost ? ChatColor.GRAY : ChatColor.RED;
         im.setLore(java.util.List.of(col + "Coût : " + cost + "◆"));
@@ -72,7 +72,7 @@ public final class TeamUpgradesMenu {
     ItemMeta im = it.getItemMeta();
     if (im != null && def != null) {
       im.setDisplayName(ChatColor.LIGHT_PURPLE + "Traps " + st.trapQueue().size() + "/3");
-      int cost = def.costDiamond;
+      int cost = def.cost;
       int have = plugin.upgrades().countDiamonds(p);
       ChatColor col = have >= cost ? ChatColor.GRAY : ChatColor.RED;
       im.setLore(java.util.List.of(col + "Coût : " + cost + "◆"));

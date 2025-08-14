@@ -2,7 +2,7 @@ version: 1
 upgrades:
   SHARP_SWORDS:
     name: "&bSharpened Swords"
-    desc: "&7+Tranchant I sur les épées de ton équipe."
+    desc: "&7Tranchant I sur les épées de l'équipe."
     cost: 4
     max_level: 1
   REINFORCED_ARMOR:
@@ -34,4 +34,3 @@ upgrades:
       - { id: ALARM, name: "&fAlarm", cost: 1 }
       - { id: COUNTER, name: "&fCounter-Offensive", cost: 1 }
       - { id: MINER_FATIGUE, name: "&fMiner Fatigue", cost: 1 }
-
