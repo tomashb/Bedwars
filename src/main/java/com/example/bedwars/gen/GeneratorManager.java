@@ -101,10 +101,12 @@ public final class GeneratorManager {
   }
 
   private int nextTierSeconds(String type, int currentTier, int gameSec) {
-    List<Integer> times = plugin.getConfig().getIntegerList("global_tiers." + type + ".announce_times_sec");
-    if (currentTier >= 3 || times.size() < currentTier) return -1;
-    int target = times.get(currentTier - 1);
-    return Math.max(0, target - gameSec);
+    String base = "generators." + type + ".";
+    int t2 = plugin.getConfig().getInt(base + "tier2_at_seconds", type.equals("diamond") ? 300 : 360);
+    int t3 = plugin.getConfig().getInt(base + "tier3_at_seconds", type.equals("diamond") ? 540 : 600);
+    if (currentTier == 1) return Math.max(0, t2 - gameSec);
+    if (currentTier == 2) return Math.max(0, t3 - gameSec);
+    return -1;
   }
 
   public Map<String, Object> diamondSummary(String arenaId) {
@@ -235,25 +237,26 @@ public final class GeneratorManager {
 
   // Called every second from GameService
   public void onGlobalTime(String arenaId, int sec) {
-    var cfg = plugin.getConfig();
-    var diamondTimes = cfg.getIntegerList("global_tiers.diamond.announce_times_sec");
-    var emeraldTimes = cfg.getIntegerList("global_tiers.emerald.announce_times_sec");
     int dTier = diamondTier.getOrDefault(arenaId,1);
     int eTier = emeraldTier.getOrDefault(arenaId,1);
-    if (dTier == 1 && !diamondTimes.isEmpty() && sec >= diamondTimes.get(0)) {
+    int d2 = plugin.getConfig().getInt("generators.diamond.tier2_at_seconds", 300);
+    int d3 = plugin.getConfig().getInt("generators.diamond.tier3_at_seconds", 540);
+    int e2 = plugin.getConfig().getInt("generators.emerald.tier2_at_seconds", 360);
+    int e3 = plugin.getConfig().getInt("generators.emerald.tier3_at_seconds", 600);
+    if (dTier == 1 && sec >= d2) {
       diamondTier.put(arenaId, 2);
       String msg = plugin.messages().format("gens.diamond_t2", Map.of());
       plugin.contexts().playersInArena(arenaId).forEach(p -> p.sendMessage(msg));
-    } else if (dTier == 2 && diamondTimes.size() > 1 && sec >= diamondTimes.get(1)) {
+    } else if (dTier == 2 && sec >= d3) {
       diamondTier.put(arenaId, 3);
       String msg = plugin.messages().format("gens.diamond_t3", Map.of());
       plugin.contexts().playersInArena(arenaId).forEach(p -> p.sendMessage(msg));
     }
-    if (eTier == 1 && !emeraldTimes.isEmpty() && sec >= emeraldTimes.get(0)) {
+    if (eTier == 1 && sec >= e2) {
       emeraldTier.put(arenaId, 2);
       String msg = plugin.messages().format("gens.emerald_t2", Map.of());
       plugin.contexts().playersInArena(arenaId).forEach(p -> p.sendMessage(msg));
-    } else if (eTier == 2 && emeraldTimes.size() > 1 && sec >= emeraldTimes.get(1)) {
+    } else if (eTier == 2 && sec >= e3) {
       emeraldTier.put(arenaId, 3);
       String msg = plugin.messages().format("gens.emerald_t3", Map.of());
       plugin.contexts().playersInArena(arenaId).forEach(p -> p.sendMessage(msg));

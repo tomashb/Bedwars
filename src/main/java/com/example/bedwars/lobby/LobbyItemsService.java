@@ -11,12 +11,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class LobbyItemsService {
   private final BedwarsPlugin plugin;
   private final ItemStack teamSelector;
+  private final int teamSelectorSlot;
   private final ItemStack leaveItem;
+  private final int leaveItemSlot;
 
   public LobbyItemsService(BedwarsPlugin plugin) {
     this.plugin = plugin;
-    this.teamSelector = createItem("lobby.team_selector");
-    this.leaveItem = createItem("lobby.leave_item");
+    this.teamSelector = createItem("items.team_selector");
+    this.teamSelectorSlot = plugin.getConfig().getInt("items.team_selector.slot", 0);
+    this.leaveItem = createItem("items.leave_arena");
+    this.leaveItemSlot = plugin.getConfig().getInt("items.leave_arena.slot", 8);
   }
 
   private ItemStack createItem(String path) {
@@ -33,8 +37,8 @@ public final class LobbyItemsService {
 
   public void giveLobbyItems(Player p) {
     p.getInventory().clear();
-    p.getInventory().setItem(0, teamSelector.clone());
-    p.getInventory().setItem(8, leaveItem.clone());
+    p.getInventory().setItem(teamSelectorSlot, teamSelector.clone());
+    p.getInventory().setItem(leaveItemSlot, leaveItem.clone());
   }
 
   public boolean isTeamSelector(ItemStack it) {
@@ -44,4 +48,7 @@ public final class LobbyItemsService {
   public boolean isLeaveItem(ItemStack it) {
     return it != null && it.isSimilar(leaveItem);
   }
+
+  public ItemStack teamSelectorItem() { return teamSelector; }
+  public ItemStack leaveItem() { return leaveItem; }
 }

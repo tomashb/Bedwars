@@ -3,7 +3,6 @@ package com.example.bedwars.gui;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.TeamColor;
-import com.example.bedwars.arena.TeamData;
 import com.example.bedwars.game.PlayerContextService;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,16 +29,11 @@ public final class TeamSelectMenu implements Listener {
   /** Opens the team selection menu for a player and arena. */
   public void open(Player p, Arena a) {
     if (a == null) return;
-    Inventory inv = Bukkit.createInventory(null, 9, plugin.messages().get("game.choose-team-title"));
+    Inventory inv = Bukkit.createInventory(null, 9, plugin.messages().get("menu.team_selector_title"));
     int i = 0;
     for (TeamColor tc : a.activeTeams()) {
       int count = ctx.countPlayers(a.id(), tc);
-      ItemStack icon;
-      if (count >= a.maxTeamSize()) {
-        icon = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-      } else {
-        icon = new ItemStack(tc.wool);
-      }
+      ItemStack icon = count >= a.maxTeamSize() ? new ItemStack(Material.GRAY_STAINED_GLASS_PANE) : new ItemStack(tc.wool);
       ItemMeta meta = icon.getItemMeta();
       if (meta != null) {
         meta.setDisplayName(tc.color + tc.display);
@@ -56,7 +50,7 @@ public final class TeamSelectMenu implements Listener {
   @EventHandler(ignoreCancelled = true)
   public void onClick(InventoryClickEvent e) {
     if (!(e.getWhoClicked() instanceof Player p)) return;
-    if (!plugin.messages().get("game.choose-team-title").equals(e.getView().getTitle())) return;
+    if (!plugin.messages().get("menu.team_selector_title").equals(e.getView().getTitle())) return;
     e.setCancelled(true);
     ItemStack clicked = e.getCurrentItem();
     if (clicked == null) return;
@@ -68,12 +62,11 @@ public final class TeamSelectMenu implements Listener {
       if (clicked.getType() == tc.wool) {
         int count = ctx.countPlayers(arenaId, tc);
         if (count >= a.maxTeamSize()) {
-          p.sendMessage(plugin.messages().format("errors.team_full", java.util.Map.of("count", count, "max", a.maxTeamSize())));
+          plugin.messages().send(p, "errors.team_full", java.util.Map.of());
           return;
         }
         ctx.setTeam(p, tc);
-        p.sendMessage(plugin.messages().get("prefix") +
-            plugin.messages().format("team.chosen", java.util.Map.of("team", tc.display)));
+        plugin.messages().send(p, "menu.team_joined", java.util.Map.of("team", tc.display));
         p.closeInventory();
         return;
       }

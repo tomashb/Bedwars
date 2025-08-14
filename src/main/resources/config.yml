@@ -29,17 +29,21 @@ generators:
   split_generator: true
   auto_collect_radius: 1.2
   spawn_offset_y: 0.5
+  diamond:
+    tier2_at_seconds: 360
+    tier3_at_seconds: 660
+  emerald:
+    tier2_at_seconds: 420
+    tier3_at_seconds: 720
 global_tiers:
   diamond:
     tier1_interval_ticks: 600
     tier2_interval_ticks: 400
     tier3_interval_ticks: 300
-    announce_times_sec: [300, 540]
   emerald:
     tier1_interval_ticks: 1300
     tier2_interval_ticks: 1000
     tier3_interval_ticks: 640
-    announce_times_sec: [420, 780]
 entity_caps:
   team_iron: 48
   team_gold: 12
@@ -74,6 +78,10 @@ game:
   void-kill-y: -5
   keep-inventory: false
   auto-assign-on-join: false
+
+countdown:
+  chat_milestones: [20, 10, 5, 4, 3, 2, 1]
+  actionbar_enabled: true
 rules:
   protect-lobby: true
   friendly-fire: false
@@ -127,8 +135,12 @@ tnt:
 
 gameplay:
   lock_armor: true
-  no_drop_swords: true
   no_hunger: true
+
+anti_drop:
+  swords: true
+  leave_item: true
+  selector_item: true
 
 fireball:
   enabled: true
@@ -139,23 +151,27 @@ fireball:
   break_only_player_blocks: true
   cooldown_ticks: 20
 
-lobby:
+items:
   team_selector:
-    material: COMPASS
-    name: "&aSélecteur d'équipe"
-  leave_item:
-    material: BARRIER
-    name: "&cQuitter l'arène"
+    material: NETHER_STAR
+    name: "&bSélecteur d’équipe"
+    slot: 0
+  leave_arena:
+    material: OAK_DOOR
+    name: "&cQuitter l’arène"
+    slot: 8
 
 scoreboard:
   enabled: true
+  show_next_drop: false
+  show_tiers_only: true
 actionbar:
   enabled: true
 
 border:
   enabled: true
   center: { x: 0.5, z: 0.5 }
-  radius: 160
+  radius: 120
   warning: 6
   damage:
     enabled: false

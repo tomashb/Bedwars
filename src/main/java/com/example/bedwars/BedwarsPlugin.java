@@ -156,7 +156,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new LobbyListener(this, lobbyItems, teamSelectMenu, contextService, gameService), this);
     getServer().getPluginManager().registerEvents(new CompassListener(this, contextService, teamSelectMenu), this);
     getServer().getPluginManager().registerEvents(new ArmorLockListener(this, contextService), this);
-    getServer().getPluginManager().registerEvents(new GameplayListener(this, contextService), this);
+    getServer().getPluginManager().registerEvents(new GameplayListener(this, contextService, lobbyItems), this);
     getServer().getPluginManager().registerEvents(new FireballListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new BorderMoveListener(this, contextService, borderService), this);
     getServer().getPluginManager().registerEvents(new BorderBuildListener(this, contextService, borderService), this);
