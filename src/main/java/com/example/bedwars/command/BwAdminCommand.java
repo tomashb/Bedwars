@@ -65,6 +65,20 @@ public final class BwAdminCommand implements CommandExecutor {
       return true;
     }
 
+    if (args[0].equalsIgnoreCase("backup")) {
+      if (!sender.hasPermission("bedwars.admin.backup")) {
+        sender.sendMessage(plugin.messages().get("errors.no_perm"));
+        return true;
+      }
+      if (args.length >= 2 && args[1].equalsIgnoreCase("now")) {
+        sender.sendMessage(
+            plugin.messages().get("prefix") + plugin.messages().get("backup.not_implemented"));
+      } else {
+        sender.sendMessage(plugin.messages().get("prefix") + "Usage: /bwadmin backup now");
+      }
+      return true;
+    }
+
     if (args[0].equalsIgnoreCase("debug")) {
       handleDebug(sender, args);
       return true;

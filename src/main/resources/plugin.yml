@@ -26,6 +26,7 @@ permissions:
       bedwars.admin.reset: true
       bedwars.admin.debug: true
       bedwars.admin.maintenance: true
+      bedwars.admin.backup: true
   bedwars.menu.rules:
     description: Ouvrir le menu Règles via la boussole
     default: true

@@ -62,6 +62,7 @@ help.admin:
   - "&7/bwadmin arena save <id> &f- sauvegarde une arene"
   - "&7/bwadmin arena reload <id> &f- recharge une arene"
   - "&7/bwadmin arena delete <id> &f- supprime une arene"
+  - "&7/bwadmin backup now &f- backup immédiat (WIP)"
 
 generic.reloaded: "&aConfiguration rechargée."
 arena.created: "&aArène %s créée."
@@ -197,6 +198,9 @@ reset:
   done: "&aReset terminé. Retour en &fWAITING"
   failed: "&cÉchec du reset: &f{error}"
   restoring_at_start: "&7Restauration des mondes d'arène au démarrage..."
+
+backup:
+  not_implemented: "&cBackup non implémenté."
 forcestart:
   countdown: "&eLa partie démarre dans &6{sec}s"
   started: "&aLa partie commence !"
