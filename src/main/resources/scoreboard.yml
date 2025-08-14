@@ -1,0 +1,24 @@
+scoreboard:
+  enabled: true
+  refresh_waiting_ticks: 20
+  refresh_running_ticks: 20
+  waiting:
+    title: "&6BedWars &e{mode_name}"
+    lines:
+      - " "
+      - "&fSalle d'attente"
+      - "&7- Joueurs: &b{players}&7/&f{max_players}"
+      - "&7- D\u00e9marrage: &e{start_seconds}s"
+      - "&7- Mode: &6{mode_name}"
+      - "&7- Carte: &d{map_name}"
+      - " "
+      - "{tip_line_1}"
+      - "{tip_line_2}"
+      - " "
+      - "{footer}"
+  tips:
+    rotate_seconds: 5
+    pool:
+      - "&7Chapitre &e3&7/&f100"
+      - "&7Parler au PNJ &eCosm\u00e9tique &7dans le lobby"
+  footer: "&6rinaorc.com"

@@ -2,9 +2,11 @@ package com.example.bedwars.hud;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
+import com.example.bedwars.arena.ArenaMode;
 import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.game.PlayerContextService;
+import com.example.bedwars.util.ScoreboardConfig;
 import java.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,6 +23,8 @@ public final class ScoreboardManager {
   private final BedwarsPlugin plugin;
   private final PlayerContextService players;
   private final Map<UUID, PlayerBoard> boards = new HashMap<>();
+  private final ScoreboardConfig cfg;
+  private final TipRotator tips;
   private static final String[] KEYS = {
       "\u00a71","\u00a72","\u00a73","\u00a74","\u00a75","\u00a76","\u00a77","\u00a78",
       "\u00a79","\u00a7a","\u00a7b","\u00a7c","\u00a7d","\u00a7e","\u00a7f"};
@@ -28,6 +32,8 @@ public final class ScoreboardManager {
   public ScoreboardManager(BedwarsPlugin plugin) {
     this.plugin = plugin;
     this.players = plugin.contexts();
+    this.cfg = plugin.scoreboardCfg();
+    this.tips = new TipRotator(cfg.tipsPool(), cfg.tipsRotateSeconds());
   }
 
   private String msg(String key) { return plugin.messages().get(key); }
@@ -36,7 +42,7 @@ public final class ScoreboardManager {
   public void attach(Player p) {
     if (boards.containsKey(p.getUniqueId())) return;
     Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
-    Objective o = sb.registerNewObjective("bw", org.bukkit.scoreboard.Criteria.DUMMY, color(msg("scoreboard.title")));
+    Objective o = sb.registerNewObjective("bw", org.bukkit.scoreboard.Criteria.DUMMY, "");
     o.setDisplaySlot(DisplaySlot.SIDEBAR);
     for (int i = 0; i < KEYS.length; i++) {
       Team t = sb.registerNewTeam("L" + i);
@@ -59,11 +65,16 @@ public final class ScoreboardManager {
   /** Tick rendering for all arenas and players. */
   public void tick() {
     Set<UUID> seen = new HashSet<>();
+    tips.tick();
     for (Arena a : plugin.arenas().all()) {
-      if (a.state() != GameState.STARTING && a.state() != GameState.RUNNING) continue;
+      if (a.state() != GameState.WAITING && a.state() != GameState.STARTING && a.state() != GameState.RUNNING) continue;
       for (Player p : players.playersInArena(a.id())) {
         attach(p);
-        renderFor(p, a);
+        if (a.state() == GameState.RUNNING) {
+          renderRunning(p, a);
+        } else {
+          renderWaiting(p, a);
+        }
         seen.add(p.getUniqueId());
       }
     }
@@ -78,8 +89,10 @@ public final class ScoreboardManager {
     }
   }
 
-  private void renderFor(Player p, Arena a) {
+  private void renderRunning(Player p, Arena a) {
     Scoreboard sb = boards.get(p.getUniqueId()).board();
+    Objective o = sb.getObjective(DisplaySlot.SIDEBAR);
+    if (o != null) o.setDisplayName(color(msg("scoreboard.title")));
     int i = 0;
     set(sb, i++, color("&7Carte: &f" + a.id()));
     set(sb, i++, " ");
@@ -110,6 +123,40 @@ public final class ScoreboardManager {
     while (i < KEYS.length) set(sb, i++, "");
   }
 
+  private void renderWaiting(Player p, Arena a) {
+    Scoreboard sb = boards.get(p.getUniqueId()).board();
+    Objective o = sb.getObjective(DisplaySlot.SIDEBAR);
+    String modeName = modeName(a.mode());
+    int online = players.countPlayers(a.id());
+    int max = a.mode().teams * a.maxTeamSize();
+    int sec = plugin.game().countdownRemaining(a.id());
+    String title = cfg.waitingTitle().replace("{mode_name}", modeName);
+    if (o != null) o.setDisplayName(color(title));
+    int i = 0;
+    for (String raw : cfg.waitingLines()) {
+      String line = raw
+          .replace("{players}", String.valueOf(online))
+          .replace("{max_players}", String.valueOf(max))
+          .replace("{start_seconds}", String.valueOf(sec))
+          .replace("{mode_name}", modeName)
+          .replace("{map_name}", a.id())
+          .replace("{tip_line_1}", tips.line1())
+          .replace("{tip_line_2}", tips.line2())
+          .replace("{footer}", cfg.footer());
+      set(sb, i++, color(line));
+    }
+    while (i < KEYS.length) set(sb, i++, "");
+  }
+
+  private static String modeName(ArenaMode m) {
+    return switch (m) {
+      case EIGHT_X1 -> "Solo";
+      case EIGHT_X2 -> "Doubles";
+      case FOUR_X3 -> "3v3";
+      case FOUR_X4 -> "4v4";
+    };
+  }
+
   private void set(Scoreboard sb, int line, String text) {
     Team t = sb.getTeam("L" + line);
     if (t != null) setSplit(t, text);
@@ -138,6 +185,37 @@ public final class ScoreboardManager {
       case 3 -> "III";
       default -> "-";
     };
+  }
+
+  private static final class TipRotator {
+    private final List<String> pool;
+    private final int rotate;
+    private int index = 0;
+    private long last = System.currentTimeMillis();
+
+    TipRotator(List<String> pool, int rotate) {
+      this.pool = pool;
+      this.rotate = rotate;
+    }
+
+    void tick() {
+      if (pool.isEmpty()) return;
+      long now = System.currentTimeMillis();
+      if (now - last >= rotate * 1000L) {
+        index = (index + 1) % pool.size();
+        last = now;
+      }
+    }
+
+    String line1() {
+      if (pool.isEmpty()) return "";
+      return pool.get(index);
+    }
+
+    String line2() {
+      if (pool.isEmpty()) return "";
+      return pool.get((index + 1) % pool.size());
+    }
   }
 
   private record PlayerBoard(Player p, Scoreboard board) {}

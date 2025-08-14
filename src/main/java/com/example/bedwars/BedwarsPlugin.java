@@ -58,6 +58,7 @@ public final class BedwarsPlugin extends JavaPlugin {
 
   private static BedwarsPlugin instance;
   private Messages messages;
+  private com.example.bedwars.util.ScoreboardConfig scoreboardConfig;
   private Keys keys;
   private ArenaManager arenaManager;
   private MenuManager menuManager;
@@ -95,6 +96,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     instance = this;
     saveDefaultConfig();
     this.messages = new Messages(this);
+    this.scoreboardConfig = new com.example.bedwars.util.ScoreboardConfig(this);
     this.keys = new Keys(this);
     this.arenaManager = new ArenaManager(this);
     this.arenaManager.loadAll();
@@ -146,8 +148,9 @@ public final class BedwarsPlugin extends JavaPlugin {
       this.actionBarBus.start(this);
     }
     this.scoreboardManager = new com.example.bedwars.hud.ScoreboardManager(this);
-    if (getConfig().getBoolean("scoreboard.enabled", true)) {
-      org.bukkit.Bukkit.getScheduler().runTaskTimer(this, () -> scoreboardManager.tick(), 20L, 20L);
+    if (scoreboardConfig.enabled()) {
+      long period = Math.min(scoreboardConfig.refreshRunningTicks(), scoreboardConfig.refreshWaitingTicks());
+      org.bukkit.Bukkit.getScheduler().runTaskTimer(this, () -> scoreboardManager.tick(), 20L, period);
     }
 
     Objects.requireNonNull(getCommand("bw")).setExecutor(new BwCommand(this));
@@ -241,6 +244,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   public LightingService lighting() { return lightingService; }
   public BuildRulesService buildRules() { return buildRules; }
   public com.example.bedwars.hud.ScoreboardManager scoreboard() { return scoreboardManager; }
+  public com.example.bedwars.util.ScoreboardConfig scoreboardCfg() { return scoreboardConfig; }
   public com.example.bedwars.hud.ActionBarBus actionBar() { return actionBarBus; }
   public RotationManager rotation() { return rotationManager; }
   public ResetManager reset() { return resetManager; }
