@@ -12,6 +12,7 @@ public final class TeamUpgradesState {
   private int manicMiner = 0;            // 0..2
   private boolean healPool = false;      // regen around base
   private int forge = 0;                 // 0..4
+  private int cushionedBoots = 0;        // 0..2
   private final Deque<TrapType> trapQueue = new ArrayDeque<>(3);
 
   public boolean sharpness() { return sharpness; }
@@ -19,6 +20,7 @@ public final class TeamUpgradesState {
   public int manicMiner()    { return manicMiner; }
   public boolean healPool()  { return healPool; }
   public int forge()         { return forge; }
+  public int cushionedBoots(){ return cushionedBoots; }
   public Deque<TrapType> trapQueue() { return trapQueue; }
 
   public void setSharpness(boolean v){ this.sharpness = v; }
@@ -26,4 +28,5 @@ public final class TeamUpgradesState {
   public void setManicMiner(int lvl){ this.manicMiner = Math.max(0, Math.min(2, lvl)); }
   public void setHealPool(boolean v){ this.healPool = v; }
   public void setForge(int lvl){ this.forge = Math.max(0, Math.min(4, lvl)); }
+  public void setCushionedBoots(int lvl){ this.cushionedBoots = Math.max(0, Math.min(2, lvl)); }
 }
