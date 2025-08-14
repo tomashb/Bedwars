@@ -109,6 +109,7 @@ public final class GameService {
     p.getInventory().clear();
     if (a.lobby() != null) p.teleport(a.lobby());
     lobbyItems.giveLobbyItems(p);
+    plugin.lighting().sanitizePlayer(p);
     messages.send(p, "player.joined_arena", Map.of("arena", arenaId));
 
     int count = contexts.countPlayers(arenaId);
@@ -164,6 +165,7 @@ public final class GameService {
   private void beginRunning(Arena a) {
     a.setState(GameState.RUNNING);
     Bukkit.getPluginManager().callEvent(new ArenaStateChangeEvent(a, GameState.STARTING, GameState.RUNNING));
+    plugin.lighting().applyDayClear(a);
     for (Player p : contexts.playersInArena(a.id())) {
       TeamColor team = contexts.getTeam(p);
       if (team == null) team = teamAssignment.assign(a, p);
@@ -262,6 +264,8 @@ public final class GameService {
         plugin.messages().broadcast(a, "reset.failed", Map.of("error", err.getCause().getMessage()));
       } else {
         target.setState(GameState.WAITING);
+        plugin.lighting().applyDayClear(target);
+        plugin.lighting().relightArena(target);
         plugin.messages().broadcast(a, "reset.done");
         plugin.npcs().ensureSpawned(target);
       }

@@ -160,3 +160,11 @@ reset:
   atomic_copy: true
   preserve_on_disable: true
   clear_placed_blocks_on_end: true
+
+lighting:
+  force_day: true
+  day_time: 6000
+  lock_day: true
+  clear_weather: true
+  relight_on_world_load: true
+  waiting_night_vision: false
