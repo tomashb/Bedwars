@@ -31,6 +31,7 @@ public final class GameService {
   private DeathRespawnService deathService;
   private final CountdownAnnouncer countdownAnnouncer;
   private final Map<String, Integer> countdownTasks = new HashMap<>();
+  private final Map<String, Integer> countdownRemaining = new HashMap<>();
   private final Map<String, Integer> timerTasks = new HashMap<>();
   private final Map<String, Integer> gameTime = new HashMap<>();
   private final PreJoinSnapshotService snapshots;
@@ -75,6 +76,11 @@ public final class GameService {
 
   public int nextDropSeconds(String arenaId, java.util.UUID genId) {
     return plugin.generators().cooldownSeconds(arenaId, genId);
+  }
+
+  /** Remaining countdown seconds for arenas in STARTING state. */
+  public int countdownRemaining(String arenaId) {
+    return countdownRemaining.getOrDefault(arenaId, 0);
   }
 
   /** Returns elapsed game time in seconds for an arena. */
@@ -162,11 +168,13 @@ public final class GameService {
     Bukkit.getPluginManager().callEvent(new ArenaStateChangeEvent(a, GameState.WAITING, GameState.STARTING));
     int task = new BukkitRunnable() {
       int sec = plugin.getConfig().getInt("game.countdown", 20);
+      { countdownRemaining.put(arenaId, sec); }
       @Override public void run() {
-        if (a.state() != GameState.STARTING) { cancel(); return; }
-        if (sec <= 0) { cancel(); beginRunning(a); return; }
+        if (a.state() != GameState.STARTING) { countdownRemaining.remove(arenaId); cancel(); return; }
+        if (sec <= 0) { countdownRemaining.remove(arenaId); cancel(); beginRunning(a); return; }
         countdownAnnouncer.tick(a, sec);
         sec--;
+        countdownRemaining.put(arenaId, sec);
       }
     }.runTaskTimer(plugin, 0L, 20L).getTaskId();
     countdownTasks.put(arenaId, task);
