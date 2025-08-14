@@ -183,6 +183,7 @@ public final class ToolsService {
     ItemStack it = new ItemStack(s.mat());
     ItemMeta m = it.getItemMeta();
     if (m != null) {
+      // ignore level restriction so custom efficiency can exceed vanilla limits
       m.addEnchant(Enchantment.DIG_SPEED, s.eff(), true);
       if (unbreakable) m.setUnbreakable(true);
       it.setItemMeta(m);
@@ -200,7 +201,7 @@ public final class ToolsService {
 
   public void onDeath(Player p, java.util.List<ItemStack> drops) {
     PlayerData d = data(p);
-    if (noDrop) drops.removeIf(is -> is.getType().name().endsWith("_PICKAXE"));
+    if (noDrop) drops.removeIf((ItemStack is) -> is.getType().name().endsWith("_PICKAXE"));
     if (downgradeOnDeath && d.pickTier.ordinal() > 1) {
       d.pickTier = PickTier.values()[d.pickTier.ordinal() - 1];
     }
