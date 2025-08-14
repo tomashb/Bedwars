@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +32,39 @@ public final class ToolsService {
   private final boolean downgradeOnDeath;
   private final boolean unbreakable;
   private final boolean noDrop;
+
+  private static final Enchantment EFFICIENCY_ENCH =
+      resolveEnchant("DIG_SPEED", "EFFICIENCY", "efficiency");
+
+  private static Enchantment resolveEnchant(String legacyField, String altField, String key) {
+    try {
+      var f = Enchantment.class.getField(legacyField);
+      var v = f.get(null);
+      if (v instanceof Enchantment e) return e;
+    } catch (Throwable ignored) {
+    }
+    try {
+      var f = Enchantment.class.getField(altField);
+      var v = f.get(null);
+      if (v instanceof Enchantment e) return e;
+    } catch (Throwable ignored) {
+    }
+    try {
+      Class<?> regClz = Class.forName("org.bukkit.Registry");
+      var f = regClz.getField("ENCHANTMENT");
+      var registry = f.get(null);
+      var get = registry.getClass().getMethod("get", NamespacedKey.class);
+      var v = get.invoke(registry, NamespacedKey.minecraft(key));
+      if (v instanceof Enchantment e) return e;
+    } catch (Throwable ignored) {
+    }
+    try {
+      return Enchantment.getByName(legacyField);
+    } catch (Throwable ignored) {
+    }
+    throw new IllegalStateException(
+        "Impossible de résoudre l'enchant: " + legacyField + "/" + key);
+  }
 
   static final class PlayerData {
     PickTier pickTier = PickTier.T0;
@@ -184,7 +218,7 @@ public final class ToolsService {
     ItemMeta m = it.getItemMeta();
     if (m != null) {
       // ignore level restriction so custom efficiency can exceed vanilla limits
-      m.addEnchant(Enchantment.DIG_SPEED, s.eff(), true);
+      m.addEnchant(EFFICIENCY_ENCH, s.eff(), true);
       if (unbreakable) m.setUnbreakable(true);
       it.setItemMeta(m);
     }
@@ -201,7 +235,7 @@ public final class ToolsService {
 
   public void onDeath(Player p, java.util.List<ItemStack> drops) {
     PlayerData d = data(p);
-    if (noDrop) drops.removeIf((ItemStack is) -> is.getType().name().endsWith("_PICKAXE"));
+    if (noDrop) drops.removeIf(is -> is.getType().name().endsWith("_PICKAXE"));
     if (downgradeOnDeath && d.pickTier.ordinal() > 1) {
       d.pickTier = PickTier.values()[d.pickTier.ordinal() - 1];
     }
