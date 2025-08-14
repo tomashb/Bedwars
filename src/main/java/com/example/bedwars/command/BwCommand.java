@@ -13,10 +13,12 @@ import org.bukkit.entity.Player;
 public final class BwCommand implements CommandExecutor {
   private final BedwarsPlugin plugin;
   private final GameService game;
+  private final com.example.bedwars.lobby.LobbyService lobby;
 
   public BwCommand(BedwarsPlugin plugin) {
     this.plugin = plugin;
     this.game = plugin.game();
+    this.lobby = plugin.lobby();
   }
 
   @Override
@@ -35,7 +37,7 @@ public final class BwCommand implements CommandExecutor {
           game.join(player, args[1]);
           return true;
         case "leave":
-          game.leave(player, true);
+          lobby.sendToLobby(player, com.example.bedwars.lobby.LobbyService.Reason.COMMAND);
           return true;
         case "team":
           if (args.length < 2) return true;

@@ -248,3 +248,10 @@ debug:
 maintenance:
   start: "&7[MAINT] cleanup &e{arena}&7..."
   done: "&a[CLEANUP] &f{arena}&a: removed=&f{count} &7{breakdown}"
+lobby:
+  set_ok: "&aLobby défini ici."
+  missing: "&cLobby non configuré. Faites &e/bwadmin lobby set&c."
+leave:
+  title: "&cVous avez quitté l'arène"
+  by_item: "&7Retour au lobby via l'item."
+  by_cmd: "&7Retour au lobby."

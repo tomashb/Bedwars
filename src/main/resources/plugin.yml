@@ -8,9 +8,11 @@ commands:
     description: Commandes joueur BedWars
     aliases: [bedwars]
     usage: /bw <join|leave|team|menu>
+    permission: bedwars.player
   bwadmin:
     description: Commandes admin BedWars
     usage: /bwadmin <arena|game|menu>
+    permission: bedwars.admin
 permissions:
   bedwars.admin.*:
     description: Tous les droits BedWars
@@ -27,6 +29,12 @@ permissions:
       bedwars.admin.debug: true
       bedwars.admin.maintenance: true
       bedwars.admin.backup: true
+  bedwars.admin.lobby:
+    description: Set du lobby BedWars
+    default: op
+  bedwars.player:
+    description: Commandes joueur BedWars
+    default: true
   bedwars.menu.rules:
     description: Ouvrir le menu Règles via la boussole
     default: true

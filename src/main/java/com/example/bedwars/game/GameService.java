@@ -33,10 +33,12 @@ public final class GameService {
   private final Map<String, Integer> countdownTasks = new HashMap<>();
   private final Map<String, Integer> timerTasks = new HashMap<>();
   private final Map<String, Integer> gameTime = new HashMap<>();
+  private final PreJoinSnapshotService snapshots;
 
   public GameService(BedwarsPlugin plugin, PlayerContextService ctx, TeamAssignment ta,
                      KitService kit, SpectatorService spec, GameMessages msgs,
-                     com.example.bedwars.lobby.LobbyItemsService lobbyItems) {
+                     com.example.bedwars.lobby.LobbyItemsService lobbyItems,
+                     PreJoinSnapshotService snapshots) {
     this.plugin = plugin;
     this.contexts = ctx;
     this.teamAssignment = ta;
@@ -45,6 +47,7 @@ public final class GameService {
     this.messages = msgs;
     this.lobbyItems = lobbyItems;
     this.countdownAnnouncer = new CountdownAnnouncer(plugin);
+    this.snapshots = snapshots;
   }
 
   public void setDeathService(DeathRespawnService drs) { this.deathService = drs; }
@@ -115,6 +118,7 @@ public final class GameService {
       messages.send(p, "errors.team_full", Map.of("count", current, "max", capacity));
       return;
     }
+    snapshots.capture(p);
     contexts.join(p, arenaId);
     p.getInventory().clear();
     if (a.lobby() != null) p.teleport(a.lobby());
@@ -230,8 +234,10 @@ public final class GameService {
     a.setState(GameState.ENDING);
     Bukkit.getPluginManager().callEvent(new ArenaStateChangeEvent(a, GameState.RUNNING, GameState.ENDING));
     if (winner != null) messages.broadcast(a, "game.victory", Map.of("team", winner.display));
-    for (Player p : contexts.playersInArena(a.id())) {
+    var players = new java.util.ArrayList<>(contexts.playersInArena(a.id()));
+    for (Player p : players) {
       spectator.fromSpectator(p);
+      plugin.lobby().sendToLobby(p, com.example.bedwars.lobby.LobbyService.Reason.GAME_END);
     }
     plugin.generators().cleanupArena(a.id());
     if (plugin.getConfig().getBoolean("reset.clear_placed_blocks_on_end", true)) {
