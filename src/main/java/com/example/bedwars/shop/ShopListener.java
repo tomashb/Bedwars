@@ -165,7 +165,7 @@ public final class ShopListener implements Listener {
         UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.SHARPNESS);
         if (def == null) return;
         if (st.sharpness()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costForLevel(1);
+        int d = def.costForLevel(td.maxPlayers(), 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setSharpness(true);
           plugin.upgrades().applySharpness(uh.arenaId, uh.team);
@@ -177,7 +177,7 @@ public final class ShopListener implements Listener {
         if (def == null) return;
         int lvl = st.protection();
         if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costForLevel(lvl + 1);
+        int d = def.costForLevel(td.maxPlayers(), lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setProtection(lvl+1);
           plugin.upgrades().applyProtection(uh.arenaId, uh.team, st.protection());
@@ -190,7 +190,7 @@ public final class ShopListener implements Listener {
         if (def == null) return;
         int lvl = st.manicMiner();
         if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costForLevel(lvl + 1);
+        int d = def.costForLevel(td.maxPlayers(), lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setManicMiner(lvl+1);
           plugin.upgrades().applyManicMiner(uh.arenaId, uh.team, st.manicMiner());
@@ -203,7 +203,7 @@ public final class ShopListener implements Listener {
         if (def == null) return;
         int lvl = st.forge();
         if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costForLevel(lvl + 1);
+        int d = def.costForLevel(td.maxPlayers(), lvl + 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setForge(lvl+1);
           plugin.upgrades().applyForge(uh.arenaId, uh.team, st.forge());
@@ -215,11 +215,24 @@ public final class ShopListener implements Listener {
         UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.HEAL_POOL);
         if (def == null) return;
         if (st.healPool()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.costForLevel(1);
+        int d = def.costForLevel(td.maxPlayers(), 1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
           st.setHealPool(true);
           plugin.upgrades().applyHealPool(uh.arenaId, uh.team, true);
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
+          upgradesMenu.open(p, uh.arenaId, uh.team);
+        }
+      } else if (slot == TeamUpgradesMenu.SLOT_BOOTS) {
+        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.CUSHIONED_BOOTS);
+        if (def == null) return;
+        int lvl = st.cushionedBoots();
+        if (lvl >= def.maxLevel()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.costForLevel(td.maxPlayers(), lvl + 1);
+        if (plugin.upgrades().tryBuyDiamonds(p, d)) {
+          st.setCushionedBoots(lvl + 1);
+          plugin.upgrades().applyCushionedBoots(uh.arenaId, uh.team, st.cushionedBoots());
+          String name = def.name.replace("{level}", String.valueOf(st.cushionedBoots()));
+          p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
       } else if (slot == TeamUpgradesMenu.SLOT_TRAP_SHORTCUT || slot == TeamUpgradesMenu.SLOT_TRAP_OPEN) {

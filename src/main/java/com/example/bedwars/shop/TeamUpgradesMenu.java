@@ -28,6 +28,7 @@ public final class TeamUpgradesMenu {
   public static final int SLOT_TRAP_SHORTCUT = 16;
   public static final int SLOT_FORGE = 19;
   public static final int SLOT_HEAL = 21;
+  public static final int SLOT_BOOTS = 23;
   public static final int SLOT_TRAP_OPEN = 18;
   public static final int SLOT_TRAP1 = 20;
   public static final int SLOT_TRAP2 = 22;
@@ -41,19 +42,21 @@ public final class TeamUpgradesMenu {
     Inventory inv = Bukkit.createInventory(new Holder(arenaId, team), 27, title);
     TeamData td = plugin.arenas().get(arenaId).map(a->a.team(team)).orElse(null);
     TeamUpgradesState st = td != null ? td.upgrades() : new TeamUpgradesState();
+    int teamSize = td != null ? td.maxPlayers() : 2;
 
     ItemStack filler = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
     ItemMeta fm = filler.getItemMeta();
     if (fm != null) { fm.setDisplayName(" "); filler.setItemMeta(fm); }
     for (int i = 0; i < 9; i++) inv.setItem(i, filler);
 
-    inv.setItem(SLOT_SHARP, icon(Material.IRON_SWORD, UpgradeType.SHARPNESS, st.sharpness()?1:0, p));
-    inv.setItem(SLOT_PROT, icon(Material.IRON_CHESTPLATE, UpgradeType.PROTECTION, st.protection(), p));
-    inv.setItem(SLOT_HASTE, icon(Material.GOLDEN_PICKAXE, UpgradeType.MANIC_MINER, st.manicMiner(), p));
+    inv.setItem(SLOT_SHARP, icon(Material.IRON_SWORD, UpgradeType.SHARPNESS, st.sharpness()?1:0, teamSize, p));
+    inv.setItem(SLOT_PROT, icon(Material.IRON_CHESTPLATE, UpgradeType.PROTECTION, st.protection(), teamSize, p));
+    inv.setItem(SLOT_HASTE, icon(Material.GOLDEN_PICKAXE, UpgradeType.MANIC_MINER, st.manicMiner(), teamSize, p));
     inv.setItem(SLOT_TRAP_SHORTCUT, trapShortcutIcon(p));
 
-    inv.setItem(SLOT_FORGE, icon(Material.FURNACE, UpgradeType.FORGE, st.forge(), p));
-    inv.setItem(SLOT_HEAL, icon(Material.BEACON, UpgradeType.HEAL_POOL, st.healPool()?1:0, p));
+    inv.setItem(SLOT_FORGE, icon(Material.FURNACE, UpgradeType.FORGE, st.forge(), teamSize, p));
+    inv.setItem(SLOT_HEAL, icon(Material.BEACON, UpgradeType.HEAL_POOL, st.healPool()?1:0, teamSize, p));
+    inv.setItem(SLOT_BOOTS, icon(Material.LEATHER_BOOTS, UpgradeType.CUSHIONED_BOOTS, st.cushionedBoots(), teamSize, p));
 
     inv.setItem(SLOT_TRAP_OPEN, trapOpenIcon(st, p));
     TrapType[] q = st.trapQueue().toArray(new TrapType[0]);
@@ -65,14 +68,14 @@ public final class TeamUpgradesMenu {
     p.openInventory(inv);
   }
 
-  private ItemStack icon(Material mat, UpgradeType type, int level, Player p) {
+  private ItemStack icon(Material mat, UpgradeType type, int level, int teamSize, Player p) {
     UpgradeService.UpgradeDef def = plugin.upgrades().def(type);
     ItemStack it = new ItemStack(mat);
     ItemMeta im = it.getItemMeta();
     if (im != null && def != null) {
       im.setDisplayName(ChatColor.AQUA + type.name() + " " + level + "/" + def.maxLevel());
       if (level < def.maxLevel()) {
-        int cost = def.costForLevel(level + 1);
+        int cost = def.costForLevel(teamSize, level + 1);
         int have = plugin.upgrades().countDiamonds(p);
         ChatColor col = have >= cost ? ChatColor.GRAY : ChatColor.RED;
         im.setLore(java.util.List.of(col + "Coût : " + cost + "◆"));

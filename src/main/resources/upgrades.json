@@ -1,0 +1,74 @@
+{
+  "currency": "DIAMOND",
+  "modes": {
+    "SOLO_DOUBLES": 2,
+    "THREES_FOURS": 4
+  },
+  "items": [
+    {
+      "id": "sharpened_swords",
+      "name": "§bArmes affûtées",
+      "icon": "DIAMOND_SWORD",
+      "type": "TEAM_PERK",
+      "max_level": 1,
+      "costs": {"SOLO_DOUBLES": [4], "THREES_FOURS": [8]},
+      "effects": [{"action": "ENCHANT", "target": "SWORDS_AXES", "enchant": "SHARPNESS", "level": 1}]
+    },
+    {
+      "id": "reinforced_armor",
+      "name": "§bArmure renforcée",
+      "icon": "DIAMOND_CHESTPLATE",
+      "type": "TEAM_PERK",
+      "max_level": 4,
+      "costs": {"SOLO_DOUBLES": [2,4,8,16], "THREES_FOURS": [5,10,20,30]},
+      "effects": [{"action": "ENCHANT", "target": "ARMOR", "enchant": "PROTECTION", "level_per_tier": [1,2,3,4]}]
+    },
+    {
+      "id": "maniac_miner",
+      "name": "§bMineur maniaque",
+      "icon": "GOLDEN_PICKAXE",
+      "type": "TEAM_PERK",
+      "max_level": 2,
+      "costs": {"SOLO_DOUBLES": [2,4], "THREES_FOURS": [4,6]},
+      "effects": [{"action": "POTION", "effect": "HASTE", "amplifier_per_tier": [1,2]}]
+    },
+    {
+      "id": "forge",
+      "name": "§bForge",
+      "icon": "FURNACE",
+      "type": "TEAM_PERK",
+      "max_level": 4,
+      "costs": {"SOLO_DOUBLES": [2,4,6,8], "THREES_FOURS": [4,8,12,16]},
+      "effects": [{"action": "GENERATOR_MULTIPLIER", "iron_gold_multiplier_per_tier": [1.25,1.5,2.0,2.5], "add_emerald_on_tier": 4}]
+    },
+    {
+      "id": "heal_pool",
+      "name": "§bBassin de soin",
+      "icon": "WATER_BUCKET",
+      "type": "TEAM_PERK",
+      "max_level": 1,
+      "costs": {"SOLO_DOUBLES": [1], "THREES_FOURS": [3]},
+      "effects": [{"action": "AREA_AURA", "effect": "REGEN", "radius": 10, "amplifier": 1}]
+    },
+    {
+      "id": "cushioned_boots",
+      "name": "§bBottes amorties",
+      "icon": "LEATHER_BOOTS",
+      "type": "TEAM_PERK",
+      "max_level": 2,
+      "leather_color": "#3FB1FF",
+      "costs": {"SOLO_DOUBLES": [1,2], "THREES_FOURS": [2,4]},
+      "effects": [{"action": "ENCHANT", "target": "BOOTS", "enchant": "FEATHER_FALLING", "level_per_tier": [1,2]}]
+    }
+  ],
+  "traps": {
+    "max_slots": 3,
+    "slot_costs": [1,2,4],
+    "list": [
+      {"id": "reveal", "name": "§dPiège: Révélateur", "icon": "ENDER_EYE"},
+      {"id": "mining_fatigue", "name": "§dPiège: Fatigue minière", "icon": "IRON_PICKAXE"},
+      {"id": "blind_slow", "name": "§dPiège: Aveuglement & Lenteur", "icon": "SPIDER_EYE"},
+      {"id": "counter_off", "name": "§dPiège: Contre-offensive", "icon": "FEATHER"}
+    ]
+  }
+}

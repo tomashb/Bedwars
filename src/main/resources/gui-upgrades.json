@@ -1,0 +1,56 @@
+{
+  "title": "§bAméliorations & Pièges",
+  "size": 54,
+  "background": {"material": "GRAY_STAINED_GLASS_PANE", "name": " "},
+  "slots": {
+    "10": {"bind": "sharpened_swords"},
+    "19": {"bind": "reinforced_armor", "tier": 1},
+    "28": {"bind": "reinforced_armor", "tier": 2},
+    "37": {"bind": "reinforced_armor", "tier": 3},
+    "46": {"bind": "reinforced_armor", "tier": 4},
+    "11": {"bind": "maniac_miner", "tier": 1},
+    "20": {"bind": "maniac_miner", "tier": 2},
+    "12": {"bind": "forge", "tier": 1},
+    "21": {"bind": "forge", "tier": 2},
+    "30": {"bind": "forge", "tier": 3},
+    "39": {"bind": "forge", "tier": 4},
+    "13": {"bind": "heal_pool"},
+    "22": {"bind": "cushioned_boots", "tier": 1},
+    "31": {"bind": "cushioned_boots", "tier": 2},
+
+    "15": {"bind": "trap", "trap_id": "reveal"},
+    "16": {"bind": "trap", "trap_id": "mining_fatigue"},
+    "24": {"bind": "trap", "trap_id": "blind_slow"},
+    "25": {"bind": "trap", "trap_id": "counter_off"},
+
+    "33": {"bind": "trap_info"},
+    "42": {"bind": "trap_clear"},
+
+    "49": {"bind": "back_button"},
+    "53": {"bind": "close_button"}
+  },
+  "dynamic_lore": {
+    "upgrade": [
+      "§7Amélioration d'équipe",
+      " ",
+      "§7Niveau: §f{level}/{max}",
+      "§7Effet: §f{effect}",
+      " ",
+      "§7Coût: §b{cost} ✦ Diamants",
+      "{can_buy?§eClic pour acheter:§cFonds insuffisants}"
+    ],
+    "trap": [
+      "§7Piège d'équipe",
+      "§7File actuelle: §f{trap_count}/3",
+      " ",
+      "§7Prochain coût: §b{next_trap_cost} ✦ Diamants",
+      "{can_buy?§eClic pour ajouter à la file:§cFile pleine ou fonds insuffisants}"
+    ],
+    "trap_info": [
+      "§bPièges",
+      "§7Ordre de déclenchement = ordre d'achat.",
+      "§7Le coût dépend du nombre de pièges en file.",
+      "§7File max: §f3"
+    ]
+  }
+}

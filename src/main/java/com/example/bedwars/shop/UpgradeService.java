@@ -31,12 +31,24 @@ public final class UpgradeService {
   private int[] trapCosts = {1,2,4};
   private int trapSlots = 3;
   private final Map<String,Integer> healTasks = new HashMap<>();
+
   public static final class UpgradeDef {
     public final String name;
-    private final int[] costs;
-    public UpgradeDef(String name, int[] costs) { this.name = name; this.costs = costs; }
-    public int maxLevel() { return costs.length; }
-    public int costForLevel(int level) { return (level >=1 && level <= costs.length) ? costs[level-1] : Integer.MAX_VALUE; }
+    private final int[] soloCosts;
+    private final int[] teamCosts;
+
+    public UpgradeDef(String name, int[] soloCosts, int[] teamCosts) {
+      this.name = name;
+      this.soloCosts = soloCosts != null ? soloCosts : new int[0];
+      this.teamCosts = teamCosts != null ? teamCosts : new int[0];
+    }
+
+    public int maxLevel() { return Math.max(soloCosts.length, teamCosts.length); }
+
+    public int costForLevel(int teamSize, int level) {
+      int[] arr = teamSize <= 2 ? soloCosts : teamCosts;
+      return (level >=1 && level <= arr.length) ? arr[level-1] : Integer.MAX_VALUE;
+    }
   }
   public static final class TrapDef {
     public final String name; public final Material icon;
@@ -45,58 +57,38 @@ public final class UpgradeService {
     }
   }
 
-  private static int asInt(Object o, int def) {
-    if (o instanceof Number n) return n.intValue();
-    if (o instanceof String s) { try { return Integer.parseInt(s.trim()); } catch (Exception ignore) {} }
-    return def;
-  }
-
   public UpgradeService(BedwarsPlugin plugin, PlayerContextService ctx) {
     this.plugin = plugin; this.ctx = ctx;
     loadDefs();
   }
 
   private void loadDefs() {
-    File f = new File(plugin.getDataFolder(), "upgrades.yml");
-    if (!f.exists()) plugin.saveResource("upgrades.yml", false);
+    File f = new File(plugin.getDataFolder(), "upgrades.json");
+    if (!f.exists()) plugin.saveResource("upgrades.json", false);
     YamlConfiguration y = YamlConfiguration.loadConfiguration(f);
-    ConfigurationSection up = y.getConfigurationSection("upgrades");
-    if (up == null) return;
 
-    // parse main upgrades
-    for (String k : up.getKeys(false)) {
-      if (k.equalsIgnoreCase("TRAPS")) continue;
-      ConfigurationSection sec = up.getConfigurationSection(k);
-      if (sec == null) continue;
+    // parse upgrade items
+    for (Map<?,?> any : y.getMapList("items")) {
+      @SuppressWarnings("unchecked") Map<String,Object> raw = (Map<String,Object>) any;
+      String id = String.valueOf(raw.get("id"));
       UpgradeType ut;
-      try { ut = UpgradeType.valueOf(k.toUpperCase()); } catch (Exception ex) { continue; }
-      String name = sec.getString("name", k);
-      java.util.List<Map<?,?>> lvlList = sec.getMapList("levels");
-      int[] costs;
-      if (lvlList != null && !lvlList.isEmpty()) {
-        costs = new int[lvlList.size()];
-        for (Map<?,?> mAny : lvlList) {
-          @SuppressWarnings("unchecked") Map<String,Object> m = (Map<String,Object>) mAny;
-          int lvl = asInt(m.get("level"), 1);
-          int cost = asInt(m.get("cost"), 1);
-          if (lvl >= 1 && lvl <= costs.length) costs[lvl-1] = cost;
-        }
-      } else {
-        costs = new int[] { asInt(sec.get("cost"), 1) };
-      }
-      defs.put(ut, new UpgradeDef(name, costs));
+      try { ut = UpgradeType.valueOf(id.toUpperCase()); } catch (Exception ex) { continue; }
+      String name = String.valueOf(raw.getOrDefault("name", id));
+      @SuppressWarnings("unchecked") Map<String,Object> costsMap = (Map<String,Object>) raw.get("costs");
+      int[] solo = toIntArray(costsMap != null ? costsMap.get("SOLO_DOUBLES") : null);
+      int[] team = toIntArray(costsMap != null ? costsMap.get("THREES_FOURS") : null);
+      defs.put(ut, new UpgradeDef(name, solo, team));
     }
 
     // parse traps
-    ConfigurationSection trapsSec = up.getConfigurationSection("TRAPS");
+    ConfigurationSection trapsSec = y.getConfigurationSection("traps");
     if (trapsSec != null) {
-      trapSlots = trapsSec.getInt("slots", 3);
-      java.util.List<Integer> q = trapsSec.getIntegerList("queue_costs");
+      trapSlots = trapsSec.getInt("max_slots", 3);
+      java.util.List<?> q = trapsSec.getList("slot_costs");
       if (q != null && !q.isEmpty()) {
-        trapCosts = q.stream().mapToInt(Integer::intValue).toArray();
+        trapCosts = q.stream().mapToInt(o -> ((Number)o).intValue()).toArray();
       }
-      java.util.List<Map<?,?>> cat = trapsSec.getMapList("catalogue");
-      for (Map<?,?> rawAny : cat) {
+      for (Map<?,?> rawAny : trapsSec.getMapList("list")) {
         @SuppressWarnings("unchecked") Map<String,Object> raw = (Map<String,Object>) rawAny;
         String id = String.valueOf(raw.get("id"));
         TrapType t;
@@ -106,6 +98,21 @@ public final class UpgradeService {
         traps.put(t, new TrapDef(name, icon));
       }
     }
+  }
+
+  private static int[] toIntArray(Object obj) {
+    if (obj instanceof java.util.List<?> list) {
+      int[] arr = new int[list.size()];
+      for (int i = 0; i < list.size(); i++) {
+        Object v = list.get(i);
+        if (v instanceof Number n) arr[i] = n.intValue();
+        else {
+          try { arr[i] = Integer.parseInt(String.valueOf(v)); } catch (Exception ex) { arr[i] = 0; }
+        }
+      }
+      return arr;
+    }
+    return new int[0];
   }
 
   // Accessors
@@ -166,6 +173,16 @@ public final class UpgradeService {
     p.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, false, false, false));
   }
 
+  private void applyCushioned(Player p, int level) {
+    if (level <= 0) return;
+    ItemStack boots = p.getInventory().getBoots();
+    if (boots == null) return;
+    ItemMeta meta = boots.getItemMeta();
+    if (meta == null) return;
+    meta.addEnchant(Enchantment.PROTECTION_FALL, level, true);
+    boots.setItemMeta(meta);
+  }
+
   public void applySharpness(String arenaId, TeamColor team) {
     for (Player p : plugin.getServer().getOnlinePlayers()) {
       if (!matches(p, arenaId, team)) continue;
@@ -184,6 +201,13 @@ public final class UpgradeService {
     for (Player p : plugin.getServer().getOnlinePlayers()) {
       if (!matches(p, arenaId, team)) continue;
       applyManicMiner(p, level);
+    }
+  }
+
+  public void applyCushionedBoots(String arenaId, TeamColor team, int level) {
+    for (Player p : plugin.getServer().getOnlinePlayers()) {
+      if (!matches(p, arenaId, team)) continue;
+      applyCushioned(p, level);
     }
   }
 
