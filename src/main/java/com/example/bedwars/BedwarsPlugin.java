@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.example.bedwars.util.Messages;
 import com.example.bedwars.command.BwCommand;
 import com.example.bedwars.command.BwAdminCommand;
+import com.example.bedwars.arena.Arena;
 import com.example.bedwars.arena.ArenaManager;
 import com.example.bedwars.gui.MenuManager;
 import com.example.bedwars.ops.Keys;
@@ -40,6 +41,7 @@ import com.example.bedwars.game.GameMessages;
 import com.example.bedwars.game.GameService;
 import com.example.bedwars.game.DeathRespawnService;
 import com.example.bedwars.gen.GeneratorManager;
+import com.example.bedwars.shop.NpcManager;
 import com.example.bedwars.services.BuildRulesService;
 import com.example.bedwars.services.TasksService;
 import com.example.bedwars.game.RotationManager;
@@ -57,6 +59,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private PlayerContextService contextService;
   private UpgradeService upgradeService;
   private GeneratorManager generatorManager;
+  private NpcManager npcManager;
   private TeamAssignment teamAssignment;
   private KitService kitService;
   private SpectatorService spectatorService;
@@ -102,6 +105,10 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.buildRules.rebuildWhitelistFromShop(shopConfig);
     this.generatorManager = new GeneratorManager(this);
     this.generatorManager.start();
+    this.npcManager = new NpcManager(this);
+    for (Arena a : this.arenaManager.all()) {
+      this.npcManager.ensureSpawned(a);
+    }
     this.tasksService = new TasksService(this);
 
     this.actionBarBus = new com.example.bedwars.hud.ActionBarBus();
@@ -144,6 +151,9 @@ public final class BedwarsPlugin extends JavaPlugin {
   @Override
   public void onDisable() {
     if (arenaManager != null) arenaManager.saveAll();
+    if (npcManager != null) {
+      arenaManager.all().forEach(npcManager::despawnAll);
+    }
     if (generatorManager != null) generatorManager.stop();
     if (scoreboardManager != null) scoreboardManager.clear();
     getLogger().info("Bedwars disabled.");
@@ -184,6 +194,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   public PlayerContextService contexts() { return contextService; }
   public UpgradeService upgrades() { return upgradeService; }
   public GeneratorManager generators() { return generatorManager; }
+  public NpcManager npcs() { return npcManager; }
   public GameService game() { return gameService; }
   public BuildRulesService buildRules() { return buildRules; }
   public com.example.bedwars.hud.ScoreboardManager scoreboard() { return scoreboardManager; }

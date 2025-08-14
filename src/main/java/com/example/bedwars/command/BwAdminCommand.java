@@ -56,6 +56,15 @@ public final class BwAdminCommand implements CommandExecutor {
       return true;
     }
 
+    if (args[0].equalsIgnoreCase("npc")) {
+      if (!sender.hasPermission("bedwars.admin.npc")) {
+        sender.sendMessage(plugin.messages().get("errors.no_perm"));
+        return true;
+      }
+      handleNpc(sender, args);
+      return true;
+    }
+
     if (args[0].equalsIgnoreCase("debug")) {
       handleDebug(sender, args);
       return true;
@@ -99,6 +108,38 @@ public final class BwAdminCommand implements CommandExecutor {
         }
       }
       default -> sender.sendMessage(plugin.messages().get("prefix") + "Usage: /bwadmin game <start|stop|forcewin> <arena> [team]");
+    }
+  }
+
+  private void handleNpc(CommandSender sender, String[] args) {
+    String prefix = plugin.messages().get("prefix");
+    if (args.length < 3) {
+      sender.sendMessage(prefix + "Usage: /bwadmin npc <respawn|list> <arena>");
+      return;
+    }
+    String sub = args[1].toLowerCase();
+    String arenaId = args[2];
+    var opt = plugin.arenas().get(arenaId);
+    if (opt.isEmpty()) {
+      msg(sender, "errors.arena_unknown", Map.of("arena", arenaId));
+      return;
+    }
+    var arena = opt.get();
+    switch (sub) {
+      case "respawn" -> {
+        plugin.npcs().despawnAll(arena);
+        plugin.npcs().ensureSpawned(arena);
+        sender.sendMessage(prefix + "PNJ respawnés.");
+      }
+      case "list" -> {
+        var list = plugin.npcs().list(arena);
+        sender.sendMessage(prefix + "PNJ actifs: " + list.size());
+        for (var e : list) {
+          var l = e.getLocation();
+          sender.sendMessage(String.format(" - %s @ %.1f %.1f %.1f", e.getType().name(), l.getX(), l.getY(), l.getZ()));
+        }
+      }
+      default -> sender.sendMessage(prefix + "Usage: /bwadmin npc <respawn|list> <arena>");
     }
   }
 

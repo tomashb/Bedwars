@@ -263,6 +263,7 @@ public final class GameService {
       } else {
         target.setState(GameState.WAITING);
         plugin.messages().broadcast(a, "reset.done");
+        plugin.npcs().ensureSpawned(target);
       }
     }));
   }
