@@ -85,6 +85,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private TasksService tasksService;
   private BorderService borderService;
   private com.example.bedwars.services.ToolsService toolsService;
+  private com.example.bedwars.game.ArenaBoundaryPolicy boundaryPolicy;
 
   @Override
   public void onEnable() {
@@ -115,6 +116,9 @@ public final class BedwarsPlugin extends JavaPlugin {
       this.lightingService.relightArena(a);
       this.borderService.apply(a);
     }
+    this.boundaryPolicy = new com.example.bedwars.game.ArenaBoundaryPolicy(
+        getConfig().getInt("bounds.min_y", -64),
+        getConfig().getInt("bounds.void_kill_y", -60));
     this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages, lobbyItems);
     this.deathService = new DeathRespawnService(this, contextService, kitService, spectatorService, gameMessages, gameService);
     this.gameService.setDeathService(deathService);
@@ -152,7 +156,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new JoinLeaveListener(gameService), this);
     getServer().getPluginManager().registerEvents(new BedListener(this, gameService, contextService), this);
     getServer().getPluginManager().registerEvents(new DeathListener(this, deathService, contextService), this);
-    getServer().getPluginManager().registerEvents(new VoidFailSafeListener(this, deathService, contextService), this);
+    getServer().getPluginManager().registerEvents(new VoidFailSafeListener(this, contextService), this);
     getServer().getPluginManager().registerEvents(new PlayerRespawnListener(contextService), this);
     getServer().getPluginManager().registerEvents(new BuildRulesListener(this, contextService, buildRules), this);
     getServer().getPluginManager().registerEvents(new DamageRulesListener(this, contextService), this);
@@ -237,4 +241,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public TasksService tasks() { return tasksService; }
   public BorderService border() { return borderService; }
   public com.example.bedwars.services.ToolsService tools() { return toolsService; }
+  public com.example.bedwars.game.ArenaBoundaryPolicy bounds() { return boundaryPolicy; }
 }

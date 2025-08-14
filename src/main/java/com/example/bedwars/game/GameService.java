@@ -49,6 +49,14 @@ public final class GameService {
 
   public void setDeathService(DeathRespawnService drs) { this.deathService = drs; }
 
+  /** Handles a player falling into the void when no damage event was fired. */
+  public void failSafeVoid(Player p) {
+    if (deathService != null) {
+      p.sendTitle(plugin.messages().get("void.title"), "", 0, 40, 10);
+      deathService.handleDeath(p);
+    }
+  }
+
   /** Returns number of alive players for a team in an arena. */
   public int aliveCount(String arenaId, TeamColor team) {
     return contexts.aliveCount(arenaId, team);
