@@ -34,9 +34,9 @@ public final class LobbyService {
     }
     sanitizePlayer(p);
     Optional.ofNullable(location.get().orElse(null)).ifPresentOrElse(loc -> {
-      p.teleportAsync(loc);
+      p.teleport(loc);
     }, () -> {
-      p.kick(org.bukkit.ChatColor.RED + "Lobby non configuré. /bwadmin lobby set");
+      p.kickPlayer(org.bukkit.ChatColor.RED + "Lobby non configuré. /bwadmin lobby set");
     });
   }
 

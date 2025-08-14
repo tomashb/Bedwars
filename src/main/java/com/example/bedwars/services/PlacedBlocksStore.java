@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -16,7 +17,7 @@ import org.bukkit.block.Block;
  */
 public final class PlacedBlocksStore {
   // arena id -> chunk key -> set of packed block indexes
-  private final Map<String, Long2ObjectMap<ShortOpenHashSet>> data = new Long2ObjectOpenHashMap<>();
+  private final Map<String, Long2ObjectMap<ShortOpenHashSet>> data = new HashMap<>();
 
   private static long chunkKey(Block b) {
     return (((long) b.getX() >> 4) << 32) | (((long) b.getZ() >> 4) & 0xFFFFFFFFL);
@@ -40,7 +41,7 @@ public final class PlacedBlocksStore {
   public void record(Arena a, Block b) {
     long ck = chunkKey(b);
     short idx = index(b);
-    data.computeIfAbsent(a.id(), k -> new Long2ObjectOpenHashMap<>())
+    data.computeIfAbsent(a.id(), k -> new Long2ObjectOpenHashMap<ShortOpenHashSet>())
         .computeIfAbsent(ck, k -> new ShortOpenHashSet())
         .add(idx);
   }
