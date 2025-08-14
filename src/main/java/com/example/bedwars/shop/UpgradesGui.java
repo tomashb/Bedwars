@@ -6,10 +6,13 @@ import com.example.bedwars.arena.TeamData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.example.bedwars.shop.TeamUpgradesState;
@@ -22,6 +25,10 @@ import java.util.Map;
  */
 public final class UpgradesGui {
   private final BedwarsPlugin plugin;
+  private static final Enchantment GLOW_ENCH =
+      Enchantment.getByKey(NamespacedKey.minecraft("power")) != null
+          ? Enchantment.getByKey(NamespacedKey.minecraft("power"))
+          : Enchantment.DURABILITY;
 
   // layout slots according to spec
   public static final int SLOT_DIAMOND_COUNTER = 8;
@@ -86,8 +93,8 @@ public final class UpgradesGui {
         String lore = (have >= cost ? ChatColor.GRAY : ChatColor.RED) + plugin.messages().format("upgrades.cost", Map.of("cost", cost));
         im.setLore(java.util.List.of(lore));
       } else {
-        im.addEnchant(org.bukkit.enchantments.Enchantment.ARROW_DAMAGE, 1, true);
-        im.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        im.addEnchant(GLOW_ENCH, 1, true);
+        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         im.setLore(java.util.List.of(ChatColor.GREEN + plugin.messages().get("upgrades.max")));
       }
       it.setItemMeta(im);

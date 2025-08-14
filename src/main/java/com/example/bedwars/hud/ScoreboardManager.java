@@ -53,6 +53,12 @@ public final class ScoreboardManager {
     boards.put(p.getUniqueId(), new PlayerBoard(p, sb));
   }
 
+  /** Detach scoreboard from a single player. */
+  public void detach(Player p) {
+    boards.remove(p.getUniqueId());
+    p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+  }
+
   /** Detach scoreboard from all players. */
   public void clear() {
     boards.keySet().forEach(id -> {

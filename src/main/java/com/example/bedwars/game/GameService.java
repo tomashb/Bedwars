@@ -130,6 +130,8 @@ public final class GameService {
     if (a.lobby() != null) p.teleport(a.lobby());
     lobbyItems.giveLobbyItems(p);
     plugin.lighting().sanitizePlayer(p);
+    plugin.scoreboard().attach(p);
+    plugin.scoreboard().tick();
     messages.send(p, "player.joined_arena", Map.of("arena", arenaId));
 
     int count = contexts.countPlayers(arenaId);
@@ -146,6 +148,7 @@ public final class GameService {
     Arena a = plugin.arenas().get(arenaId).orElse(null);
     contexts.clear(p);
     if (a != null && toLobby && a.lobby() != null) p.teleport(a.lobby());
+    plugin.scoreboard().detach(p);
     messages.send(p, "player.left_arena", Map.of());
     if (a != null && a.state() == GameState.RUNNING) {
       checkVictory(a);
@@ -197,6 +200,7 @@ public final class GameService {
       contexts.markAlive(p);
     }
     messages.broadcast(a, "game.started");
+    plugin.scoreboard().tick();
 
     // start game timer for global tier announcements
     int timerTask = new BukkitRunnable() {

@@ -58,8 +58,14 @@ public final class ItemShopMenu {
       items.add(plugin.tools().createAxeIcon(p));
     }
     for (ShopItem si : plugin.shopConfig().items(cat)) {
-      Material mat = si.teamColored ? team.wool : si.mat;
-      ItemStack it = new ItemStack(mat, si.amount);
+      ItemStack it;
+      if (si.potion != null) {
+        it = PotionUtil.mkPotion(si.potion);
+      } else {
+        Material mat = si.teamColored ? team.wool : si.mat;
+        it = new ItemStack(mat, si.amount);
+      }
+      it.setAmount(si.amount);
       ItemMeta im = it.getItemMeta();
       if (im != null) {
         String name = si.name.replace("{team}", team.display);

@@ -114,21 +114,21 @@ RANGED:
     meta: { enchant: { POWER: 1, PUNCH: 1 } }
 
 POTIONS:
-  - id: SPEED2
-    icon: SUGAR
-    name: "&bSpeed II (45s)"
+  - id: SPEED2_45
+    icon: POTION
+    name: "&bPotion de Vitesse II (45s)"
     price: { EMERALD: 1 }
-    meta: { potion: { SPEED: { duration: 900, amplifier: 1 } } }
-  - id: JUMP5
-    icon: RABBIT_FOOT
-    name: "&aJump V (45s)"
+    meta: { type: SWIFTNESS, amplifier: 2, seconds: 45 }
+  - id: JUMP5_45
+    icon: POTION
+    name: "&bPotion de Saut V (45s)"
     price: { EMERALD: 1 }
-    meta: { potion: { JUMP: { duration: 900, amplifier: 4 } } }
-  - id: INVIS
-    icon: FERMENTED_SPIDER_EYE
-    name: "&7Invisibilité (30s)"
+    meta: { type: JUMP, amplifier: 5, seconds: 45 }
+  - id: INVIS_30
+    icon: POTION
+    name: "&bPotion d'Invisibilité (30s)"
     price: { EMERALD: 2 }
-    meta: { potion: { INVISIBILITY: { duration: 600, amplifier: 0 } }, hide_particles: true }
+    meta: { type: INVISIBILITY, amplifier: 1, seconds: 30, hide_particles: true }
 
 UTILITY:
   - id: GOLDEN_APPLE

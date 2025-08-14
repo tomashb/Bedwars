@@ -2,6 +2,7 @@ package com.example.bedwars.shop;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import com.example.bedwars.shop.PotionSpec;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -22,6 +23,7 @@ public final class ShopItem {
   public final boolean teamColored;
   public final boolean permanent;
   public final String bwItem;
+  public final PotionSpec potion;
 
   private ShopItem(
       String id,
@@ -33,7 +35,8 @@ public final class ShopItem {
       String name,
       boolean teamColored,
       boolean permanent,
-      String bwItem) {
+      String bwItem,
+      PotionSpec potion) {
 
     this.id = Objects.requireNonNull(id, "id");
     this.mat = Objects.requireNonNull(mat, "mat");
@@ -45,6 +48,7 @@ public final class ShopItem {
     this.teamColored = teamColored;
     this.permanent = permanent;
     this.bwItem = Objects.requireNonNullElse(bwItem, "");
+    this.potion = potion;
   }
 
   // ---------- Builder ----------
@@ -61,6 +65,7 @@ public final class ShopItem {
     private boolean teamColored = false;
     private boolean permanent = false;
     private String bwItem = "";
+    private PotionSpec potion;
 
     public Builder id(String id) { this.id = id; return this; }
     public Builder mat(Material m) { this.mat = m; return this; }
@@ -72,10 +77,11 @@ public final class ShopItem {
     public Builder teamColored(boolean yes) { this.teamColored = yes; return this; }
     public Builder permanent(boolean yes) { this.permanent = yes; return this; }
     public Builder bwItem(String tag) { this.bwItem = tag; return this; }
+    public Builder potion(PotionSpec ps) { this.potion = ps; return this; }
 
     public ShopItem build() {
       if (id == null || id.isBlank()) throw new IllegalStateException("ShopItem id is required");
-      return new ShopItem(id, mat, amount, currency, cost, enchants, name, teamColored, permanent, bwItem);
+      return new ShopItem(id, mat, amount, currency, cost, enchants, name, teamColored, permanent, bwItem, potion);
     }
   }
 }
