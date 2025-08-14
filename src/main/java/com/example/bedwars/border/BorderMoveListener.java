@@ -31,22 +31,27 @@ public final class BorderMoveListener implements Listener {
     if (a == null) return;
     BorderService.Settings b = border.cfg(a);
     if (!b.enabled) return;
+    if (ctx.isSpectating(p)) return;
     Location to = e.getTo();
     if (to == null) return;
 
-    // Clamp vertical
-    if (b.clampY && (to.getY() < b.minY || to.getY() > b.maxY)) {
+    int voidY = plugin.bounds().voidKillY();
+    if (a.state() == com.example.bedwars.arena.GameState.RUNNING && to.getY() < voidY) {
+      return; // fail-safe listener will handle void
+    }
+
+    if (a.state() != com.example.bedwars.arena.GameState.RUNNING && b.clampY && (to.getY() < b.minY || to.getY() > b.maxY)) {
       double clampedY = Math.max(b.minY, Math.min(b.maxY, to.getY()));
       Location tp = to.clone();
       tp.setY(clampedY);
       p.teleport(tp, PlayerTeleportEvent.TeleportCause.PLUGIN);
-      plugin.messages().send(p, "border.move_outside_message");
+      plugin.messages().send(p, "bounds.outside");
       return;
     }
 
     Vector2D c = border.centerFor(a);
     double r = b.radius;
-    if (BorderMath.outside2D(to, c.x(), c.z(), r)) {
+    if (to.getY() >= voidY && BorderMath.outside2D(to, c.x(), c.z(), r)) {
       switch (b.onCross) {
         case PUSH_BACK -> {
           e.setCancelled(true);
@@ -60,14 +65,14 @@ public final class BorderMoveListener implements Listener {
         }
         default -> e.setCancelled(true);
       }
-      plugin.messages().send(p, "border.move_outside_message");
+      plugin.messages().send(p, "bounds.outside");
       return;
     }
 
     // Near-border warning
     double dist = Math.hypot(to.getX() - c.x(), to.getZ() - c.z());
-    if (r - dist <= b.warning) {
-      plugin.actionBar().push(p, plugin.messages().msg("border.move_outside_message"), 1);
+    if (r - dist <= b.warning && to.getY() >= voidY) {
+      plugin.actionBar().push(p, plugin.messages().msg("bounds.outside"), 1);
     }
   }
 }

@@ -195,8 +195,14 @@ gens:
 
 border:
   build_block_outside_message: "&cHors limites de l'arène."
-  move_outside_message: "&cRetourne dans la zone de jeu !"
   cap_reached: "&7Cap atteint: &f{type} &7({count}/{cap}). Videz le pad !"
+
+bounds:
+  outside: "&cRetourne dans la zone de jeu !"
+
+void:
+  title: "&cVous êtes mort !"
+  subtitle_respawn: "&7Respawn dans &e{sec}s"
 
 upgrades:
   need_diamond: "&cIl faut &b{cost}◆ diamants."
