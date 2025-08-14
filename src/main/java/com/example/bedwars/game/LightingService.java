@@ -6,17 +6,21 @@ import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamData;
 import com.example.bedwars.gen.Generator;
 import com.example.bedwars.shop.NpcData;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Locale;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -27,11 +31,39 @@ import org.bukkit.potion.PotionEffectType;
  */
 public final class LightingService {
   private final BedwarsPlugin plugin;
+  private boolean missingDarknessWarned;
 
   public LightingService(BedwarsPlugin plugin) {
     this.plugin = plugin;
     // periodic sanity to remove blindness and optionally give night vision
     Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 100L, 100L);
+  }
+
+  private static PotionEffectType resolveEffect(String name) {
+    // 1) static constant
+    try {
+      Field f = PotionEffectType.class.getField(name);
+      Object v = f.get(null);
+      if (v instanceof PotionEffectType pet) return pet;
+    } catch (NoSuchFieldException | IllegalAccessException ignored) {
+    }
+    // 2) traditional API
+    try {
+      PotionEffectType pet = PotionEffectType.getByName(name);
+      if (pet != null) return pet;
+    } catch (Throwable ignored) {
+    }
+    // 3) Registry lookup (1.19+)
+    try {
+      Class<?> regClz = Class.forName("org.bukkit.Registry");
+      Field f = regClz.getField("POTION_EFFECT_TYPE");
+      Object registry = f.get(null);
+      Method get = registry.getClass().getMethod("get", NamespacedKey.class);
+      Object v = get.invoke(registry, NamespacedKey.minecraft(name.toLowerCase(Locale.ROOT)));
+      if (v instanceof PotionEffectType pet) return pet;
+    } catch (Throwable ignored) {
+    }
+    return null;
   }
 
   /** Apply day time and clear weather according to config. */
@@ -81,10 +113,13 @@ public final class LightingService {
   /** Remove blindness/darkness and optionally grant night vision. */
   public void sanitizePlayer(Player p) {
     p.removePotionEffect(PotionEffectType.BLINDNESS);
-    try {
-      PotionEffectType darkness = PotionEffectType.valueOf("DARKNESS");
+    PotionEffectType darkness = resolveEffect("DARKNESS");
+    if (darkness != null) {
       p.removePotionEffect(darkness);
-    } catch (IllegalArgumentException ignored) {}
+    } else if (!missingDarknessWarned) {
+      plugin.logWarning("Potion effect DARKNESS not found; running on older server?");
+      missingDarknessWarned = true;
+    }
     if (plugin.getConfig().getBoolean("lighting.waiting_night_vision", false) && isWaiting(p)) {
       PotionEffect nv = new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 30, 0, true, false);
       p.addPotionEffect(nv);
