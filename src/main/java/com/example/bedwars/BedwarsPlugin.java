@@ -52,6 +52,7 @@ import com.example.bedwars.border.BorderService;
 import com.example.bedwars.border.BorderMoveListener;
 import com.example.bedwars.border.BorderBuildListener;
 import com.example.bedwars.border.BorderStateListener;
+import com.example.bedwars.arena.GameState;
 
 public final class BedwarsPlugin extends JavaPlugin {
 
@@ -173,7 +174,14 @@ public final class BedwarsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    if (arenaManager != null) arenaManager.saveAll();
+    if (arenaManager != null) {
+      arenaManager.all().forEach(a -> {
+        if (a.state() == GameState.RUNNING && buildRules != null) {
+          buildRules.cleanupPlacedSync(a);
+        }
+      });
+      arenaManager.saveAll();
+    }
     if (npcManager != null) {
       arenaManager.all().forEach(npcManager::despawnAll);
     }

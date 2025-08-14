@@ -30,6 +30,12 @@ Plugin BedWars pour Spigot/Paper 1.21.
 Permissions globales : `bedwars.admin.*` (ops par défaut) et gameplay :
 `bedwars.menu.rules`, `bedwars.build.place`.
 
+## Nettoyage des blocs
+À la fin d'une partie, tous les blocs posés sont supprimés pour rendre la carte
+propre. Le processus est étalé sur plusieurs ticks afin d'éviter les lags :
+ajustez `cleanup.blocks_per_tick` dans `config.yml` (400 par défaut) selon vos
+performances.
+
 ## Captures
 Captures d'écran à insérer ici.
 

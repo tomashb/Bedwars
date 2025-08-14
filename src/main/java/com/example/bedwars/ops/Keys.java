@@ -20,7 +20,6 @@ public final class Keys {
   private final NamespacedKey GEN_HOLO;
   private final NamespacedKey GEN_CAP;
   private final NamespacedKey BW_ITEM;
-  private final NamespacedKey BW_PLACED;
 
   public Keys(Plugin plugin) {
     this.ARENA_ID = new NamespacedKey(plugin, "arena_id");
@@ -32,7 +31,6 @@ public final class Keys {
     this.GEN_HOLO = new NamespacedKey(plugin, "gen_holo");
     this.GEN_CAP = new NamespacedKey(plugin, "gen_cap");
     this.BW_ITEM = new NamespacedKey(plugin, "bw_item");
-    this.BW_PLACED = new NamespacedKey(plugin, "bw_placed");
   }
 
   public NamespacedKey ARENA_ID() { return ARENA_ID; }
@@ -52,7 +50,5 @@ public final class Keys {
   public NamespacedKey GEN_CAP() { return GEN_CAP; }
 
   public NamespacedKey BW_ITEM() { return BW_ITEM; }
-
-  public NamespacedKey BW_PLACED() { return BW_PLACED; }
 }
 

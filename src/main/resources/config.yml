@@ -239,6 +239,9 @@ reset:
   preserve_on_disable: true
   clear_placed_blocks_on_end: true
 
+cleanup:
+  blocks_per_tick: 400
+
 lighting:
   force_day: true
   day_time: 6000

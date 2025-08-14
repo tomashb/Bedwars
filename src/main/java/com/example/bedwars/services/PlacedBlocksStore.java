@@ -1,77 +1,98 @@
 package com.example.bedwars.services;
 
 import com.example.bedwars.arena.Arena;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
+import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.Location;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.block.Block;
 
 /**
- * Tracks blocks placed by players per arena using packed coordinates for
- * efficient storage and lookup.
+ * Tracks blocks placed during a game using compact indexes grouped by chunk.
+ * Only blocks recorded here are eligible for removal during arena cleanup.
  */
 public final class PlacedBlocksStore {
-  private final Map<String, LongOpenHashSet> byArena = new ConcurrentHashMap<>();
+  // arena id -> chunk key -> set of packed block indexes
+  private final Map<String, Long2ObjectMap<ShortOpenHashSet>> data = new Long2ObjectOpenHashMap<>();
 
-  private static long pack(Location loc) {
-    long x = loc.getBlockX() & 0x3FFFFFFL;
-    long y = loc.getBlockY() & 0xFFFL;
-    long z = loc.getBlockZ() & 0x3FFFFFFL;
-    return (x << 38) | (y << 26) | z;
+  private static long chunkKey(Block b) {
+    return (((long) b.getX() >> 4) << 32) | (((long) b.getZ() >> 4) & 0xFFFFFFFFL);
+  }
+
+  private static long chunkKey(Location loc) {
+    return (((long) loc.getBlockX() >> 4) << 32) | (((long) loc.getBlockZ() >> 4) & 0xFFFFFFFFL);
+  }
+
+  private static short index(Block b) {
+    return (short) (((b.getY() & 0xFF) << 8) | ((b.getX() & 0xF) << 4) | (b.getZ() & 0xF));
+  }
+
+  private static short index(Location loc) {
+    return (short) (((loc.getBlockY() & 0xFF) << 8)
+        | ((loc.getBlockX() & 0xF) << 4)
+        | (loc.getBlockZ() & 0xF));
   }
 
   /** Record a placed block for the given arena. */
-  public void add(String arenaId, Location loc) {
-    byArena.computeIfAbsent(arenaId, k -> new LongOpenHashSet()).add(pack(loc));
+  public void record(Arena a, Block b) {
+    long ck = chunkKey(b);
+    short idx = index(b);
+    data.computeIfAbsent(a.id(), k -> new Long2ObjectOpenHashMap<>())
+        .computeIfAbsent(ck, k -> new ShortOpenHashSet())
+        .add(idx);
   }
 
-  /** Check if the block at location belongs to the given arena and was placed. */
+  /**
+   * Whether the given block location is tracked as placed in the arena.
+   */
   public boolean contains(String arenaId, Location loc) {
-    LongOpenHashSet set = byArena.get(arenaId);
-    return set != null && set.contains(pack(loc));
+    Long2ObjectMap<ShortOpenHashSet> m = data.get(arenaId);
+    if (m == null) return false;
+    ShortOpenHashSet set = m.get(chunkKey(loc));
+    return set != null && set.contains(index(loc));
   }
 
-  /** Remove a placed block entry. */
+  /** Remove a placed block entry if present. */
   public void remove(String arenaId, Location loc) {
-    LongOpenHashSet set = byArena.get(arenaId);
-    if (set != null) set.remove(pack(loc));
+    Long2ObjectMap<ShortOpenHashSet> m = data.get(arenaId);
+    if (m == null) return;
+    long ck = chunkKey(loc);
+    ShortOpenHashSet set = m.get(ck);
+    if (set != null) {
+      set.remove(index(loc));
+      if (set.isEmpty()) m.remove(ck);
+    }
   }
 
   /** Get arena id associated with location, or null. */
   public String arenaAt(Location loc) {
-    long k = pack(loc);
-    for (var e : byArena.entrySet()) {
-      if (e.getValue().contains(k)) return e.getKey();
+    long ck = chunkKey(loc);
+    short idx = index(loc);
+    for (var e : data.entrySet()) {
+      ShortOpenHashSet set = e.getValue().get(ck);
+      if (set != null && set.contains(idx)) return e.getKey();
     }
     return null;
   }
 
-  /** Clear tracked entries for an arena without modifying the world. */
-  public void clearArena(String arenaId) {
-    byArena.remove(arenaId);
+  /** Iterate chunk entries for cleanup. */
+  public Collection<Long2ObjectMap.Entry<ShortOpenHashSet>> chunks(Arena a) {
+    return data.getOrDefault(a.id(), Long2ObjectMaps.emptyMap()).long2ObjectEntrySet();
   }
 
-  /**
-   * Remove all tracked blocks in an arena's world by setting them to AIR.
-   */
-  public void clearAll(JavaPlugin plugin, Arena a) {
-    LongOpenHashSet set = byArena.get(a.id());
-    if (set == null || set.isEmpty()) return;
-    World w = Bukkit.getWorld(a.world().name());
-    for (long k : set) {
-      int x = (int) (k >> 38);
-      int y = (int) ((k >> 26) & 0xFFF);
-      int z = (int) (k & 0x3FFFFFFL);
-      Block b = w.getBlockAt(x, y, z);
-      b.setType(Material.AIR, false);
-      b.removeMetadata("bw_placed", plugin);
-    }
-    set.clear();
+  /** Remove all tracking data for the arena. */
+  public void clear(Arena a) {
+    Long2ObjectMap<ShortOpenHashSet> m = data.remove(a.id());
+    if (m != null) m.clear();
+  }
+
+  /** Number of tracked chunks for arena (debug/testing). */
+  public int chunkCount(Arena a) {
+    Long2ObjectMap<ShortOpenHashSet> m = data.get(a.id());
+    return m == null ? 0 : m.size();
   }
 }
 

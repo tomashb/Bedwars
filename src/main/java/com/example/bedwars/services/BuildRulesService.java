@@ -20,11 +20,13 @@ import org.bukkit.Material;
 public final class BuildRulesService {
   private final BedwarsPlugin plugin;
   private final PlacedBlocksStore placed = new PlacedBlocksStore();
+  private final ArenaCleaner cleaner;
   private final Set<Material> staticAllowed;
   private final Set<Material> dynamicAllowed = java.util.EnumSet.noneOf(Material.class);
 
   public BuildRulesService(BedwarsPlugin plugin) {
     this.plugin = plugin;
+    this.cleaner = new ArenaCleaner(plugin, placed);
     List<String> mats = new ArrayList<>();
     mats.addAll(plugin.getConfig().getStringList("build.extra_allowed_materials"));
     mats.addAll(plugin.getConfig().getStringList("build.allowed_materials"));
@@ -57,28 +59,31 @@ public final class BuildRulesService {
     return dynamic || staticAllowed.contains(mat);
   }
 
-  public void recordPlacement(String arenaId, Location loc) {
-    placed.add(arenaId, loc);
+  public PlacedBlocksStore store() { return placed; }
+
+  public void recordPlaced(Arena a, org.bukkit.block.Block b) {
+    placed.record(a, b);
   }
 
-  public boolean wasPlaced(String arenaId, Location loc) {
-    return placed.contains(arenaId, loc);
+  public boolean wasPlaced(Arena a, Location loc) {
+    return placed.contains(a.id(), loc);
   }
 
-  public void removePlaced(String arenaId, Location loc) {
-    placed.remove(arenaId, loc);
+  public void removePlaced(Arena a, Location loc) {
+    placed.remove(a.id(), loc);
   }
 
   public String arenaAt(Location loc) {
     return placed.arenaAt(loc);
   }
 
-  public void clearArena(String arenaId) {
-    placed.clearArena(arenaId);
+  /** Start asynchronous cleanup of placed blocks for the arena. */
+  public void cleanupPlaced(Arena arena) {
+    cleaner.cleanupPlacedBlocks(arena);
   }
 
-  /** Clear and remove all player placed blocks in the arena world. */
-  public void clearArenaBlocks(Arena arena) {
-    placed.clearAll(plugin, arena);
+  /** Remove all placed blocks synchronously. */
+  public void cleanupPlacedSync(Arena arena) {
+    cleaner.cleanupSync(arena);
   }
 }
