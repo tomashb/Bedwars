@@ -1,6 +1,37 @@
+version: 1
 upgrades:
-  sharpness:   { cost_diamond: 4, max: 1, name: "&bAffûtage" }
-  protection:  { cost_diamond: 2, per_level: true, max: 4, name: "&bProtection {level}" }
-  manic_miner: { cost_diamond: 2, per_level: true, max: 2, name: "&bHâte {level}" }
-  forge:       { cost_diamond: 2, per_level: true, max: 4, name: "&bForge {level}" }
-  trap_alarm:  { cost_diamond: 1, name: "&dPiège: Alarme" }
+  SHARP_SWORDS:
+    name: "&bSharpened Swords"
+    desc: "&7+Tranchant I sur les épées de ton équipe."
+    cost: 4
+    max_level: 1
+  REINFORCED_ARMOR:
+    name: "&bReinforced Armor"
+    levels:
+      - { level: 1, prot: 1, cost: 2 }
+      - { level: 2, prot: 2, cost: 4 }
+      - { level: 3, prot: 3, cost: 8 }
+      - { level: 4, prot: 4, cost: 16 }
+  MANIAC_MINER:
+    name: "&bManiac Miner"
+    levels:
+      - { level: 1, haste: 1, cost: 2 }
+      - { level: 2, haste: 2, cost: 4 }
+  FORGE:
+    name: "&bForge"
+    levels:
+      - { level: 1, iron_rate: 1.25, gold_rate: 1.10, cost: 2 }
+      - { level: 2, iron_rate: 1.50, gold_rate: 1.25, cost: 4 }
+      - { level: 3, iron_rate: 1.75, gold_rate: 1.40, emerald_base: true, cost: 6 }
+      - { level: 4, iron_rate: 2.00, gold_rate: 1.60, cost: 8 }
+  HEAL_POOL:
+    name: "&bHeal Pool"
+    desc: "&7Régénération à la base (rayon 8)."
+    cost: 1
+  TRAPS:
+    slots: 3
+    catalogue:
+      - { id: ALARM, name: "&fAlarm", cost: 1 }
+      - { id: COUNTER, name: "&fCounter-Offensive", cost: 1 }
+      - { id: MINER_FATIGUE, name: "&fMiner Fatigue", cost: 1 }
+

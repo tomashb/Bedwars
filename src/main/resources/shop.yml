@@ -1,90 +1,202 @@
-categories:
-  blocks:
-    - id: WOOL_TEAM
-      name: "&fLaine (&7équipe&f) ×16"
-      material: WHITE_WOOL
-      team_colored: true
-      cost: { currency: IRON, amount: 4 }
-      amount: 16
-    - id: GLASS_BLAST
-      name: "&fVerre anti-explosion ×4"
-      material: GLASS
-      cost: { currency: IRON, amount: 12 }
-      amount: 4
-    - id: END_STONE
-      name: "&fEndstone ×12"
-      material: END_STONE
-      cost: { currency: IRON, amount: 24 }
-      amount: 12
+version: 1
+layout:
+  tabs: [QUICK, BLOCKS, MELEE, ARMOR, TOOLS, RANGED, UTILITY, POTIONS, SPECIAL]
 
-  melee:
-    - id: STONE_SWORD
-      name: "&fÉpée en pierre"
-      material: STONE_SWORD
-      cost: { currency: IRON, amount: 10 }
-    - id: IRON_SWORD
-      name: "&fÉpée en fer"
-      material: IRON_SWORD
-      cost: { currency: GOLD, amount: 7 }
-    - id: DIAMOND_SWORD
-      name: "&bÉpée en diamant"
-      material: DIAMOND_SWORD
-      cost: { currency: EMERALD, amount: 4 }
+currency: # mapping simple
+  IRON: IRON_INGOT
+  GOLD: GOLD_INGOT
+  EMERALD: EMERALD
 
-  armor:
-    - id: CHAINMAIL_PERM
-      name: "&7Cotte (&operma&7)"
-      material: CHAINMAIL_BOOTS
-      permanent: true
-      cost: { currency: IRON, amount: 30 }
-    - id: IRON_ARMOR_PERM
-      name: "&fArmure fer (&operma&f)"
-      material: IRON_BOOTS
-      permanent: true
-      cost: { currency: GOLD, amount: 12 }
-    - id: DIAMOND_ARMOR_PERM
-      name: "&bArmure diamant (&operma&b)"
-      material: DIAMOND_BOOTS
-      permanent: true
-      cost: { currency: EMERALD, amount: 6 }
+QUICK: [] # laissé vide; rempli par joueur (persist playerdata/<uuid>.json)
 
-  tools:
-    - id: SHEARS_PERM
-      name: "&fCisailles (&operma&f)"
-      material: SHEARS
-      permanent: true
-      cost: { currency: IRON, amount: 20 }
-    - id: PICK_WOOD
-      name: "&fPioche I"
-      material: WOODEN_PICKAXE
-      cost: { currency: IRON, amount: 10 }
-    - id: AXE_WOOD
-      name: "&fHache I"
-      material: WOODEN_AXE
-      cost: { currency: IRON, amount: 10 }
+BLOCKS:
+  - id: WOOL_16
+    icon: WHITE_WOOL
+    name: "&fLaine x16"
+    price: { IRON: 4 }
+    give: { material_by_team_color: "*_WOOL", amount: 16 } # laine auto-colorée
+  - id: END_STONE_12
+    icon: END_STONE
+    name: "&eEndstone x12"
+    price: { IRON: 24 }
+    give: { material: END_STONE, amount: 12 }
+  - id: GLASS_4
+    icon: GLASS
+    name: "&bVerre anti-explosion x4"
+    price: { IRON: 12 }
+    meta: { blast_proof: true }
+    give: { material: GLASS, amount: 4 }
+  - id: WOOD_16
+    icon: OAK_PLANKS
+    name: "&6Planches x16"
+    price: { GOLD: 4 }
+    give: { material: OAK_PLANKS, amount: 16 }
+  - id: OBSIDIAN_4
+    icon: OBSIDIAN
+    name: "&5Obsidienne x4"
+    price: { EMERALD: 4 }
+    give: { material: OBSIDIAN, amount: 4 }
 
-  ranged:
-    - id: BOW_BASIC
-      name: "&fArc"
-      material: BOW
-      cost: { currency: GOLD, amount: 12 }
-    - id: ARROW_X8
-      name: "&fFlèches ×8"
-      material: ARROW
-      amount: 8
-      cost: { currency: GOLD, amount: 2 }
+MELEE:
+  - id: STONE_SWORD
+    icon: STONE_SWORD
+    name: "&7Épée en pierre"
+    price: { IRON: 10 }
+    meta: { unbreakable: true, no_drop: true }
+    replace: { slot: MAIN_HAND, if_type_ends_with: "_SWORD" } # remplace l'épée actuelle
+  - id: IRON_SWORD
+    icon: IRON_SWORD
+    name: "&fÉpée en fer"
+    price: { GOLD: 7 }
+    meta: { unbreakable: true, no_drop: true }
+    replace: { slot: MAIN_HAND, if_type_ends_with: "_SWORD" }
+  - id: DIAMOND_SWORD
+    icon: DIAMOND_SWORD
+    name: "&bÉpée en diamant"
+    price: { EMERALD: 4 }
+    meta: { unbreakable: true, no_drop: true }
+    replace: { slot: MAIN_HAND, if_type_ends_with: "_SWORD" }
+  - id: KNOCKBACK_STICK
+    icon: STICK
+    name: "&eBâton KB I"
+    price: { GOLD: 5 }
+    meta: { enchant: { KNOCKBACK: 1 }, unbreakable: true }
 
-  utility:
-    - id: FIREBALL
-      name: "&fBoule de feu"
-      material: FIRE_CHARGE
-      cost: { currency: IRON, amount: 40 }
-      bw_item: fireball
-    - id: TNT
-      name: "&fTNT"
-      material: TNT
-      cost: { currency: GOLD, amount: 4 }
-    - id: ENDER_PEARL
-      name: "&bPerle"
-      material: ENDER_PEARL
-      cost: { currency: EMERALD, amount: 4 }
+ARMOR: # armure permanente (leggings + boots upgradés)
+  - id: CHAINMAIL_SET
+    icon: CHAINMAIL_BOOTS
+    name: "&7Armure en cotte (perm)"
+    price: { IRON: 30 }
+    grant_permanent_armor: CHAINMAIL # équipe leggings/boots chainmail
+  - id: IRON_SET
+    icon: IRON_BOOTS
+    name: "&fArmure en fer (perm)"
+    price: { GOLD: 12 }
+    requires_no_better: true
+    grant_permanent_armor: IRON
+  - id: DIAMOND_SET
+    icon: DIAMOND_BOOTS
+    name: "&bArmure en diamant (perm)"
+    price: { EMERALD: 6 }
+    requires_no_better: true
+    grant_permanent_armor: DIAMOND
+
+TOOLS: # cisailles permanentes + outils évolutifs
+  - id: SHEARS
+    icon: SHEARS
+    name: "&fCisailles (perm)"
+    price: { IRON: 20 }
+    meta: { unbreakable: true }
+    grant_permanent_tool: SHEARS
+  - id: PICK_T1
+    icon: WOODEN_PICKAXE
+    name: "&fPioche I (Efficacité I)"
+    price: { IRON: 10 }
+    grant_pick_tier: 1
+  - id: PICK_T2
+    icon: IRON_PICKAXE
+    name: "&fPioche II (Efficacité II)"
+    price: { IRON: 20 }
+    grant_pick_tier: 2
+  - id: PICK_T3
+    icon: GOLDEN_PICKAXE
+    name: "&fPioche III (Efficacité III)"
+    price: { GOLD: 6 }
+    grant_pick_tier: 3
+  - id: PICK_T4
+    icon: DIAMOND_PICKAXE
+    name: "&bPioche IV (Efficacité IV)"
+    price: { GOLD: 12 }
+    grant_pick_tier: 4
+
+RANGED:
+  - id: BOW
+    icon: BOW
+    name: "&fArc"
+    price: { GOLD: 12 }
+  - id: BOW_P1
+    icon: BOW
+    name: "&fArc Puissance I"
+    price: { GOLD: 24 }
+    meta: { enchant: { POWER: 1 } }
+  - id: BOW_P1_PUNCH1
+    icon: BOW
+    name: "&bArc P1 / Recul I"
+    price: { EMERALD: 6 }
+    meta: { enchant: { POWER: 1, PUNCH: 1 } }
+  - id: ARROW_8
+    icon: ARROW
+    name: "&fFlèches x8"
+    price: { GOLD: 2 }
+    give: { material: ARROW, amount: 8 }
+
+UTILITY:
+  - id: GAP
+    icon: GOLDEN_APPLE
+    name: "&6Pomme d'or"
+    price: { GOLD: 3 }
+    give: { material: GOLDEN_APPLE, amount: 1 }
+  - id: TNT
+    icon: TNT
+    name: "&cTNT (amorçage auto)"
+    price: { GOLD: 4 }
+    meta: { tnt_primed: true } # utilise ton système TNT du shop
+  - id: FIREBALL
+    icon: FIRE_CHARGE
+    name: "&6Boule de feu"
+    price: { IRON: 40 }
+    meta: { projectile: FIREBALL }
+  - id: BRIDGE_EGG
+    icon: EGG
+    name: "&aBridge Egg"
+    price: { EMERALD: 1 }
+    meta: { bridge_egg: true }
+  - id: WATER
+    icon: WATER_BUCKET
+    name: "&bSeau d'eau"
+    price: { GOLD: 3 }
+  - id: SPONGE_4
+    icon: SPONGE
+    name: "&eÉponge x4"
+    price: { GOLD: 3 }
+    give: { material: SPONGE, amount: 4 }
+  - id: BEDBUG
+    icon: SILVERFISH_SPAWN_EGG
+    name: "&7Bedbug"
+    price: { IRON: 30 }
+    meta: { spawn: SILVERFISH, lifetime_ticks: 600 }
+  - id: GOLEM
+    icon: IRON_BLOCK
+    name: "&fGolem de fer"
+    price: { IRON: 120 }
+    meta: { spawn: IRON_GOLEM, lifetime_ticks: 1200, team_owner: true }
+  - id: MILK
+    icon: MILK_BUCKET
+    name: "&fMagic Milk"
+    price: { GOLD: 4 }
+    meta: { trap_immune_ticks: 600 }
+
+POTIONS:
+  - id: JUMP
+    icon: RABBIT_FOOT
+    name: "&aSaut V (45s)"
+    price: { EMERALD: 1 }
+    meta: { potion: { JUMP: { duration: 900, amplifier: 4 } } }
+  - id: SPEED
+    icon: SUGAR
+    name: "&bVitesse II (45s)"
+    price: { EMERALD: 1 }
+    meta: { potion: { SPEED: { duration: 900, amplifier: 1 } } }
+  - id: INVIS
+    icon: FERMENTED_SPIDER_EYE
+    name: "&7Invisibilité (30s)"
+    price: { EMERALD: 2 }
+    meta: { potion: { INVISIBILITY: { duration: 600, amplifier: 0 } }, hide_particles: true }
+
+SPECIAL:
+  - id: POPUP_TOWER
+    icon: OAK_DOOR
+    name: "&6Pop-Up Tower"
+    price: { IRON: 24 }
+    meta: { structure: POPUP_TOWER }
+
