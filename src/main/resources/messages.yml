@@ -13,6 +13,8 @@ errors:
   no_build_generator: "&cImpossible de construire sur un générateur."
   cannot_remove_armor: "&cTu ne peux pas enlever ton armure."
   cannot_drop_sword: "&cTu ne peux pas jeter ton épée."
+  pickaxe:
+    seq: "&cTu dois acheter le niveau précédent d'abord."
 
 countdown:
   chat: "&eLa partie démarre dans &6{sec}s"
@@ -134,6 +136,14 @@ shop:
   bought: "&aAchat effectué: &f{item}."
   maxed: "&7Déjà au niveau maximal."
   trap-added: "&aPiège ajouté. File: {count}/3"
+  tools:
+    pickaxe:
+      title: "&bPioche"
+      current: "&7Actuel: &f{mat}&7 (Efficacité {eff})"
+      next: "&eProchain: &f{mat}&7 (Efficacité {eff}) &8• &6{price}"
+      max: "&aAu niveau maximum"
+      permanent: "&7Permanent • Réappliqué au respawn"
+      bought: "&aPioche améliorée vers &f{mat}&a (Efficacité {eff})"
 
 game:
   already-in: "&7Vous êtes déjà dans une arène."

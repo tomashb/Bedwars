@@ -81,6 +81,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private ResetManager resetManager;
   private TasksService tasksService;
   private BorderService borderService;
+  private com.example.bedwars.services.ToolsService toolsService;
 
   @Override
   public void onEnable() {
@@ -124,6 +125,7 @@ public final class BedwarsPlugin extends JavaPlugin {
       this.npcManager.ensureSpawned(a);
     }
     this.tasksService = new TasksService(this);
+    this.toolsService = new com.example.bedwars.services.ToolsService(this);
 
     this.actionBarBus = new com.example.bedwars.hud.ActionBarBus();
     if (getConfig().getBoolean("actionbar.enabled", true)) {
@@ -161,6 +163,7 @@ public final class BedwarsPlugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new BorderMoveListener(this, contextService, borderService), this);
     getServer().getPluginManager().registerEvents(new BorderBuildListener(this, contextService, borderService), this);
     getServer().getPluginManager().registerEvents(new BorderStateListener(borderService), this);
+    getServer().getPluginManager().registerEvents(new com.example.bedwars.listeners.ToolsListener(toolsService), this);
 
     getLogger().info("Bedwars loaded.");
   }
@@ -221,4 +224,5 @@ public final class BedwarsPlugin extends JavaPlugin {
   public ResetManager reset() { return resetManager; }
   public TasksService tasks() { return tasksService; }
   public BorderService border() { return borderService; }
+  public com.example.bedwars.services.ToolsService tools() { return toolsService; }
 }
