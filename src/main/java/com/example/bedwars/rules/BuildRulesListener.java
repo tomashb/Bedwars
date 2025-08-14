@@ -21,7 +21,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+// removed metadata usage
 
 /**
  * Handles build protections: only allow breaking player placed blocks and
@@ -81,8 +82,7 @@ public final class BuildRulesListener implements Listener {
       return;
     }
     if (plugin.getConfig().getBoolean("build.track_placed_blocks", true)) {
-      e.getBlockPlaced().setMetadata("bw_placed", new FixedMetadataValue(plugin, true));
-      buildRules.recordPlacement(arenaId, e.getBlockPlaced().getLocation());
+      buildRules.recordPlaced(a, e.getBlockPlaced());
     }
   }
 
@@ -143,13 +143,27 @@ public final class BuildRulesListener implements Listener {
     boolean track = plugin.getConfig().getBoolean("build.track_placed_blocks", true);
     if (plugin.getConfig().getBoolean("rules.break-only-placed", true)
         && track
-        && !buildRules.wasPlaced(arenaId, b.getLocation())) {
+        && !buildRules.wasPlaced(a, b.getLocation())) {
       e.setCancelled(true);
       plugin.messages().send(p, "errors.map_protected");
     } else if (track) {
-      b.removeMetadata("bw_placed", plugin);
-      buildRules.removePlaced(arenaId, b.getLocation());
+      buildRules.removePlaced(a, b.getLocation());
     }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onBucket(PlayerBucketEmptyEvent e) {
+    Player p = e.getPlayer();
+    String arenaId = ctx.getArena(p);
+    if (arenaId == null) return;
+    Arena a = plugin.arenas().get(arenaId).orElse(null);
+    if (a == null || !allowedStates.contains(a.state())) {
+      e.setCancelled(true);
+      plugin.messages().send(p, "errors.not_running");
+      return;
+    }
+    if (!plugin.getConfig().getBoolean("build.track_placed_blocks", true)) return;
+    buildRules.recordPlaced(a, e.getBlock());
   }
 
   private boolean nearNPC(Arena a, Location loc) {

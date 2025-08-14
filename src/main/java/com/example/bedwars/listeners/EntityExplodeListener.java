@@ -28,10 +28,11 @@ public final class EntityExplodeListener implements Listener {
     if (!restrict) return;
     e.blockList().removeIf(b -> {
       if (Tag.BEDS.isTagged(b.getType())) return true;
-      if (!b.hasMetadata("bw_placed")) return true;
-      String arena = buildRules.arenaAt(b.getLocation());
-      if (arena == null) return true;
-      buildRules.removePlaced(arena, b.getLocation());
+      String arenaId = buildRules.arenaAt(b.getLocation());
+      if (arenaId == null) return true;
+      var arenaOpt = plugin.arenas().get(arenaId);
+      if (arenaOpt.isEmpty()) return true;
+      buildRules.removePlaced(arenaOpt.get(), b.getLocation());
       return false;
     });
   }

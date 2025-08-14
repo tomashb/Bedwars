@@ -44,7 +44,7 @@ public final class TntListener implements Listener {
     Location loc = e.getBlockPlaced().getLocation().add(0.5, 0, 0.5);
     e.setCancelled(true);
     e.getBlockPlaced().setType(Material.AIR);
-    buildRules.removePlaced(arenaId, e.getBlockPlaced().getLocation());
+    buildRules.removePlaced(a, e.getBlockPlaced().getLocation());
     TNTPrimed t = (TNTPrimed) loc.getWorld().spawnEntity(loc, EntityType.TNT);
     t.setFuseTicks(plugin.getConfig().getInt("tnt.fuse_ticks", 40));
     if (plugin.getConfig().getBoolean("tnt.attribute_owner", true)) t.setSource(p);
