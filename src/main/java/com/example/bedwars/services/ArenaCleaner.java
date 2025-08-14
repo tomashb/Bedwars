@@ -5,6 +5,7 @@ import com.example.bedwars.arena.Arena;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.ShortIterator;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
+import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -29,7 +30,8 @@ public final class ArenaCleaner {
 
   /** Start an asynchronous, budgeted cleanup task for the arena. */
   public BukkitTask cleanupPlacedBlocks(Arena a) {
-    World w = a.world();
+    World w = Bukkit.getWorld(a.world().name());
+    Objects.requireNonNull(w, "World not loaded: " + a.world().name());
     var it = store.chunks(a).iterator();
     final BukkitTask[] handle = new BukkitTask[1];
     handle[0] = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -61,7 +63,8 @@ public final class ArenaCleaner {
 
   /** Remove all recorded blocks synchronously (used on plugin disable). */
   public void cleanupSync(Arena a) {
-    World w = a.world();
+    World w = Bukkit.getWorld(a.world().name());
+    Objects.requireNonNull(w, "World not loaded: " + a.world().name());
     for (Long2ObjectMap.Entry<ShortOpenHashSet> e : store.chunks(a)) {
       int chunkX = (int) (e.getLongKey() >> 32);
       int chunkZ = (int) e.getLongKey();

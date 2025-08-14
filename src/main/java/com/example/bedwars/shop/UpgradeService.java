@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -31,6 +32,25 @@ public final class UpgradeService {
   private int[] trapCosts = {1,2,4};
   private int trapSlots = 3;
   private final Map<String,Integer> healTasks = new HashMap<>();
+
+  private static final Enchantment FEATHER_FALLING_ENCH = resolveFeatherFalling();
+
+  private static Enchantment resolveFeatherFalling() {
+    try {
+      var f = Enchantment.class.getField("PROTECTION_FALL");
+      Object v = f.get(null);
+      if (v instanceof Enchantment e) return e;
+    } catch (Throwable ignored) {}
+    try {
+      var f = Enchantment.class.getField("FEATHER_FALLING");
+      Object v = f.get(null);
+      if (v instanceof Enchantment e) return e;
+    } catch (Throwable ignored) {}
+    try {
+      return Enchantment.getByKey(NamespacedKey.minecraft("feather_falling"));
+    } catch (Throwable ignored) {}
+    return Enchantment.getByName("PROTECTION_FALL");
+  }
 
   public static final class UpgradeDef {
     public final String name;
@@ -179,7 +199,9 @@ public final class UpgradeService {
     if (boots == null) return;
     ItemMeta meta = boots.getItemMeta();
     if (meta == null) return;
-    meta.addEnchant(Enchantment.PROTECTION_FALL, level, true);
+    if (FEATHER_FALLING_ENCH != null) {
+      meta.addEnchant(FEATHER_FALLING_ENCH, level, true);
+    }
     boots.setItemMeta(meta);
   }
 
