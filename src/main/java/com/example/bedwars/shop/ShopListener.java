@@ -33,12 +33,14 @@ public final class ShopListener implements Listener {
   private final PlayerContextService ctx;
   private final ItemShopMenu itemMenu;
   private final TeamUpgradesMenu upgradesMenu;
+  private final TrapsCatalogueMenu trapsMenu;
 
   public ShopListener(BedwarsPlugin plugin, PlayerContextService ctx) {
     this.plugin = plugin;
     this.ctx = ctx;
     this.itemMenu = new ItemShopMenu(plugin);
     this.upgradesMenu = new TeamUpgradesMenu(plugin);
+    this.trapsMenu = new TrapsCatalogueMenu(plugin);
   }
 
   @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
@@ -192,16 +194,56 @@ public final class ShopListener implements Listener {
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
-      } else if (slot == TeamUpgradesMenu.SLOT_TRAP) {
-        UpgradeService.TrapDef def = plugin.upgrades().trapDef(TrapType.ALARM);
+      } else if (slot == TeamUpgradesMenu.SLOT_HEAL) {
+        UpgradeService.UpgradeDef def = plugin.upgrades().def(UpgradeType.HEAL_POOL);
         if (def == null) return;
-        if (st.trapQueue().size() >= 3) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
-        int d = def.cost;
+        if (st.healPool()) { p.sendMessage(plugin.messages().get("shop.maxed")); return; }
+        int d = def.costForLevel(1);
         if (plugin.upgrades().tryBuyDiamonds(p, d)) {
-          st.trapQueue().add(TrapType.ALARM);
+          st.setHealPool(true);
+          plugin.upgrades().applyHealPool(uh.arenaId, uh.team, true);
           p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
           upgradesMenu.open(p, uh.arenaId, uh.team);
         }
+      } else if (slot == TeamUpgradesMenu.SLOT_TRAP_SHORTCUT || slot == TeamUpgradesMenu.SLOT_TRAP_OPEN) {
+        trapsMenu.open(p, uh.arenaId, uh.team);
+      } else if (slot == TeamUpgradesMenu.SLOT_TRAP1 || slot == TeamUpgradesMenu.SLOT_TRAP2 || slot == TeamUpgradesMenu.SLOT_TRAP3) {
+        if (e.isRightClick()) {
+          int idx = (slot == TeamUpgradesMenu.SLOT_TRAP1) ? 0 : (slot == TeamUpgradesMenu.SLOT_TRAP2 ? 1 : 2);
+          if (st.trapQueue().size() > idx) {
+            java.util.Iterator<TrapType> it = st.trapQueue().iterator();
+            for (int i=0;i<=idx && it.hasNext();i++) {
+              TrapType t = it.next();
+              if (i==idx) { it.remove(); break; }
+            }
+            upgradesMenu.open(p, uh.arenaId, uh.team);
+          }
+        }
+      } else if (slot == TeamUpgradesMenu.SLOT_CLOSE) {
+        p.closeInventory();
+      }
+    } else if (top.getHolder() instanceof TrapsCatalogueMenu.Holder th) {
+      e.setCancelled(true);
+      if (!(e.getWhoClicked() instanceof Player p)) return;
+      TeamData td = plugin.arenas().get(th.arenaId).map(a->a.team(th.team)).orElse(null);
+      if (td == null) return;
+      TeamUpgradesState st = td.upgrades();
+      int slot = e.getRawSlot();
+      TrapType[] types = TrapType.values();
+      int idx = (slot - 10) / 2;
+      if (idx >=0 && idx < types.length) {
+        TrapType t = types[idx];
+        UpgradeService.TrapDef def = plugin.upgrades().trapDef(t);
+        if (def != null && st.trapQueue().size() < 3) {
+          if (plugin.upgrades().tryBuyDiamonds(p, def.cost)) {
+            st.trapQueue().add(t);
+            p.sendMessage(plugin.messages().format("upgrades.bought", Map.of("name", def.name)));
+            upgradesMenu.open(p, th.arenaId, th.team);
+          }
+        }
+      }
+      if (slot == TrapsCatalogueMenu.SLOT_CLOSE) {
+        upgradesMenu.open((Player) e.getWhoClicked(), th.arenaId, th.team);
       }
     }
   }

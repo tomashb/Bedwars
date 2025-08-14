@@ -37,8 +37,10 @@ public final class UpgradeService {
     public int costForLevel(int level) { return (level >=1 && level <= costs.length) ? costs[level-1] : Integer.MAX_VALUE; }
   }
   public static final class TrapDef {
-    public final int cost; public final String name;
-    public TrapDef(int cost, String name){ this.cost = cost; this.name = name; }
+    public final int cost; public final String name; public final Material icon;
+    public TrapDef(int cost, String name, Material icon){
+      this.cost = cost; this.name = name; this.icon = icon != null ? icon : Material.BARRIER;
+    }
   }
 
   private static int asInt(Object o, int def) {
@@ -94,7 +96,8 @@ public final class UpgradeService {
         try { t = TrapType.valueOf(id.toUpperCase()); } catch (Exception ex) { continue; }
         int cost = asInt(raw.get("cost"), 1);
         String name = String.valueOf(raw.getOrDefault("name", id));
-        traps.put(t, new TrapDef(cost, name));
+        Material icon = Material.matchMaterial(String.valueOf(raw.getOrDefault("icon", "TRIPWIRE_HOOK")));
+        traps.put(t, new TrapDef(cost, name, icon));
       }
     }
   }
