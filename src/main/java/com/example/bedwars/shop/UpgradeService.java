@@ -28,6 +28,8 @@ public final class UpgradeService {
   private final PlayerContextService ctx;
   private final Map<UpgradeType, UpgradeDef> defs = new EnumMap<>(UpgradeType.class);
   private final Map<TrapType, TrapDef> traps = new EnumMap<>(TrapType.class);
+  private int[] trapCosts = {1,2,4};
+  private int trapSlots = 3;
   private final Map<String,Integer> healTasks = new HashMap<>();
   public static final class UpgradeDef {
     public final String name;
@@ -37,9 +39,9 @@ public final class UpgradeService {
     public int costForLevel(int level) { return (level >=1 && level <= costs.length) ? costs[level-1] : Integer.MAX_VALUE; }
   }
   public static final class TrapDef {
-    public final int cost; public final String name; public final Material icon;
-    public TrapDef(int cost, String name, Material icon){
-      this.cost = cost; this.name = name; this.icon = icon != null ? icon : Material.BARRIER;
+    public final String name; public final Material icon;
+    public TrapDef(String name, Material icon){
+      this.name = name; this.icon = icon != null ? icon : Material.BARRIER;
     }
   }
 
@@ -88,16 +90,20 @@ public final class UpgradeService {
     // parse traps
     ConfigurationSection trapsSec = up.getConfigurationSection("TRAPS");
     if (trapsSec != null) {
+      trapSlots = trapsSec.getInt("slots", 3);
+      java.util.List<Integer> q = trapsSec.getIntegerList("queue_costs");
+      if (q != null && !q.isEmpty()) {
+        trapCosts = q.stream().mapToInt(Integer::intValue).toArray();
+      }
       java.util.List<Map<?,?>> cat = trapsSec.getMapList("catalogue");
       for (Map<?,?> rawAny : cat) {
         @SuppressWarnings("unchecked") Map<String,Object> raw = (Map<String,Object>) rawAny;
         String id = String.valueOf(raw.get("id"));
         TrapType t;
         try { t = TrapType.valueOf(id.toUpperCase()); } catch (Exception ex) { continue; }
-        int cost = asInt(raw.get("cost"), 1);
         String name = String.valueOf(raw.getOrDefault("name", id));
         Material icon = Material.matchMaterial(String.valueOf(raw.getOrDefault("icon", "TRIPWIRE_HOOK")));
-        traps.put(t, new TrapDef(cost, name, icon));
+        traps.put(t, new TrapDef(name, icon));
       }
     }
   }
@@ -105,6 +111,11 @@ public final class UpgradeService {
   // Accessors
   public UpgradeDef def(UpgradeType t) { return defs.get(t); }
   public TrapDef trapDef(TrapType t) { return traps.get(t); }
+  public int trapCost(int queueSize) {
+    int idx = Math.min(queueSize, trapCosts.length - 1);
+    return trapCosts[idx];
+  }
+  public int trapSlots() { return trapSlots; }
 
   private boolean matches(Player p, String arenaId, TeamColor team) {
     String ar = ctx.getArena(p);
@@ -115,18 +126,21 @@ public final class UpgradeService {
     for (ItemStack is : p.getInventory().getContents()) {
       if (is == null) continue;
       Material m = is.getType();
-      if (!m.name().endsWith("_SWORD")) continue;
+      if (!m.name().endsWith("_SWORD") && !m.name().endsWith("_AXE")) continue;
       ItemMeta meta = is.getItemMeta();
       if (meta == null) continue;
       meta.addEnchant(Enchantment.SHARPNESS, 1, true);
       is.setItemMeta(meta);
     }
     ItemStack off = p.getInventory().getItemInOffHand();
-    if (off != null && off.getType().name().endsWith("_SWORD")) {
-      ItemMeta meta = off.getItemMeta();
-      if (meta != null) {
-        meta.addEnchant(Enchantment.SHARPNESS, 1, true);
-        off.setItemMeta(meta);
+    if (off != null) {
+      Material m = off.getType();
+      if (m.name().endsWith("_SWORD") || m.name().endsWith("_AXE")) {
+        ItemMeta meta = off.getItemMeta();
+        if (meta != null) {
+          meta.addEnchant(Enchantment.SHARPNESS, 1, true);
+          off.setItemMeta(meta);
+        }
       }
     }
   }

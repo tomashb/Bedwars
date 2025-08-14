@@ -30,7 +30,9 @@ upgrades:
     cost: 1
   TRAPS:
     slots: 3
+    queue_costs: [1, 2, 4]
     catalogue:
-      - { id: ALARM, icon: REDSTONE_TORCH, name: "&fAlarm", cost: 1 }
-      - { id: COUNTER, icon: FEATHER, name: "&fCounter-Offensive", cost: 1 }
-      - { id: MINER_FATIGUE, icon: IRON_PICKAXE, name: "&fMiner Fatigue", cost: 1 }
+      - { id: ALARM,         icon: REDSTONE_TORCH,  name: "&fAlarm" }
+      - { id: MINER_FATIGUE, icon: IRON_PICKAXE,    name: "&fMiner Fatigue" }
+      - { id: BLIND_SLOW,    icon: FERMENTED_SPIDER_EYE, name: "&fIt's a Trap!" }
+      - { id: COUNTER,       icon: FEATHER,         name: "&fCounter-Offensive" }
