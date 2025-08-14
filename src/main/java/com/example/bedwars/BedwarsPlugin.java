@@ -40,6 +40,7 @@ import com.example.bedwars.game.SpectatorService;
 import com.example.bedwars.game.GameMessages;
 import com.example.bedwars.game.GameService;
 import com.example.bedwars.game.DeathRespawnService;
+import com.example.bedwars.game.LightingService;
 import com.example.bedwars.gen.GeneratorManager;
 import com.example.bedwars.shop.NpcManager;
 import com.example.bedwars.services.BuildRulesService;
@@ -65,6 +66,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   private SpectatorService spectatorService;
   private GameMessages gameMessages;
   private GameService gameService;
+  private LightingService lightingService;
   private BuildRulesService buildRules;
   private DeathRespawnService deathService;
   private LobbyItemsService lobbyItems;
@@ -97,6 +99,11 @@ public final class BedwarsPlugin extends JavaPlugin {
     this.gameMessages = new GameMessages(this, contextService);
     this.lobbyItems = new LobbyItemsService(this);
     this.teamSelectMenu = new TeamSelectMenu(this, contextService);
+    this.lightingService = new LightingService(this);
+    for (Arena a : this.arenaManager.all()) {
+      this.lightingService.applyDayClear(a);
+      this.lightingService.relightArena(a);
+    }
     this.gameService = new GameService(this, contextService, teamAssignment, kitService, spectatorService, gameMessages, lobbyItems);
     this.deathService = new DeathRespawnService(this, contextService, kitService, spectatorService, gameMessages, gameService);
     this.gameService.setDeathService(deathService);
@@ -196,6 +203,7 @@ public final class BedwarsPlugin extends JavaPlugin {
   public GeneratorManager generators() { return generatorManager; }
   public NpcManager npcs() { return npcManager; }
   public GameService game() { return gameService; }
+  public LightingService lighting() { return lightingService; }
   public BuildRulesService buildRules() { return buildRules; }
   public com.example.bedwars.hud.ScoreboardManager scoreboard() { return scoreboardManager; }
   public com.example.bedwars.hud.ActionBarBus actionBar() { return actionBarBus; }
