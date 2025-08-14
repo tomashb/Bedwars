@@ -31,6 +31,6 @@ upgrades:
   TRAPS:
     slots: 3
     catalogue:
-      - { id: ALARM, name: "&fAlarm", cost: 1 }
-      - { id: COUNTER, name: "&fCounter-Offensive", cost: 1 }
-      - { id: MINER_FATIGUE, name: "&fMiner Fatigue", cost: 1 }
+      - { id: ALARM, icon: REDSTONE_TORCH, name: "&fAlarm", cost: 1 }
+      - { id: COUNTER, icon: FEATHER, name: "&fCounter-Offensive", cost: 1 }
+      - { id: MINER_FATIGUE, icon: IRON_PICKAXE, name: "&fMiner Fatigue", cost: 1 }

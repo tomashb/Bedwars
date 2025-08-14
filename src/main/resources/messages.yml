@@ -24,6 +24,8 @@ menu:
   team_mode_title: "&eMode d'équipes"
   running_locked: "&cAction impossible pendant une partie."
   team_selector_title: "&bChoisis ton équipe"
+  upgrades_title: "&bUpgrades & Traps"
+  traps_title: "&bPièges"
   team_disabled: "&8[hors service]"
   team_joined: "&aTu as rejoint &f{team}"
 
