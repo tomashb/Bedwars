@@ -231,7 +231,7 @@ public final class ToolsService {
       return false;
     }
     PickSpec s = specs.get(nxt);
-    if (requireSequential && s.requires() != cur) {
+    if (pickRequireSequential && s.requires() != cur) {
       p.sendMessage(plugin.messages().get("errors.pickaxe.seq"));
       return false;
     }
@@ -258,7 +258,7 @@ public final class ToolsService {
     if (m != null) {
       // ignore level restriction so custom efficiency can exceed vanilla limits
       m.addEnchant(EFFICIENCY_ENCH, s.eff(), true);
-      if (unbreakable) m.setUnbreakable(true);
+      if (pickUnbreakable) m.setUnbreakable(true);
       it.setItemMeta(m);
     }
     Inventory inv = p.getInventory();
