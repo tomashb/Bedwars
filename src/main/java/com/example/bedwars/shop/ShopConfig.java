@@ -14,6 +14,7 @@ import org.bukkit.enchantments.Enchantment;
 public final class ShopConfig {
   private final BedwarsPlugin plugin;
   private final Map<ShopCategory, List<ShopItem>> items = new EnumMap<>(ShopCategory.class);
+  private final Map<String, ShopItem> byId = new HashMap<>();
 
   @SuppressWarnings("unchecked")
   private static Map<String,Object> asMap(Object o) {
@@ -45,6 +46,7 @@ public final class ShopConfig {
 
   public void load() {
     items.clear();
+    byId.clear();
     File f = new File(plugin.getDataFolder(), "shop.yml");
     if (!f.exists()) plugin.saveResource("shop.yml", false);
     YamlConfiguration y = YamlConfiguration.loadConfiguration(f);
@@ -108,7 +110,23 @@ public final class ShopConfig {
             }
           }
         }
-        list.add(b.build());
+        if (meta != null) {
+          String typeName = asString(meta.get("type"), "");
+          if (!typeName.isEmpty()) {
+            try {
+              org.bukkit.potion.PotionType pt = org.bukkit.potion.PotionType.valueOf(typeName.toUpperCase(java.util.Locale.ROOT));
+              int amp = asInt(meta.get("amplifier"), 1);
+              int secs = asInt(meta.get("seconds"), 30);
+              boolean hide = asBool(meta.get("hide_particles"), false);
+              b.mat(Material.POTION);
+              b.bwItem(id);
+              b.potion(new PotionSpec(pt, amp, secs, hide));
+            } catch (Exception ignore) {}
+          }
+        }
+        ShopItem built = b.build();
+        list.add(built);
+        byId.put(id, built);
       }
       items.put(cat, list);
     }
@@ -120,6 +138,10 @@ public final class ShopConfig {
 
   public List<ShopItem> items(ShopCategory cat) {
     return items.getOrDefault(cat, List.of());
+  }
+
+  public ShopItem byId(String id) {
+    return byId.get(id);
   }
 }
 
