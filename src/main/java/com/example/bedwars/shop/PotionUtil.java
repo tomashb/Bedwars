@@ -1,6 +1,5 @@
 package com.example.bedwars.shop;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -22,7 +21,7 @@ public final class PotionUtil {
     ItemStack it = new ItemStack(Material.POTION);
     PotionMeta pm = (PotionMeta) it.getItemMeta();
     if (pm != null) {
-      pm.displayName(Component.text(ChatColor.translateAlternateColorCodes('&', display)));
+      pm.setDisplayName(ChatColor.translateAlternateColorCodes('&', display));
       try {
         pm.addItemFlags(ItemFlag.valueOf("HIDE_POTION_EFFECTS"));
       } catch (IllegalArgumentException ignored) {

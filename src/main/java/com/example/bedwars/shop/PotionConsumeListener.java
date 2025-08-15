@@ -30,7 +30,7 @@ public final class PotionConsumeListener implements Listener {
     Player p = e.getPlayer();
     switch (id) {
       case "SPEED2_45" -> p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 45*20, 1, true, false, false));
-      case "JUMP5_45" -> p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 45*20, 4, true, false, false));
+      case "JUMP5_45" -> p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 45*20, 4, true, false, false));
       case "INVIS_30" -> p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 30*20, 0, true, false, false));
       default -> {}
     }
