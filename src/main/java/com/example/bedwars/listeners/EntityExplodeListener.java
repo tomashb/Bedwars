@@ -3,10 +3,9 @@ package com.example.bedwars.listeners;
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.services.BuildRulesService;
 import org.bukkit.Tag;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.SmallFireball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 /** Filters explosion damage to only affect player-placed blocks. */
@@ -21,19 +20,21 @@ public final class EntityExplodeListener implements Listener {
 
   @EventHandler(ignoreCancelled = true)
   public void onExplode(EntityExplodeEvent e) {
-    boolean isFireball = e.getEntity() instanceof Fireball || e.getEntity() instanceof SmallFireball;
-    boolean restrict = isFireball
-        ? plugin.getConfig().getBoolean("fireball.break_only_player_blocks", true)
-        : plugin.getConfig().getBoolean("rules.break-only-placed", true);
-    if (!restrict) return;
-    e.blockList().removeIf(b -> {
-      if (Tag.BEDS.isTagged(b.getType())) return true;
-      String arenaId = buildRules.arenaAt(b.getLocation());
-      if (arenaId == null) return true;
-      var arenaOpt = plugin.arenas().get(arenaId);
-      if (arenaOpt.isEmpty()) return true;
-      buildRules.removePlaced(arenaOpt.get(), b.getLocation());
-      return false;
-    });
+    e.blockList().removeIf(b -> filter(b.getLocation(), b.getType()));
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  public void onBlockExplode(BlockExplodeEvent e) {
+    e.blockList().removeIf(b -> filter(b.getLocation(), b.getType()));
+  }
+
+  private boolean filter(org.bukkit.Location loc, org.bukkit.Material type) {
+    if (Tag.BEDS.isTagged(type)) return true;
+    String arenaId = buildRules.arenaAt(loc);
+    if (arenaId == null) return true;
+    var arenaOpt = plugin.arenas().get(arenaId);
+    if (arenaOpt.isEmpty()) return true;
+    buildRules.removePlaced(arenaOpt.get(), loc);
+    return false;
   }
 }

@@ -132,9 +132,12 @@ public final class ArenaManager implements ArenaApi {
         }
         if (sec.isConfigurationSection("bed")) {
           ConfigurationSection b = sec.getConfigurationSection("bed");
-          Location bed = new Location(Bukkit.getWorld(a.world().name()),
-              b.getDouble("x"), b.getDouble("y"), b.getDouble("z"));
-          td.setBedBlock(bed);
+          if (b.isConfigurationSection("head") && b.isConfigurationSection("foot")) {
+            Location head = YamlLocation.fromMap(a.world(), b.getConfigurationSection("head"));
+            Location foot = YamlLocation.fromMap(a.world(), b.getConfigurationSection("foot"));
+            a.beds().set(tc, head, foot);
+            td.setBedBlock(foot);
+          }
         }
       }
     }
@@ -202,12 +205,11 @@ public final class ArenaManager implements ArenaApi {
       if (td.spawn() != null) {
         t.createSection("spawn", YamlLocation.toMap(td.spawn()));
       }
-      if (td.bedBlock() != null) {
-        Map<String, Object> bed = new LinkedHashMap<>();
-        bed.put("x", td.bedBlock().getX());
-        bed.put("y", td.bedBlock().getY());
-        bed.put("z", td.bedBlock().getZ());
-        t.createSection("bed", bed);
+      BedData bd = a.beds().get(entry.getKey());
+      if (bd != null) {
+        ConfigurationSection bed = t.createSection("bed");
+        bed.createSection("head", YamlLocation.toMap(bd.head()));
+        bed.createSection("foot", YamlLocation.toMap(bd.foot()));
       }
     }
 
@@ -273,7 +275,22 @@ public final class ArenaManager implements ArenaApi {
   @Override
   public void setTeamBed(String id, TeamColor team, Location bedBlock) {
     Arena a = arenas.get(id);
-    if (a != null) a.team(team).setBedBlock(bedBlock);
+    if (a != null && bedBlock != null) {
+      org.bukkit.block.Block block = bedBlock.getBlock();
+      org.bukkit.block.data.BlockData data = block.getBlockData();
+      if (data instanceof org.bukkit.block.data.type.Bed bed) {
+        org.bukkit.block.Block head =
+            (bed.getPart() == org.bukkit.block.data.type.Bed.Part.HEAD)
+                ? block
+                : block.getRelative(bed.getFacing());
+        org.bukkit.block.Block foot =
+            (bed.getPart() == org.bukkit.block.data.type.Bed.Part.FOOT)
+                ? block
+                : block.getRelative(bed.getFacing().getOppositeFace());
+        a.beds().set(team, head.getLocation(), foot.getLocation());
+        a.team(team).setBedBlock(foot.getLocation());
+      }
+    }
   }
 
   @Override

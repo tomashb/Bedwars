@@ -18,6 +18,10 @@ errors:
   axe:
     seq: "&cTu dois acheter le niveau précédent d'abord."
 
+rules:
+  map_protected: "&cCarte protégée."
+  bed_ally_protected: "&cVous ne pouvez pas casser votre lit."
+
 countdown:
   chat: "&eLa partie démarre dans &6{sec}s"
 

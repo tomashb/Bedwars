@@ -13,8 +13,7 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Bed;
+import com.example.bedwars.game.GameService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -86,69 +85,52 @@ public final class BuildRulesListener implements Listener {
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBreak(BlockBreakEvent e) {
     Player p = e.getPlayer();
     String arenaId = ctx.getArena(p);
-    if (arenaId == null) return;
-    Arena a = plugin.arenas().get(arenaId).orElse(null);
-    if (a == null || !allowedStates.contains(a.state())) {
+    if (arenaId == null || ctx.isSpectating(p)) {
       e.setCancelled(true);
-      plugin.messages().send(p, "errors.not_running");
       return;
     }
-    Block b = e.getBlock();
-    BlockData data = b.getBlockData();
-    if (data instanceof Bed bed) {
-      Block foot = (bed.getPart() == Bed.Part.FOOT) ? b : b.getRelative(bed.getFacing().getOppositeFace());
-      TeamColor bedTeam = null;
-      for (TeamColor tc : a.enabledTeams()) {
-        var loc = a.team(tc).bedBlock();
-        if (loc != null) {
-          Block stored = loc.getBlock();
-          BlockData bd = stored.getBlockData();
-          if (bd instanceof Bed sb) {
-            Block storedFoot = (sb.getPart() == Bed.Part.FOOT)
-                ? stored
-                : stored.getRelative(sb.getFacing().getOppositeFace());
-            if (storedFoot.equals(foot)) { bedTeam = tc; break; }
-          }
-        }
-      }
-      if (bedTeam == null) {
-        e.setCancelled(true);
-        plugin.messages().send(p, "errors.map_protected");
-        return;
-      }
-      TeamColor playerTeam = ctx.getTeam(p);
-      if (bedTeam == playerTeam) {
-        e.setCancelled(true);
-        plugin.messages().send(p, "errors.own_bed");
-        return;
-      }
-      if (a.team(bedTeam).bedBlock() == null) {
-        e.setCancelled(true);
-        plugin.messages().send(p, "errors.bed_already_broken");
-        return;
-      }
+    Arena a = plugin.arenas().get(arenaId).orElse(null);
+    if (a == null || a.state() != GameState.RUNNING) {
       e.setCancelled(true);
-      e.setDropItems(false);
-      Block head = foot.getRelative(((Bed) foot.getBlockData()).getFacing());
-      foot.setType(Material.AIR, false);
-      head.setType(Material.AIR, false);
-      plugin.game().handleBedBreak(p, a, bedTeam);
+      plugin.messages().send(p, "rules.map_protected");
       return;
     }
 
-    boolean track = plugin.getConfig().getBoolean("build.track_placed_blocks", true);
-    if (plugin.getConfig().getBoolean("rules.break-only-placed", true)
-        && track
-        && !buildRules.wasPlaced(a, b.getLocation())) {
+    Block b = e.getBlock();
+    Material type = b.getType();
+    if (type.name().endsWith("_BED")) {
+      TeamColor owner = a.beds().ownerOf(b.getLocation());
+      if (owner == null) {
+        e.setCancelled(true);
+        plugin.messages().send(p, "rules.map_protected");
+        return;
+      }
+      TeamColor mine = ctx.getTeam(p);
+      if (owner == mine) {
+        e.setCancelled(true);
+        plugin.messages().send(p, "rules.bed_ally_protected");
+        return;
+      }
+      if (a.beds().isBroken(owner)) {
+        e.setCancelled(true);
+        return;
+      }
       e.setCancelled(true);
-      plugin.messages().send(p, "errors.map_protected");
-    } else if (track) {
-      buildRules.removePlaced(a, b.getLocation());
+      plugin.game().destroyBed(a, owner, GameService.BedBreakCause.PLAYER, p);
+      return;
     }
+
+    if (buildRules.wasPlaced(a, b.getLocation())) {
+      buildRules.removePlaced(a, b.getLocation());
+      return;
+    }
+
+    e.setCancelled(true);
+    plugin.messages().send(p, "rules.map_protected");
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

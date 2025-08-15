@@ -2,6 +2,7 @@ package com.example.bedwars.game;
 
 import com.example.bedwars.BedwarsPlugin;
 import com.example.bedwars.arena.Arena;
+import com.example.bedwars.arena.BedData;
 import com.example.bedwars.arena.GameState;
 import com.example.bedwars.arena.TeamColor;
 import com.example.bedwars.arena.TeamData;
@@ -52,6 +53,9 @@ public final class GameService {
   }
 
   public void setDeathService(DeathRespawnService drs) { this.deathService = drs; }
+
+  /** Cause for a bed being destroyed. */
+  public static enum BedBreakCause { PLAYER, TNT, FIREBALL }
 
   /** Handles a player falling into the void when no damage event was fired. */
   public void failSafeVoid(Player p) {
@@ -306,5 +310,15 @@ public final class GameService {
       }
     }
     if (deathService != null) deathService.handleBedDestroyed(a, broken);
+  }
+
+  /** Removes the bed blocks and marks the team as bedless. */
+  public void destroyBed(Arena a, TeamColor owner, BedBreakCause cause, Player breaker) {
+    BedData bd = a.beds().get(owner);
+    if (bd == null) return;
+    bd.head().getBlock().setType(org.bukkit.Material.AIR, false);
+    bd.foot().getBlock().setType(org.bukkit.Material.AIR, false);
+    a.beds().remove(owner);
+    handleBedBreak(breaker, a, owner);
   }
 }
