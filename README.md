@@ -36,6 +36,14 @@ propre. Le processus est étalé sur plusieurs ticks afin d'éviter les lags :
 ajustez `cleanup.blocks_per_tick` dans `config.yml` (400 par défaut) selon vos
 performances.
 
+## Protection de la carte
+Pendant une partie, la carte d'origine est totalement protégée.
+Seuls deux cas autorisent la casse de blocs :
+- les blocs placés par les joueurs ;
+- le lit d'une équipe adverse lorsque l'arène est en cours (`RUNNING`).
+Les explosions de TNT ou de boules de feu suivent la même règle et n'endommagent
+ni la carte ni les lits.
+
 ## Captures
 Captures d'écran à insérer ici.
 

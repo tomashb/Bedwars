@@ -19,6 +19,7 @@ public final class Arena {
   private int maxTeamSize = mode.teamSize;
   private final EnumSet<TeamColor> activeTeams = EnumSet.noneOf(TeamColor.class);
   private final EnumMap<TeamColor, TeamData> teams = new EnumMap<>(TeamColor.class);
+  private final BedsService beds = new BedsService();
   private final List<Generator> generators = new ArrayList<>();
   private final List<NpcData> npcs = new ArrayList<>();
 
@@ -40,6 +41,7 @@ public final class Arena {
   public Map<TeamColor, TeamData> teams() { return Collections.unmodifiableMap(teams); }
   public List<Generator> generators() { return Collections.unmodifiableList(generators); }
   public List<NpcData> npcs() { return Collections.unmodifiableList(npcs); }
+  public BedsService beds() { return beds; }
 
   public Arena setWorld(WorldRef world) { this.world = Objects.requireNonNull(world); return this; }
   public Arena setState(GameState s) { this.state = Objects.requireNonNull(s); return this; }
