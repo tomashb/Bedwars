@@ -1,39 +1,34 @@
 package com.example.bedwars.shop;
 
+import net.kyori.adventure.text.Component;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 
-/** Factory for drinkable potion items. */
+/** Utility for creating tagged, drinkable potions. */
 public final class PotionUtil {
   private PotionUtil() {}
 
   /**
-   * Tries to apply the {@code HIDE_POTION_EFFECTS} flag if the running server
-   * supports it. Some API builds omit the constant which would otherwise throw
-   * an {@link IllegalArgumentException} during compilation.
+   * Creates a basic {@link Material#POTION} tagged with a persistent id used
+   * by {@link com.example.bedwars.shop.PotionConsumeListener}.
    */
-  public static void tryHidePotionEffects(ItemMeta meta) {
-    if (meta == null) return;
-    try {
-      ItemFlag flag = ItemFlag.valueOf("HIDE_POTION_EFFECTS");
-      meta.addItemFlags(flag);
-    } catch (IllegalArgumentException ignored) {
-      // Flag not present on this distribution; ignore silently.
-    }
-  }
-
-  public static ItemStack mkPotion(PotionSpec spec) {
+  public static ItemStack makeTaggedPotion(JavaPlugin plugin, String id, String display) {
     ItemStack it = new ItemStack(Material.POTION);
     PotionMeta pm = (PotionMeta) it.getItemMeta();
-    if (pm != null && spec != null) {
-      // TODO: replace deprecated PotionData usage with PDC-based handling on
-      // consumption via PlayerItemConsumeEvent.
-      pm.setBasePotionData(new PotionData(spec.type(), false, spec.amplifier() > 1));
-      tryHidePotionEffects(pm);
+    if (pm != null) {
+      pm.displayName(Component.text(ChatColor.translateAlternateColorCodes('&', display)));
+      try {
+        pm.addItemFlags(ItemFlag.valueOf("HIDE_POTION_EFFECTS"));
+      } catch (IllegalArgumentException ignored) {
+        // Flag not supported on this server implementation.
+      }
+      pm.getPersistentDataContainer().set(new NamespacedKey(plugin, "bw_potion"), PersistentDataType.STRING, id);
       it.setItemMeta(pm);
     }
     return it;
