@@ -118,7 +118,12 @@ public final class ShopListener implements Listener {
       ShopItem si = list.get(index);
       if (PurchaseService.tryBuy(p, si.currency, si.cost)) {
         Material mat = si.teamColored ? ih.team.wool : si.mat;
-        ItemStack it = si.potion != null ? PotionUtil.mkPotion(si.potion) : new ItemStack(mat, si.amount);
+        ItemStack it;
+        if (si.mat == Material.POTION) {
+          it = PotionUtil.makeTaggedPotion(plugin, si.id, si.name);
+        } else {
+          it = new ItemStack(mat, si.amount);
+        }
         it.setAmount(si.amount);
         si.enchants.forEach((en,l)-> it.addEnchantment(en,l));
         if (si.bwItem != null && !si.bwItem.isBlank()) {
@@ -126,7 +131,7 @@ public final class ShopListener implements Listener {
           meta.getPersistentDataContainer().set(plugin.keys().BW_ITEM(), PersistentDataType.STRING, si.bwItem);
           it.setItemMeta(meta);
         }
-        if (si.potion != null) {
+        if (si.mat == Material.POTION) {
           p.getInventory().addItem(it);
         } else if (mat.name().endsWith("_SWORD")) {
           for (int i = 0; i < p.getInventory().getSize(); i++) {

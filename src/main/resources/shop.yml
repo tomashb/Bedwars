@@ -118,17 +118,14 @@ POTIONS:
     icon: POTION
     name: "&bPotion de Vitesse II (45s)"
     price: { EMERALD: 1 }
-    meta: { type: SWIFTNESS, amplifier: 2, seconds: 45 }
   - id: JUMP5_45
     icon: POTION
     name: "&bPotion de Saut V (45s)"
     price: { EMERALD: 1 }
-    meta: { type: JUMP, amplifier: 5, seconds: 45 }
   - id: INVIS_30
     icon: POTION
     name: "&bPotion d'Invisibilité (30s)"
     price: { EMERALD: 2 }
-    meta: { type: INVISIBILITY, amplifier: 1, seconds: 30, hide_particles: true }
 
 UTILITY:
   - id: GOLDEN_APPLE

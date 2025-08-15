@@ -59,8 +59,8 @@ public final class ItemShopMenu {
     }
     for (ShopItem si : plugin.shopConfig().items(cat)) {
       ItemStack it;
-      if (si.potion != null) {
-        it = PotionUtil.mkPotion(si.potion);
+      if (si.mat == Material.POTION) {
+        it = PotionUtil.makeTaggedPotion(plugin, si.id, si.name);
       } else {
         Material mat = si.teamColored ? team.wool : si.mat;
         it = new ItemStack(mat, si.amount);

@@ -60,7 +60,7 @@ public final class ShopConfig {
         Map<String,Object> raw = (Map<String,Object>) rawAny;
 
         String id   = asString(raw.get("id"), "");
-        String name = asString(raw.get("name"), id);
+        String name = asString(raw.get("name") != null ? raw.get("name") : raw.get("display"), id);
         String icon = asString(raw.get("icon"), "STONE");
         Material mat = Material.matchMaterial(icon);
         boolean teamCol = false;
@@ -110,19 +110,8 @@ public final class ShopConfig {
             }
           }
         }
-        if (meta != null) {
-          String typeName = asString(meta.get("type"), "");
-          if (!typeName.isEmpty()) {
-            try {
-              org.bukkit.potion.PotionType pt = org.bukkit.potion.PotionType.valueOf(typeName.toUpperCase(java.util.Locale.ROOT));
-              int amp = asInt(meta.get("amplifier"), 1);
-              int secs = asInt(meta.get("seconds"), 30);
-              boolean hide = asBool(meta.get("hide_particles"), false);
-              b.mat(Material.POTION);
-              b.bwItem(id);
-              b.potion(new PotionSpec(pt, amp, secs, hide));
-            } catch (Exception ignore) {}
-          }
+        if (mat == Material.POTION) {
+          b.bwItem(id);
         }
         ShopItem built = b.build();
         list.add(built);

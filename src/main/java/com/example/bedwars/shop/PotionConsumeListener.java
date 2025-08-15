@@ -1,7 +1,8 @@
 package com.example.bedwars.shop;
 
-import com.example.bedwars.BedwarsPlugin;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -10,26 +11,28 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.plugin.java.JavaPlugin;
 
-/** Applies custom potion effects for shop potions. */
+/** Applies effects for drinkable shop potions tagged via PDC. */
 public final class PotionConsumeListener implements Listener {
-  private final BedwarsPlugin plugin;
-  public PotionConsumeListener(BedwarsPlugin plugin) { this.plugin = plugin; }
+  private final JavaPlugin plugin;
+  public PotionConsumeListener(JavaPlugin plugin) { this.plugin = plugin; }
 
-  @EventHandler
+  @EventHandler(ignoreCancelled = true)
   public void onConsume(PlayerItemConsumeEvent e) {
-    ItemStack it = e.getItem();
-    if (it.getType() != Material.POTION) return;
-    ItemMeta im = it.getItemMeta();
-    if (im == null) return;
-    String id = im.getPersistentDataContainer().get(plugin.keys().BW_ITEM(), PersistentDataType.STRING);
+    ItemStack item = e.getItem();
+    if (item.getType() != Material.POTION) return;
+    ItemMeta meta = item.getItemMeta();
+    if (meta == null) return;
+    String id = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, "bw_potion"), PersistentDataType.STRING);
     if (id == null) return;
-    ShopItem def = plugin.shopConfig().byId(id);
-    if (def == null || def.potion == null) return;
-    PotionSpec ps = def.potion;
-    PotionEffectType pet = ps.type().getEffectType();
-    if (pet != null) {
-      e.getPlayer().addPotionEffect(new PotionEffect(pet, ps.seconds()*20, ps.amplifier()-1, true, !ps.hideParticles()));
+
+    Player p = e.getPlayer();
+    switch (id) {
+      case "SPEED2_45" -> p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 45*20, 1, true, false, false));
+      case "JUMP5_45" -> p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 45*20, 4, true, false, false));
+      case "INVIS_30" -> p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 30*20, 0, true, false, false));
+      default -> {}
     }
   }
 }
