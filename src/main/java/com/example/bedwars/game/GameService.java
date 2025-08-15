@@ -128,10 +128,14 @@ public final class GameService {
       messages.send(p, "errors.team_full", Map.of("count", current, "max", capacity));
       return;
     }
+    if (a.lobby() == null || a.lobby().getWorld() == null) {
+      messages.send(p, "lobby.missing", Map.of());
+      return;
+    }
     snapshots.capture(p);
     contexts.join(p, arenaId);
     p.getInventory().clear();
-    if (a.lobby() != null) p.teleport(a.lobby());
+    p.teleport(a.lobby());
     lobbyItems.giveLobbyItems(p);
     plugin.lighting().sanitizePlayer(p);
     plugin.scoreboard().attach(p);
@@ -140,6 +144,11 @@ public final class GameService {
 
     int count = contexts.countPlayers(arenaId);
     int min = plugin.getConfig().getInt("game.min-players", 2);
+    boolean worldLoaded = Bukkit.getWorld(a.world().name()) != null;
+    plugin.getLogger().info(String.format(
+        "JOIN dbg ➜ arena=%s, state=%s, world=%s, players=%d/%d, min=%d, cd=%s",
+        a.id(), a.state(), worldLoaded, count, capacity, min,
+        countdownTasks.containsKey(a.id())));
     if (a.state() == GameState.WAITING && count >= min) start(arenaId);
   }
 
@@ -177,8 +186,29 @@ public final class GameService {
       int sec = plugin.getConfig().getInt("game.countdown", 20);
       { countdownRemaining.put(arenaId, sec); }
       @Override public void run() {
-        if (a.state() != GameState.STARTING) { countdownRemaining.remove(arenaId); cancel(); return; }
-        if (sec <= 0) { countdownRemaining.remove(arenaId); cancel(); beginRunning(a); return; }
+        int minPlayers = plugin.getConfig().getInt("game.min-players", 2);
+        int current = contexts.countPlayers(arenaId);
+        if (current < minPlayers) {
+          messages.broadcast(a, "game.not-enough", Map.of("count", current, "min", minPlayers));
+          a.setState(GameState.WAITING);
+          countdownRemaining.remove(arenaId);
+          countdownTasks.remove(arenaId);
+          cancel();
+          return;
+        }
+        if (a.state() != GameState.STARTING) {
+          countdownRemaining.remove(arenaId);
+          countdownTasks.remove(arenaId);
+          cancel();
+          return;
+        }
+        if (sec <= 0) {
+          countdownRemaining.remove(arenaId);
+          countdownTasks.remove(arenaId);
+          cancel();
+          beginRunning(a);
+          return;
+        }
         countdownAnnouncer.tick(a, sec);
         sec--;
         countdownRemaining.put(arenaId, sec);

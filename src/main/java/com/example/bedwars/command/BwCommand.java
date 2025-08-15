@@ -23,6 +23,18 @@ public final class BwCommand implements CommandExecutor {
 
   @Override
   public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    try {
+      return handleCommand(sender, cmd, label, args);
+    } catch (Throwable t) {
+      plugin.getLogger().log(java.util.logging.Level.SEVERE,
+          "Command error: /" + label + " " + String.join(" ", args), t);
+      sender.sendMessage(plugin.messages().get("prefix") +
+          plugin.messages().get("errors.internal"));
+      return true;
+    }
+  }
+
+  private boolean handleCommand(CommandSender sender, Command cmd, String label, String[] args) {
     if (!(sender instanceof Player player)) {
       sender.sendMessage("Player only.");
       return true;

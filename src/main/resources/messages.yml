@@ -13,6 +13,7 @@ errors:
   no_build_generator: "&cImpossible de construire sur un générateur."
   cannot_remove_armor: "&cTu ne peux pas enlever ton armure."
   cannot_drop_sword: "&cTu ne peux pas jeter ton épée."
+  internal: "&cUne erreur interne est survenue. Merci de réessayer."
   pickaxe:
     seq: "&cTu dois acheter le niveau précédent d'abord."
   axe:
